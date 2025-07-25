@@ -17,7 +17,7 @@ const getUserDataPath = (): string => {
 
 export const AppDataSource = new DataSource({
   type: 'better-sqlite3',
-  database: path.join(getUserDataPath(), 'budget-management.db'),
+  database: path.join(getUserDataPath(), 'SQLiteDB'),
   entities: [User, Budget, Quota, Interest],
   synchronize: true, // Auto-create tables in development
   logging: process.env.NODE_ENV === 'development',

@@ -1,0 +1,224 @@
+<!doctype html>
+<html>
+  <head>
+    <title>IPC Controller Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ccc;
+      }
+      button {
+        margin: 5px;
+        padding: 8px 15px;
+      }
+      textarea {
+        width: 100%;
+        height: 100px;
+        margin: 10px 0;
+      }
+      .result {
+        background: #f5f5f5;
+        padding: 10px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>IPC Controller Test Page</h1>
+
+    <!-- User Controller Tests -->
+    <div class="section">
+      <h2>User Controller Tests</h2>
+      <button onclick="testCreateUser()">Create User</button>
+      <button onclick="testGetAllUsers()">Get All Users</button>
+      <button onclick="testSearchUserByEmail()">Search by Email</button>
+      <button onclick="testSearchUserByNombre()">Search by Name</button>
+
+      <h3>Create User Data:</h3>
+      <textarea
+        id="userData"
+        placeholder='{"nombre": "Test User", "email": "test@example.com", "phoneNumber": "123456789"}'
+      ></textarea>
+
+      <h3>Search Email:</h3>
+      <input type="text" id="searchEmail" placeholder="test@example.com" />
+
+      <h3>Search Name:</h3>
+      <input type="text" id="searchName" placeholder="Test" />
+    </div>
+
+    <!-- Interest Controller Tests -->
+    <div class="section">
+      <h2>Interest Controller Tests</h2>
+      <button onclick="testCreateDefaults()">Create Default Interests</button>
+      <button onclick="testGetAllInterests()">Get All Interests</button>
+      <button onclick="testCreateInterest()">Create Interest</button>
+      <button onclick="testGetAvailableTerms()">Get Available Terms</button>
+
+      <h3>Create Interest Data:</h3>
+      <textarea id="interestData" placeholder='{"paymentTerm": 18, "interest": 20}'></textarea>
+    </div>
+
+    <!-- Budget Controller Tests -->
+    <div class="section">
+      <h2>Budget Controller Tests</h2>
+      <button onclick="testCreateBudget()">Create Budget</button>
+      <button onclick="testGetAllBudgets()">Get All Budgets</button>
+      <button onclick="testSearchBudgetByCode()">Search by Code</button>
+      <button onclick="testGenerateNextCode()">Generate Next Code</button>
+
+      <h3>Create Budget Data (need valid userId):</h3>
+      <textarea
+        id="budgetData"
+        placeholder='{"_expirationDate": "2025-12-31", "baseAmount": 1000, "paymentTerm": 12, "userId": "USER_ID_HERE"}'
+      ></textarea>
+
+      <h3>Search Code:</h3>
+      <input type="text" id="searchCode" placeholder="BUD-001" />
+    </div>
+
+    <!-- Results -->
+    <div class="section">
+      <h2>Results</h2>
+      <div id="results" class="result">Results will appear here...</div>
+    </div>
+
+    <script>
+      const { ipcRenderer } = require('electron')
+
+      function displayResult(result) {
+        document.getElementById('results').innerHTML =
+          '<pre>' + JSON.stringify(result, null, 2) + '</pre>'
+      }
+
+      // User Controller Tests
+      async function testCreateUser() {
+        try {
+          const userData = JSON.parse(
+            document.getElementById('userData').value ||
+              '{"nombre": "Test User", "email": "test@example.com", "phoneNumber": "123456789"}'
+          )
+          const result = await ipcRenderer.invoke('user:create', userData)
+          displayResult(result)
+        } catch (error) {
+          displayResult({ error: error.message })
+        }
+      }
+
+      async function testGetAllUsers() {
+        try {
+          const result = await ipcRenderer.invoke('user:getAll')
+          displayResult(result)
+        } catch (error) {
+          displayResult({ error: error.message })
+        }
+      }
+
+      async function testSearchUserByEmail() {
+        try {
+          const email = document.getElementById('searchEmail').value || 'test@example.com'
+          const result = await ipcRenderer.invoke('user:searchByEmail', email)
+          displayResult(result)
+        } catch (error) {
+          displayResult({ error: error.message })
+        }
+      }
+
+      async function testSearchUserByNombre() {
+        try {
+          const nombre = document.getElementById('searchName').value || 'Test'
+          const result = await ipcRenderer.invoke('user:searchByNombre', nombre)
+          displayResult(result)
+        } catch (error) {
+          displayResult({ error: error.message })
+        }
+      }
+
+      // Interest Controller Tests
+      async function testCreateDefaults() {
+        try {
+          const result = await ipcRenderer.invoke('interest:createDefaults')
+          displayResult(result)
+        } catch (error) {
+          displayResult({ error: error.message })
+        }
+      }
+
+      async function testGetAllInterests() {
+        try {
+          const result = await ipcRenderer.invoke('interest:getAll')
+          displayResult(result)
+        } catch (error) {
+          displayResult({ error: error.message })
+        }
+      }
+
+      async function testCreateInterest() {
+        try {
+          const interestData = JSON.parse(
+            document.getElementById('interestData').value || '{"paymentTerm": 18, "interest": 20}'
+          )
+          const result = await ipcRenderer.invoke('interest:create', interestData)
+          displayResult(result)
+        } catch (error) {
+          displayResult({ error: error.message })
+        }
+      }
+
+      async function testGetAvailableTerms() {
+        try {
+          const result = await ipcRenderer.invoke('interest:getAvailablePaymentTerms')
+          displayResult(result)
+        } catch (error) {
+          displayResult({ error: error.message })
+        }
+      }
+
+      // Budget Controller Tests
+      async function testCreateBudget() {
+        try {
+          const budgetData = JSON.parse(document.getElementById('budgetData').value)
+          // Convert date string to Date object
+          budgetData._expirationDate = new Date(budgetData._expirationDate)
+          const result = await ipcRenderer.invoke('budget:create', budgetData)
+          displayResult(result)
+        } catch (error) {
+          displayResult({ error: error.message })
+        }
+      }
+
+      async function testGetAllBudgets() {
+        try {
+          const result = await ipcRenderer.invoke('budget:getAll')
+          displayResult(result)
+        } catch (error) {
+          displayResult({ error: error.message })
+        }
+      }
+
+      async function testSearchBudgetByCode() {
+        try {
+          const code = document.getElementById('searchCode').value || 'BUD-001'
+          const result = await ipcRenderer.invoke('budget:searchByCode', code)
+          displayResult(result)
+        } catch (error) {
+          displayResult({ error: error.message })
+        }
+      }
+
+      async function testGenerateNextCode() {
+        try {
+          const result = await ipcRenderer.invoke('budget:generateNextCode')
+          displayResult(result)
+        } catch (error) {
+          displayResult({ error: error.message })
+        }
+      }
+    </script>
+  </body>
+</html>
