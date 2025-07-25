@@ -24,8 +24,10 @@ const testUser = async () => {
     const userData = {
       nombre: 'Usuario de Prueba',
       email: 'prueba@ejemplo.com',
+      password: 'Killinginthename777',
       phoneNumber: '123456789'
     }
+    console.log(userData)
     const result = await window.electron.ipcRenderer.invoke('user:create', userData)
     console.log('Resultado de creación de usuario:', result)
     return result
@@ -166,3 +168,166 @@ console.log('')
 console.log('Para ejecutar todas las pruebas: runFullTest()')
 console.log('')
 console.log('Si algún paso falla, revisar la consola del proceso principal para errores')
+
+// ===== FUNCIONES DE PRUEBA PARA AUTENTICACIÓN =====
+
+// Funciones de prueba para autenticación
+const testRegister = async () => {
+  try {
+    const registerData = {
+      nombre: 'Usuario de Prueba Auth',
+      email: 'auth@ejemplo.com',
+      password: '123456',
+      phoneNumber: '987654321'
+    }
+    const result = await window.electron.ipcRenderer.invoke('auth:register', registerData)
+    console.log('Resultado de registro:', result)
+    return result
+  } catch (error) {
+    console.error('Error en registro:', error)
+    return { error: error.message }
+  }
+}
+
+const testLogin = async (email = 'auth@ejemplo.com', password = '123456') => {
+  try {
+    const loginData = { email, password }
+    const result = await window.electron.ipcRenderer.invoke('auth:login', loginData)
+    console.log('Resultado de login:', result)
+    return result
+  } catch (error) {
+    console.error('Error en login:', error)
+    return { error: error.message }
+  }
+}
+
+const testGetCurrentUser = async () => {
+  try {
+    const result = await window.electron.ipcRenderer.invoke('auth:getCurrentUser')
+    console.log('Usuario actual:', result)
+    return result
+  } catch (error) {
+    console.error('Error obteniendo usuario actual:', error)
+    return { error: error.message }
+  }
+}
+
+const testIsAuthenticated = async () => {
+  try {
+    const result = await window.electron.ipcRenderer.invoke('auth:isAuthenticated')
+    console.log('¿Está autenticado?:', result)
+    return result
+  } catch (error) {
+    console.error('Error verificando autenticación:', error)
+    return { error: error.message }
+  }
+}
+
+const testLogout = async () => {
+  try {
+    const result = await window.electron.ipcRenderer.invoke('auth:logout')
+    console.log('Resultado de logout:', result)
+    return result
+  } catch (error) {
+    console.error('Error en logout:', error)
+    return { error: error.message }
+  }
+}
+
+const testChangePassword = async (currentPassword = '123456', newPassword = '654321') => {
+  try {
+    const result = await window.electron.ipcRenderer.invoke(
+      'auth:changePassword',
+      currentPassword,
+      newPassword
+    )
+    console.log('Resultado de cambio de contraseña:', result)
+    return result
+  } catch (error) {
+    console.error('Error cambiando contraseña:', error)
+    return { error: error.message }
+  }
+}
+
+const testUpdateProfile = async () => {
+  try {
+    const updates = {
+      nombre: 'Usuario Actualizado',
+      phoneNumber: '111222333'
+    }
+    const result = await window.electron.ipcRenderer.invoke('auth:updateProfile', updates)
+    console.log('Resultado de actualización de perfil:', result)
+    return result
+  } catch (error) {
+    console.error('Error actualizando perfil:', error)
+    return { error: error.message }
+  }
+}
+
+// Prueba completa de autenticación
+const runAuthTest = async () => {
+  console.log('=== Iniciando Prueba de Autenticación ===')
+
+  try {
+    // 1. Registrar usuario
+    console.log('1. Registrando usuario...')
+    await testRegister()
+
+    // 2. Hacer login
+    console.log('2. Haciendo login...')
+    await testLogin()
+
+    // 3. Verificar autenticación
+    console.log('3. Verificando autenticación...')
+    await testIsAuthenticated()
+
+    // 4. Obtener usuario actual
+    console.log('4. Obteniendo usuario actual...')
+    await testGetCurrentUser()
+
+    // 5. Actualizar perfil
+    console.log('5. Actualizando perfil...')
+    await testUpdateProfile()
+
+    // 6. Cambiar contraseña
+    console.log('6. Cambiando contraseña...')
+    await testChangePassword()
+
+    // 7. Hacer login con nueva contraseña
+    console.log('7. Login con nueva contraseña...')
+    await testLogin('auth@ejemplo.com', '654321')
+
+    // 8. Hacer logout
+    console.log('8. Haciendo logout...')
+    await testLogout()
+
+    // 9. Verificar que no está autenticado
+    console.log('9. Verificando que no está autenticado...')
+    await testIsAuthenticated()
+
+    console.log('=== Prueba de Autenticación Completada ===')
+  } catch (error) {
+    console.error('La prueba de autenticación falló:', error)
+  }
+}
+
+// ===== INSTRUCCIONES ACTUALIZADAS =====
+console.log('')
+console.log('=== FUNCIONES DE AUTENTICACIÓN DISPONIBLES ===')
+console.log('- testRegister() - Registrar nuevo usuario')
+console.log('- testLogin(email, password) - Hacer login')
+console.log('- testGetCurrentUser() - Obtener usuario actual')
+console.log('- testIsAuthenticated() - Verificar autenticación')
+console.log('- testLogout() - Cerrar sesión')
+console.log('- testChangePassword(current, new) - Cambiar contraseña')
+console.log('- testUpdateProfile() - Actualizar perfil')
+console.log('- runAuthTest() - Ejecutar todas las pruebas de autenticación')
+console.log('')
+console.log('=== EJEMPLO DE USO ===')
+console.log('// Para probar autenticación completa:')
+console.log('runAuthTest()')
+console.log('')
+console.log('// Para probar funciones individuales:')
+console.log('await testRegister()')
+console.log('await testLogin("auth@ejemplo.com", "123456")')
+console.log('await testGetCurrentUser()')

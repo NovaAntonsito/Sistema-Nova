@@ -4,9 +4,12 @@ import {
   Column,
   OneToMany,
   CreateDateColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
+  BeforeInsert,
+  BeforeUpdate
 } from 'typeorm'
 import { Budget } from './Budget'
+import * as bcrypt from 'bcrypt'
 import 'reflect-metadata'
 
 @Entity()
@@ -14,19 +17,22 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column('text')
+  @Column({ type: 'text' })
   nombre: string
 
-  @Column('text', { unique: true })
+  @Column({ type: 'text', unique: true })
   email: string
 
-  @Column('text')
+  @Column({ type: 'text', length: 255 })
+  password: string
+
+  @Column({ type: 'text' })
   phoneNumber: string
 
   @OneToMany(() => Budget, (budget) => budget.user)
   budgetList: Budget[]
 
-  @Column('boolean', { default: false })
+  @Column({ type: 'boolean', default: false })
   isDeleted: boolean
 
   @CreateDateColumn()
@@ -34,4 +40,17 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword(): Promise<void> {
+    if (this.password) {
+      const saltRounds = 10
+      this.password = await bcrypt.hash(this.password, saltRounds)
+    }
+  }
+
+  async validatePassword(plainPassword: string): Promise<boolean> {
+    return bcrypt.compare(plainPassword, this.password)
+  }
 }

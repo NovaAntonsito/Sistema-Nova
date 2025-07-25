@@ -36,11 +36,13 @@ export class UserService {
    * Crea un nuevo usuario
    */
   async createUser(createUserDto: CreateUserDto): Promise<UserResponseDto> {
+    console.log('Entre al service')
     // Validar datos de entrada
     const validationErrors = validateCreateUserDto(createUserDto)
     if (validationErrors.length > 0) {
       throw new ValidationException(validationErrors)
     }
+    console.log('Entre al service 2')
 
     // Verificar que el email no exista
     const emailExists = await this.userRepository.emailExists(createUserDto.email)
@@ -48,12 +50,13 @@ export class UserService {
       throw new DuplicateEmailException(createUserDto.email)
     }
 
-    // Crear usuario
+
     const user = new User()
     user.nombre = createUserDto.nombre.trim()
     user.email = createUserDto.email.trim().toLowerCase()
+    user.password = createUserDto.password.trim()
     user.phoneNumber = createUserDto.phoneNumber.trim()
-    user.budgetList = [] // Inicializar array vacío como especifica el requirement 1.2
+    user.budgetList = []
 
     const savedUser = await this.userRepository.save(user)
     return this.mapToResponseDto(savedUser)

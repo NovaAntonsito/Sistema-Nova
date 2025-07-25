@@ -1,12 +1,14 @@
 export interface CreateUserDto {
   nombre: string
   email: string
+  password: string
   phoneNumber: string
 }
 
 export interface UpdateUserDto {
   nombre?: string
   email?: string
+  password?: string
   phoneNumber?: string
 }
 
@@ -44,6 +46,12 @@ export const validateCreateUserDto = (dto: CreateUserDto): string[] => {
     errors.push('Debe ser un email valido')
   }
 
+  if (!dto.password || dto.password.trim().length === 0) {
+    errors.push('La contraseña es requerida')
+  } else if (!isValidPassword(dto.password)) {
+    errors.push('La contraseña debe tener 8 caracteres, una mayuscula y un numero')
+  }
+
   if (!dto.phoneNumber || dto.phoneNumber.trim().length === 0) {
     errors.push('El numero de telefono es requerido')
   }
@@ -75,4 +83,11 @@ export const validateUpdateUserDto = (dto: UpdateUserDto): string[] => {
 const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return emailRegex.test(email)
+}
+
+//Gracias stackoverflow por existir, odio los regex por dios
+const isValidPassword = (password: string): boolean => {
+  // Mínimo 8 caracteres, al menos una letra y un número
+  const passRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&.-]{8,}$/
+  return passRegex.test(password)
 }
