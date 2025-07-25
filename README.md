@@ -1,34 +1,27 @@
 # sistema-nova
 
-An Electron application with React and TypeScript
+Aplicacion en electron y typescript para la gestion de presupuestos
 
-## Recommended IDE Setup
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
-
-## Project Setup
-
-### Install
+### Instalacion 
 
 ```bash
 $ npm install
 ```
 
-### Development
-
+### Desarrollo
 ```bash
 $ npm run dev
 ```
 
-### Build
+### Ubicacion de la base de datos
 
 ```bash
-# For windows
-$ npm run build:win
-
-# For macOS
-$ npm run build:mac
-
-# For Linux
-$ npm run build:linux
+$ %appdata%/roaming/sistema-nova/SQLiteDB
 ```
+
+### Hacer pruebas en el ipc
+
+Tenes que ejecutar todo lo que esta en el js que se llama simple-test.js.
+Ejecutas el npm run dev, abris las devtools y en la consola pegas todo el js del simple-test.
+Despues ejecutas cada funcion una a una.
