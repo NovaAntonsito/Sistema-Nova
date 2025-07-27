@@ -1,34 +1,90 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import { useState, useEffect } from 'react'
+import LoginForm from './components/LoginForm'
+import RegisterForm from './components/RegisterForm'
+import Dashboard from './components/Dashboard'
+import './App.css'
+
+interface User {
+  id: string
+  nombre: string
+  email: string
+  phoneNumber: string
+  createdAt: string
+  updatedAt: string
+}
 
 function App(): React.JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+  const [currentView, setCurrentView] = useState<'login' | 'register' | 'dashboard'>('login')
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Verificar si el usuario ya está autenticado al cargar la app
+  useEffect(() => {
+    checkAuthStatus()
+  }, [])
+
+  const checkAuthStatus = async () => {
+    try {
+      const result = await window.electron.ipcRenderer.invoke('auth:getCurrentUser')
+      if (result.success && result.data) {
+        setUser(result.data)
+        setCurrentView('dashboard')
+      }
+    } catch (error) {
+      console.error('Error verificando autenticación:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleLoginSuccess = (userData: User) => {
+    setUser(userData)
+    setCurrentView('dashboard')
+  }
+
+  const handleRegisterSuccess = (userData: User) => {
+    setUser(userData)
+    setCurrentView('dashboard')
+  }
+
+  const handleLogout = async () => {
+    try {
+      await window.electron.ipcRenderer.invoke('auth:logout')
+      setUser(null)
+      setCurrentView('login')
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="app-container">
+        <div className="loading">
+          <h2>Cargando...</h2>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
-      </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-      </div>
-      <Versions></Versions>
-    </>
+    <div className="app-container">
+      {currentView === 'login' && (
+        <LoginForm
+          onLoginSuccess={handleLoginSuccess}
+          onSwitchToRegister={() => setCurrentView('register')}
+        />
+      )}
+
+      {currentView === 'register' && (
+        <RegisterForm
+          onRegisterSuccess={handleRegisterSuccess}
+          onSwitchToLogin={() => setCurrentView('login')}
+        />
+      )}
+
+      {currentView === 'dashboard' && user && <Dashboard user={user} onLogout={handleLogout} />}
+    </div>
   )
 }
 

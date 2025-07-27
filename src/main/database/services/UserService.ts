@@ -50,7 +50,6 @@ export class UserService {
       throw new DuplicateEmailException(createUserDto.email)
     }
 
-
     const user = new User()
     user.nombre = createUserDto.nombre.trim()
     user.email = createUserDto.email.trim().toLowerCase()
