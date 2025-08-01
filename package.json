@@ -26,8 +26,13 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^4.0.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.2.0",
+    "@mui/material": "^7.2.0",
     "@types/better-sqlite3": "^7.6.13",
     "better-sqlite3": "^11.10.0",
+    "react-router-dom": "^7.7.1",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.25"
   },
