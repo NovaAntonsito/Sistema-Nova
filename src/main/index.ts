@@ -13,7 +13,8 @@ function createWindow(): void {
     height: 670,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    title: 'Sistema Nova - Gestión de Presupuestos',
+    icon: icon, // Forzar icono en todas las plataformas
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
@@ -62,7 +63,7 @@ app.whenReady().then(async () => {
   }
 
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.sistemnova.app')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -119,6 +120,3 @@ app.on('before-quit', async () => {
     console.error('Error closing database on quit:', error)
   }
 })
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.

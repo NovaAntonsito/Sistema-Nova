@@ -1,7 +1,6 @@
 import { UserRepository } from '../repositories/UserRepository'
 import { User } from '../entities/User'
 import { AppDataSource } from '../config/database'
-import { UserNotFoundException, ValidationException } from '../exceptions'
 
 export interface LoginCredentials {
   email: string

@@ -78,7 +78,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
           marginTop: '20px'
         }}
       >
-         ¡Bienvenido al Sistema de Gestión de Presupuestos N.O.V.A!
+        ¡Bienvenido al Sistema de Gestión de Presupuestos N.O.V.A!
         <div
           style={{
             fontSize: '16px',

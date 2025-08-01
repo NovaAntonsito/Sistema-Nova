@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: sistema-nova
+appId: com.sistemnova.app
+productName: Sistema Nova
 directories:
   buildResources: build
 files:
