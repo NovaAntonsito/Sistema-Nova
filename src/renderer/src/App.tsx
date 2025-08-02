@@ -1,6 +1,6 @@
 import Versions from './components/Versions'
 import UsersView from './views/UsersView'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { HashRouter as Router, Routes, Route } from 'react-router-dom'
 
 function App(): React.JSX.Element {
   //const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')

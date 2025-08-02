@@ -59,7 +59,7 @@ const UsersView = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map((user, index) => (
+            {users.map((user) => (
               <tr key={user.id}>
                 <td>{user.nombre}</td>
                 <td>{user.email}</td>
