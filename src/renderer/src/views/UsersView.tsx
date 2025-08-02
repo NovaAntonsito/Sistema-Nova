@@ -1,92 +1,84 @@
-import { Delete, Edit } from '@mui/icons-material'
-import {
-  Box,
-  Container,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tooltip,
-  Typography
-} from '@mui/material'
 import { getAllUsers } from '@renderer/services/UserService'
-import  { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { UserResponseDto } from 'src/main/database/dto/user.dto'
+import './UsersView.css'
 
 const UsersView = () => {
   const [users, setUsers] = useState<UserResponseDto[]>([])
+  const [loading, setLoading] = useState(true)
+
   const getData = async () => {
-    await getAllUsers().then((res) => {
-      console.log(res.data)
+    try {
+      setLoading(true)
+      const res = await getAllUsers()
       setUsers(res.data)
-    })
+    } catch (error) {
+      console.error('Error al cargar usuarios:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEdit = (userId: string) => {
+    // TODO: Implementar lógica de edición
+    console.log('Editar usuario:', userId)
+  }
+
+  const handleDelete = (userId: string) => {
+    // TODO: Implementar lógica de eliminación
+    console.log('Eliminar usuario:', userId)
   }
 
   useEffect(() => {
     getData()
   }, [])
-  useEffect(() => {
-    console.log(users)
-  }, [users])
+
+  if (loading) {
+    return (
+      <div className="users-view">
+        <p className="loading-message">Cargando usuarios...</p>
+      </div>
+    )
+  }
+
   return (
-    <Container
-      sx={{
-        display: 'flex',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        flexDirection: 'column',
-        height: '100vh',
-        gap: '2rem'
-      }}
-    >
-      <Typography variant="h3" component="div">
-        Usuarios
-      </Typography>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell align="center">Nombre</TableCell>
-              <TableCell align="center">Celular</TableCell>
-              <TableCell align="center">Fecha de creación</TableCell>
-              <TableCell align="center">Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {users.map((row) => (
-              <TableRow key={row.id} >
-                <TableCell align="center">{row.nombre}</TableCell>
-                <TableCell align="center">{row.phoneNumber}</TableCell>
-                <TableCell align="center">{row.createdAt.toLocaleDateString()}</TableCell>
-                <TableCell align="center">
-                  <Box
-                    width={'100%'}
-                    display={'flex'}
-                    justifyContent={'center'}
-                            alignItems={'center'}
-                  >
-                    <Tooltip title={'Borrar usuario'}>
-                      <IconButton>
-                        <Delete sx={{ color: 'red' }}></Delete>
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title={'Editar usuario'}>
-                      <IconButton>
-                        <Edit sx={{ color: 'green' }}></Edit>
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                </TableCell>
-              </TableRow>
+    <div className="users-view">
+      <h2>Gestión de Usuarios</h2>
+
+      {users.length === 0 ? (
+        <p className="no-users-message">No hay usuarios registrados</p>
+      ) : (
+        <table className="users-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Fecha Creación</th>
+              <th className="actions-header">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user, index) => (
+              <tr key={user.id}>
+                <td>{user.nombre}</td>
+                <td>{user.email}</td>
+                <td>{user.phoneNumber}</td>
+                <td>{new Date(user.createdAt).toLocaleDateString('es-ES')}</td>
+                <td className="actions-cell">
+                  <button onClick={() => handleEdit(user.id)} className="btn-edit">
+                    Editar
+                  </button>
+                  <button onClick={() => handleDelete(user.id)} className="btn-delete">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Container>
+          </tbody>
+        </table>
+      )}
+    </div>
   )
 }
 

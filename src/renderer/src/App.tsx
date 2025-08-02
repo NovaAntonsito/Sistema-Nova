@@ -4,8 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 function App(): React.JSX.Element {
   //const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-  
-  
+
   return (
     <>
       <Router>

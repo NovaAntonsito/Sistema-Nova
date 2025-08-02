@@ -2,14 +2,14 @@
 
 Aplicacion en electron y typescript para la gestion de presupuestos
 
-
-### Instalacion 
+### Instalacion
 
 ```bash
 $ npm install
 ```
 
 ### Desarrollo
+
 ```bash
 $ npm run dev
 ```
