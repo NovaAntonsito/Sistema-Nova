@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu, MenuItemConstructorOptions } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -29,6 +29,168 @@ function createWindow(): void {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
+
+  // Crear menú de aplicación
+  const template: MenuItemConstructorOptions[] = [
+    {
+      label: 'Archivo',
+      submenu: [
+        {
+          label: 'Nuevo Usuario',
+          accelerator: 'Ctrl+N',
+          click: () => {
+            // TODO: Implementar crear nuevo usuario
+            console.log('Crear nuevo usuario')
+          }
+        },
+        {
+          type: 'separator'
+        } as MenuItemConstructorOptions,
+        {
+          label: 'Configuración',
+          accelerator: 'Ctrl+,',
+          click: () => {
+            console.log('Abrir configuración')
+          }
+        },
+        {
+          type: 'separator'
+        } as MenuItemConstructorOptions,
+        {
+          label: 'Salir',
+          accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+Q',
+          click: () => {
+            app.quit()
+          }
+        }
+      ]
+    },
+    {
+      label: 'Editar',
+      submenu: [
+        {
+          label: 'Deshacer',
+          accelerator: 'Ctrl+Z',
+          role: 'undo' as const
+        },
+        {
+          label: 'Rehacer',
+          accelerator: 'Ctrl+Y',
+          role: 'redo' as const
+        },
+        {
+          type: 'separator'
+        } as MenuItemConstructorOptions,
+        {
+          label: 'Cortar',
+          accelerator: 'Ctrl+X',
+          role: 'cut' as const
+        },
+        {
+          label: 'Copiar',
+          accelerator: 'Ctrl+C',
+          role: 'copy' as const
+        },
+        {
+          label: 'Pegar',
+          accelerator: 'Ctrl+V',
+          role: 'paste' as const
+        },
+        {
+          label: 'Seleccionar Todo',
+          accelerator: 'Ctrl+A',
+          role: 'selectAll' as const
+        }
+      ]
+    },
+    {
+      label: 'Ver',
+      submenu: [
+        {
+          label: 'Recargar',
+          accelerator: 'Ctrl+R',
+          click: () => {
+            mainWindow.webContents.reload()
+          }
+        },
+        {
+          label: 'Forzar Recarga',
+          accelerator: 'Ctrl+Shift+R',
+          click: () => {
+            mainWindow.webContents.reloadIgnoringCache()
+          }
+        },
+        {
+          type: 'separator'
+        } as MenuItemConstructorOptions,
+        {
+          label: 'Zoom In',
+          accelerator: 'Ctrl+Plus',
+          click: () => {
+            const currentZoom = mainWindow.webContents.getZoomLevel()
+            mainWindow.webContents.setZoomLevel(currentZoom + 1)
+          }
+        },
+        {
+          label: 'Zoom Out',
+          accelerator: 'Ctrl+-',
+          click: () => {
+            const currentZoom = mainWindow.webContents.getZoomLevel()
+            mainWindow.webContents.setZoomLevel(currentZoom - 1)
+          }
+        },
+        {
+          label: 'Zoom Normal',
+          accelerator: 'Ctrl+0',
+          click: () => {
+            mainWindow.webContents.setZoomLevel(0)
+          }
+        },
+        {
+          type: 'separator'
+        } as MenuItemConstructorOptions,
+        {
+          label: 'Pantalla Completa',
+          accelerator: 'F11',
+          click: () => {
+            mainWindow.setFullScreen(!mainWindow.isFullScreen())
+          }
+        },
+        {
+          type: 'separator'
+        } as MenuItemConstructorOptions,
+        {
+          label: 'Herramientas de Desarrollador',
+          accelerator: 'F12',
+          click: () => {
+            mainWindow.webContents.toggleDevTools()
+          }
+        }
+      ]
+    },
+    {
+      label: 'Ventana',
+      submenu: [
+        {
+          label: 'Minimizar',
+          accelerator: 'Ctrl+M',
+          click: () => {
+            mainWindow.minimize()
+          }
+        },
+        {
+          label: 'Cerrar',
+          accelerator: 'Ctrl+W',
+          click: () => {
+            mainWindow.close()
+          }
+        }
+      ]
+    }
+  ]
+
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
 
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.

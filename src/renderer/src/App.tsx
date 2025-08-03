@@ -1,17 +1,6 @@
-import { useState, useEffect } from 'react'
-import LoginForm from './components/LoginForm'
-import RegisterForm from './components/RegisterForm'
-import Dashboard from './components/Dashboard'
-import './App.css'
-
-interface User {
-  id: string
-  nombre: string
-  email: string
-  phoneNumber: string
-  createdAt: string
-  updatedAt: string
-}
+import Versions from './components/Versions'
+import UsersView from './views/UsersView'
+import { HashRouter as Router, Routes, Route } from 'react-router-dom'
 
 function App(): React.JSX.Element {
   const [currentView, setCurrentView] = useState<'login' | 'register' | 'dashboard'>('login')
