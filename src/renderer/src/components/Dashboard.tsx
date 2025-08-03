@@ -1,5 +1,4 @@
-import { UserResponseDto } from "src/main/database/dto/user.dto"
-
+import { UserResponseDto } from 'src/main/database/dto/user.dto'
 
 interface DashboardProps {
   user: UserResponseDto

@@ -29,11 +29,36 @@ export const initializeDatabase = async (): Promise<void> => {
   try {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize()
-      console.log('Database connection established successfully')
+      console.log('Base de datos inicializada')
+      await createMockUser()
     }
   } catch (error) {
     console.error('Error during database initialization:', error)
     throw error
+  }
+}
+const createMockUser = async (): Promise<void> => {
+  try {
+    const userRepository = AppDataSource.getRepository(User)
+    const existingUser = await userRepository.findOne({
+      where: { email: 'root@root.com' }
+    })
+
+    if (!existingUser) {
+      const mockUser = new User()
+      mockUser.nombre = 'admin'
+      mockUser.email = 'root@root.com'
+      mockUser.password = 'root'
+      mockUser.phoneNumber = '1234567890'
+      mockUser.budgetList = []
+
+      await userRepository.save(mockUser)
+      console.log('Usuario mock creado exitosamente: admin (root@root.com)')
+    } else {
+      console.log('Usuario mock ya existe, omitiendo creación')
+    }
+  } catch (error) {
+    console.error('Error creando usuario mock:', error)
   }
 }
 

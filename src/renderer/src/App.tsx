@@ -64,12 +64,14 @@ function App(): React.JSX.Element {
   return (
     <div className="app-container">
       <HashRouter>
-        <Routes location={"/"}><LoginForm
-          onLoginSuccess={handleLoginSuccess}
-          onSwitchToRegister={() => setCurrentView('register')}
-        /></Routes>
+        <Routes location={'/'}>
+          <LoginForm
+            onLoginSuccess={handleLoginSuccess}
+            onSwitchToRegister={() => setCurrentView('register')}
+          />
+        </Routes>
       </HashRouter>
-{/* 
+      {/* 
       {currentView === 'register' && (
         <RegisterForm
           onRegisterSuccess={handleRegisterSuccess}
