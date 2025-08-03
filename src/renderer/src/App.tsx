@@ -1,10 +1,15 @@
+import { useEffect, useState } from 'react'
 import Versions from './components/Versions'
 import UsersView from './views/UsersView'
-import { HashRouter as Router, Routes, Route } from 'react-router-dom'
+import { HashRouter as Router, Routes, Route, HashRouter } from 'react-router-dom'
+import { UserResponseDto } from 'src/main/database/dto/user.dto'
+import LoginForm from './components/LoginForm'
+import RegisterForm from './components/RegisterForm'
+import Dashboard from './components/Dashboard'
 
 function App(): React.JSX.Element {
   const [currentView, setCurrentView] = useState<'login' | 'register' | 'dashboard'>('login')
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<UserResponseDto | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   // Verificar si el usuario ya está autenticado al cargar la app
@@ -26,12 +31,12 @@ function App(): React.JSX.Element {
     }
   }
 
-  const handleLoginSuccess = (userData: User) => {
+  const handleLoginSuccess = (userData: UserResponseDto) => {
     setUser(userData)
     setCurrentView('dashboard')
   }
 
-  const handleRegisterSuccess = (userData: User) => {
+  const handleRegisterSuccess = (userData: UserResponseDto) => {
     setUser(userData)
     setCurrentView('dashboard')
   }
@@ -58,13 +63,13 @@ function App(): React.JSX.Element {
 
   return (
     <div className="app-container">
-      {currentView === 'login' && (
-        <LoginForm
+      <HashRouter>
+        <Routes location={"/"}><LoginForm
           onLoginSuccess={handleLoginSuccess}
           onSwitchToRegister={() => setCurrentView('register')}
-        />
-      )}
-
+        /></Routes>
+      </HashRouter>
+{/* 
       {currentView === 'register' && (
         <RegisterForm
           onRegisterSuccess={handleRegisterSuccess}
@@ -72,7 +77,7 @@ function App(): React.JSX.Element {
         />
       )}
 
-      {currentView === 'dashboard' && user && <Dashboard user={user} onLogout={handleLogout} />}
+      {currentView === 'dashboard' && user && <Dashboard user={user} onLogout={handleLogout} />} */}
     </div>
   )
 }

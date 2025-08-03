@@ -1,16 +1,9 @@
 import { useState } from 'react'
+import { UserResponseDto } from 'src/main/database/dto/user.dto'
 
-interface User {
-  id: string
-  nombre: string
-  email: string
-  phoneNumber: string
-  createdAt: string
-  updatedAt: string
-}
 
 interface RegisterFormProps {
-  onRegisterSuccess: (user: User) => void
+  onRegisterSuccess: (user: UserResponseDto) => void
   onSwitchToLogin: () => void
 }
 

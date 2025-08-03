@@ -1,14 +1,8 @@
-interface User {
-  id: string
-  nombre: string
-  email: string
-  phoneNumber: string
-  createdAt: string
-  updatedAt: string
-}
+import { UserResponseDto } from "src/main/database/dto/user.dto"
+
 
 interface DashboardProps {
-  user: User
+  user: UserResponseDto
   onLogout: () => void
 }
 
@@ -57,12 +51,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
 
         <div className="user-detail">
           <strong>Cuenta creada:</strong>
-          <span>{formatDate(user.createdAt)}</span>
+          <span>{formatDate(user.createdAt.toLocaleDateString())}</span>
         </div>
 
         <div className="user-detail">
           <strong>Última actualización:</strong>
-          <span>{formatDate(user.updatedAt)}</span>
+          <span>{formatDate(user.createdAt.toLocaleDateString())}</span>
         </div>
       </div>
 
