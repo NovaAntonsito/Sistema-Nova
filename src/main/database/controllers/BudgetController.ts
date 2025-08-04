@@ -41,17 +41,22 @@ export class BudgetController {
 
   private registerHandlers(): void {
     // Create budget handler
-    ipcMain.handle(
-      'budget:create',
-      async (_, createBudgetDto: CreateBudgetDto): Promise<ApiResponse> => {
-        try {
-          const budget = await this.budgetService.createBudget(createBudgetDto)
-          return ResponseFormatter.success(budget, 'Presupuesto creado exitosamente')
-        } catch (error) {
-          return ResponseFormatter.error(error as Error)
+    ipcMain.handle('budget:create', async (_, createBudgetDto: unknown): Promise<ApiResponse> => {
+      try {
+        console.log('Entre al controller', createBudgetDto)
+
+        // Convertir la fecha string a Date object
+        const processedDto: CreateBudgetDto = {
+          ...createBudgetDto,
+          _expirationDate: new Date(createBudgetDto._expirationDate)
         }
+
+        const budget = await this.budgetService.createBudget(processedDto)
+        return ResponseFormatter.success(budget, 'Presupuesto creado exitosamente')
+      } catch (error) {
+        return ResponseFormatter.error(error as Error)
       }
-    )
+    })
 
     // Get all budgets handler
     ipcMain.handle('budget:getAll', async (): Promise<ApiResponse> => {

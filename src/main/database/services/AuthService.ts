@@ -1,5 +1,5 @@
 import { UserRepository } from '../repositories/UserRepository'
-import { User } from '../entities/User'
+import { User, UserType, UserStatus } from '../entities/User'
 import { AppDataSource } from '../config/database'
 
 export interface LoginCredentials {
@@ -9,16 +9,22 @@ export interface LoginCredentials {
 
 export interface RegisterCredentials {
   nombre: string
+  apellido?: string
   email: string
   password: string
   phoneNumber: string
+  userType?: UserType
 }
 
 export interface AuthUserDto {
   id: string
   nombre: string
-  email: string
+  apellido?: string
+  email?: string
   phoneNumber: string
+  userType: UserType
+  status: UserStatus
+  requiresLogin: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -60,6 +66,14 @@ export class AuthService {
         return {
           success: false,
           error: 'Email o contraseña incorrectos'
+        }
+      }
+
+      // Verificar que el usuario puede hacer login
+      if (!user.canLogin()) {
+        return {
+          success: false,
+          error: 'Este usuario no tiene permisos para acceder al sistema'
         }
       }
 
@@ -117,9 +131,12 @@ export class AuthService {
       // Crear nuevo usuario
       const user = new User()
       user.nombre = nombre.trim()
+      user.apellido = credentials.apellido?.trim()
       user.email = email.trim().toLowerCase()
       user.password = password // Se hasheará automáticamente por @BeforeInsert
       user.phoneNumber = phoneNumber.trim()
+      user.userType = credentials.userType || UserType.EMPLOYEE
+      user.requiresLogin = true // Los usuarios registrados siempre requieren login
       user.budgetList = []
 
       const savedUser = await this.userRepository.save(user)
@@ -323,8 +340,12 @@ export class AuthService {
     return {
       id: user.id,
       nombre: user.nombre,
+      apellido: user.apellido,
       email: user.email,
       phoneNumber: user.phoneNumber,
+      userType: user.userType,
+      status: user.status,
+      requiresLogin: user.requiresLogin,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
     }

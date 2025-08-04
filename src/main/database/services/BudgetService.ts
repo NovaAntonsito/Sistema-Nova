@@ -70,8 +70,13 @@ export class BudgetService {
    */
   async createBudget(createBudgetDto: CreateBudgetDto): Promise<BudgetResponseDto> {
     // Validar datos de entrada
+    console.log('Entre al service', createBudgetDto)
+
     const validationErrors = validateCreateBudgetDto(createBudgetDto)
+    console.log('Errores de validación:', validationErrors)
+
     if (validationErrors.length > 0) {
+      console.log('Lanzando ValidationException con errores:', validationErrors)
       throw new ValidationException(validationErrors)
     }
 

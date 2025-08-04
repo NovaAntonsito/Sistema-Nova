@@ -112,6 +112,110 @@ export class UserController {
         return ResponseFormatter.error(error as Error)
       }
     })
+
+    // Get clients handler
+    ipcMain.handle('user:getClients', async (): Promise<ApiResponse> => {
+      try {
+        const clients = await this.userService.getClients()
+        return ResponseFormatter.success(clients)
+      } catch (error) {
+        return ResponseFormatter.error(error as Error)
+      }
+    })
+
+    // Get admins handler
+    ipcMain.handle('user:getAdmins', async (): Promise<ApiResponse> => {
+      try {
+        const admins = await this.userService.getAdmins()
+        return ResponseFormatter.success(admins)
+      } catch (error) {
+        return ResponseFormatter.error(error as Error)
+      }
+    })
+
+    // Get employees handler
+    ipcMain.handle('user:getEmployees', async (): Promise<ApiResponse> => {
+      try {
+        const employees = await this.userService.getEmployees()
+        return ResponseFormatter.success(employees)
+      } catch (error) {
+        return ResponseFormatter.error(error as Error)
+      }
+    })
+
+    // Search by document number handler
+    ipcMain.handle(
+      'user:searchByDocument',
+      async (_, documentNumber: string): Promise<ApiResponse> => {
+        try {
+          const user = await this.userService.searchByDocumentNumber(documentNumber)
+          return ResponseFormatter.success(user)
+        } catch (error) {
+          return ResponseFormatter.error(error as Error)
+        }
+      }
+    )
+
+    // Search by phone number handler
+    ipcMain.handle('user:searchByPhone', async (_, phoneNumber: string): Promise<ApiResponse> => {
+      try {
+        const user = await this.userService.searchByPhoneNumber(phoneNumber)
+        return ResponseFormatter.success(user)
+      } catch (error) {
+        return ResponseFormatter.error(error as Error)
+      }
+    })
+
+    // Search by full name handler
+    ipcMain.handle('user:searchByFullName', async (_, searchTerm: string): Promise<ApiResponse> => {
+      try {
+        const users = await this.userService.searchByFullName(searchTerm)
+        return ResponseFormatter.success(users)
+      } catch (error) {
+        return ResponseFormatter.error(error as Error)
+      }
+    })
+
+    // Get user statistics handler
+    ipcMain.handle('user:getStatistics', async (): Promise<ApiResponse> => {
+      try {
+        console.log('Handler user:getStatistics called')
+        const stats = await this.userService.getUserStatistics()
+        console.log('Stats retrieved:', stats)
+        return ResponseFormatter.success(stats)
+      } catch (error) {
+        console.error('Error in user:getStatistics handler:', error)
+        return ResponseFormatter.error(error as Error)
+      }
+    })
+
+    // Change user status handlers
+    ipcMain.handle('user:activate', async (_, id: string): Promise<ApiResponse> => {
+      try {
+        const user = await this.userService.activateUser(id)
+        return ResponseFormatter.success(user, 'Usuario activado exitosamente')
+      } catch (error) {
+        return ResponseFormatter.error(error as Error)
+      }
+    })
+
+    ipcMain.handle('user:deactivate', async (_, id: string): Promise<ApiResponse> => {
+      try {
+        const user = await this.userService.deactivateUser(id)
+        return ResponseFormatter.success(user, 'Usuario desactivado exitosamente')
+      } catch (error) {
+        return ResponseFormatter.error(error as Error)
+      }
+    })
+
+    ipcMain.handle('user:suspend', async (_, id: string): Promise<ApiResponse> => {
+      try {
+        const user = await this.userService.suspendUser(id)
+        return ResponseFormatter.success(user, 'Usuario suspendido exitosamente')
+      } catch (error) {
+        return ResponseFormatter.error(error as Error)
+      }
+    })
   }
 
   /**
@@ -126,5 +230,15 @@ export class UserController {
     ipcMain.removeAllListeners('user:update')
     ipcMain.removeAllListeners('user:delete')
     ipcMain.removeAllListeners('user:restore')
+    ipcMain.removeAllListeners('user:getClients')
+    ipcMain.removeAllListeners('user:getAdmins')
+    ipcMain.removeAllListeners('user:getEmployees')
+    ipcMain.removeAllListeners('user:searchByDocument')
+    ipcMain.removeAllListeners('user:searchByPhone')
+    ipcMain.removeAllListeners('user:searchByFullName')
+    ipcMain.removeAllListeners('user:getStatistics')
+    ipcMain.removeAllListeners('user:activate')
+    ipcMain.removeAllListeners('user:deactivate')
+    ipcMain.removeAllListeners('user:suspend')
   }
 }

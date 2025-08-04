@@ -1,5 +1,5 @@
 import { UserRepository } from '../repositories/UserRepository'
-import { User } from '../entities/User'
+import { User, UserType, UserStatus } from '../entities/User'
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -44,17 +44,24 @@ export class UserService {
     }
     console.log('Entre al service 2')
 
-    // Verificar que el email no exista
-    const emailExists = await this.userRepository.emailExists(createUserDto.email)
-    if (emailExists) {
-      throw new DuplicateEmailException(createUserDto.email)
+    // Verificar que el email no exista (solo si se proporciona)
+    if (createUserDto.email) {
+      const emailExists = await this.userRepository.emailExists(createUserDto.email)
+      if (emailExists) {
+        throw new DuplicateEmailException(createUserDto.email)
+      }
     }
 
     const user = new User()
     user.nombre = createUserDto.nombre.trim()
-    user.email = createUserDto.email.trim().toLowerCase()
-    user.password = createUserDto.password.trim()
+    user.apellido = createUserDto.apellido?.trim()
+    user.email = createUserDto.email?.trim().toLowerCase()
+    user.password = createUserDto.password?.trim()
     user.phoneNumber = createUserDto.phoneNumber.trim()
+    user.address = createUserDto.address?.trim()
+    user.documentNumber = createUserDto.documentNumber?.trim()
+    user.userType = (createUserDto.userType as UserType) || UserType.CLIENT
+    user.requiresLogin = createUserDto.requiresLogin || false
     user.budgetList = []
 
     const savedUser = await this.userRepository.save(user)
@@ -163,14 +170,130 @@ export class UserService {
   }
 
   /**
+   * Obtiene usuarios por tipo
+   */
+  async getUsersByType(userType: UserType): Promise<UserResponseDto[]> {
+    const users = await this.userRepository.findByUserType(userType)
+    return users.map((user) => this.mapToResponseDto(user))
+  }
+
+  /**
+   * Obtiene usuarios por estado
+   */
+  async getUsersByStatus(status: UserStatus): Promise<UserResponseDto[]> {
+    const users = await this.userRepository.findByStatus(status)
+    return users.map((user) => this.mapToResponseDto(user))
+  }
+
+  /**
+   * Obtiene solo clientes
+   */
+  async getClients(): Promise<UserResponseDto[]> {
+    return this.getUsersByType(UserType.CLIENT)
+  }
+
+  /**
+   * Obtiene solo administradores
+   */
+  async getAdmins(): Promise<UserResponseDto[]> {
+    return this.getUsersByType(UserType.ADMIN)
+  }
+
+  /**
+   * Obtiene solo empleados
+   */
+  async getEmployees(): Promise<UserResponseDto[]> {
+    return this.getUsersByType(UserType.EMPLOYEE)
+  }
+
+  /**
+   * Busca usuario por número de documento
+   */
+  async searchByDocumentNumber(documentNumber: string): Promise<UserResponseDto | null> {
+    const user = await this.userRepository.findByDocumentNumber(documentNumber.trim())
+    return user ? this.mapToResponseDto(user) : null
+  }
+
+  /**
+   * Busca usuario por teléfono
+   */
+  async searchByPhoneNumber(phoneNumber: string): Promise<UserResponseDto | null> {
+    const user = await this.userRepository.findByPhoneNumber(phoneNumber.trim())
+    return user ? this.mapToResponseDto(user) : null
+  }
+
+  /**
+   * Busca usuarios por nombre completo
+   */
+  async searchByFullName(searchTerm: string): Promise<UserResponseDto[]> {
+    const users = await this.userRepository.findByFullName(searchTerm.trim())
+    return users.map((user) => this.mapToResponseDto(user))
+  }
+
+  /**
+   * Obtiene estadísticas de usuarios
+   */
+  async getUserStatistics(): Promise<{
+    total: number
+    active: number
+    clients: number
+    admins: number
+    employees: number
+    withLogin: number
+  }> {
+    return await this.userRepository.getUserStats()
+  }
+
+  /**
+   * Cambia el estado de un usuario
+   */
+  async changeUserStatus(id: string, status: UserStatus): Promise<UserResponseDto> {
+    const user = await this.userRepository.findActiveById(id)
+    if (!user) {
+      throw new UserNotFoundException(id)
+    }
+
+    user.status = status
+    const updatedUser = await this.userRepository.save(user)
+    return this.mapToResponseDto(updatedUser)
+  }
+
+  /**
+   * Activa un usuario
+   */
+  async activateUser(id: string): Promise<UserResponseDto> {
+    return this.changeUserStatus(id, UserStatus.ACTIVE)
+  }
+
+  /**
+   * Desactiva un usuario
+   */
+  async deactivateUser(id: string): Promise<UserResponseDto> {
+    return this.changeUserStatus(id, UserStatus.INACTIVE)
+  }
+
+  /**
+   * Suspende un usuario
+   */
+  async suspendUser(id: string): Promise<UserResponseDto> {
+    return this.changeUserStatus(id, UserStatus.SUSPENDED)
+  }
+
+  /**
    * Mapea una entidad User a UserResponseDto
    */
   private mapToResponseDto(user: User): UserResponseDto {
     return {
       id: user.id,
       nombre: user.nombre,
+      apellido: user.apellido,
       email: user.email,
       phoneNumber: user.phoneNumber,
+      address: user.address,
+      documentNumber: user.documentNumber,
+      userType: user.userType,
+      status: user.status,
+      requiresLogin: user.requiresLogin,
       budgetList: user.budgetList?.map((budget) => ({
         id: budget.id,
         _creationDate: budget._creationDate,
