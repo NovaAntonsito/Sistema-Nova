@@ -6,3 +6,4 @@ out
 *.log*
 .kiro
 .vscode
+temp/exports/temp/integration-test
