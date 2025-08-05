@@ -9,6 +9,8 @@ import {
   FileWriteException,
   ExportException
 } from '../utils/exportExceptions'
+import { ExportConfigManager } from '../config/exportConfig'
+import { ExportLogger } from '../utils/exportLogger'
 import { join } from 'path'
 
 /**
@@ -25,6 +27,8 @@ export interface ExportResult {
 export class ExportService {
   private csvGenerator: CsvGenerator
   private zipGenerator: ZipGenerator
+  private configManager: ExportConfigManager
+  private logger: ExportLogger
 
   constructor(
     private userRepository: UserRepository,
@@ -34,6 +38,8 @@ export class ExportService {
   ) {
     this.csvGenerator = new CsvGenerator()
     this.zipGenerator = new ZipGenerator()
+    this.configManager = ExportConfigManager.getInstance()
+    this.logger = ExportLogger.getInstance()
   }
 
   /**
@@ -41,11 +47,30 @@ export class ExportService {
    * @returns Promise<string> - Ruta del archivo CSV generado
    */
   async exportUsersToCSV(): Promise<string> {
+    const startTime = Date.now()
+    const operation = 'exportUsersToCSV'
+    let timeout: NodeJS.Timeout | null = null
+
     try {
+      this.logger.logExportStart(operation)
+
+      // Crear timeout para consulta de base de datos
+      timeout = this.configManager.createDatabaseTimeout()
+
       // Obtener todos los usuarios incluyendo eliminados lógicamente
+      const dbStartTime = Date.now()
       const users = await this.userRepository.find({
         order: { createdAt: 'ASC' }
       })
+      const dbDuration = Date.now() - dbStartTime
+
+      this.logger.logDatabaseOperation(operation, 'users', 'SELECT', users.length, dbDuration)
+
+      // Limpiar timeout después de la consulta exitosa
+      if (timeout) {
+        clearTimeout(timeout)
+        timeout = null
+      }
 
       if (!users || users.length === 0) {
         throw new DataRetrievalException(
@@ -53,6 +78,9 @@ export class ExportService {
           new Error('No se encontraron usuarios para exportar')
         )
       }
+
+      // Validar límites de registros
+      this.configManager.validateRecordCount(users.length)
 
       const headers = [
         'id',
@@ -77,8 +105,23 @@ export class ExportService {
 
       // Generar archivo CSV
       const filePath = await this.csvGenerator.generateCSV(csvData, headers, 'users')
+
+      const duration = Date.now() - startTime
+      this.logger.logExportSuccess(operation, duration, {
+        filePath,
+        recordCount: users.length
+      })
+
       return filePath
     } catch (error) {
+      // Limpiar timeout en caso de error
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+
+      const duration = Date.now() - startTime
+      this.logger.logExportError(operation, error as Error, duration)
+
       if (error instanceof DataRetrievalException) {
         throw error
       }
@@ -91,12 +134,31 @@ export class ExportService {
    * @returns Promise<string> - Ruta del archivo CSV generado
    */
   async exportBudgetsToCSV(): Promise<string> {
+    const startTime = Date.now()
+    const operation = 'exportBudgetsToCSV'
+    let timeout: NodeJS.Timeout | null = null
+
     try {
+      this.logger.logExportStart(operation)
+
+      // Crear timeout para consulta de base de datos
+      timeout = this.configManager.createDatabaseTimeout()
+
       // Obtener todos los presupuestos incluyendo eliminados lógicamente con relación de usuario
+      const dbStartTime = Date.now()
       const budgets = await this.budgetRepository.find({
         relations: ['user'],
         order: { _creationDate: 'ASC' }
       })
+      const dbDuration = Date.now() - dbStartTime
+
+      this.logger.logDatabaseOperation(operation, 'budgets', 'SELECT', budgets.length, dbDuration)
+
+      // Limpiar timeout después de la consulta exitosa
+      if (timeout) {
+        clearTimeout(timeout)
+        timeout = null
+      }
 
       if (!budgets || budgets.length === 0) {
         throw new DataRetrievalException(
@@ -104,6 +166,9 @@ export class ExportService {
           new Error('No se encontraron presupuestos para exportar')
         )
       }
+
+      // Validar límites de registros
+      this.configManager.validateRecordCount(budgets.length)
 
       const headers = [
         'id',
@@ -136,8 +201,23 @@ export class ExportService {
 
       // Generar archivo CSV
       const filePath = await this.csvGenerator.generateCSV(csvData, headers, 'budgets')
+
+      const duration = Date.now() - startTime
+      this.logger.logExportSuccess(operation, duration, {
+        filePath,
+        recordCount: budgets.length
+      })
+
       return filePath
     } catch (error) {
+      // Limpiar timeout en caso de error
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+
+      const duration = Date.now() - startTime
+      this.logger.logExportError(operation, error as Error, duration)
+
       if (error instanceof DataRetrievalException) {
         throw error
       }
@@ -150,12 +230,23 @@ export class ExportService {
    * @returns Promise<string> - Ruta del archivo CSV generado
    */
   async exportQuotasToCSV(): Promise<string> {
+    let timeout: NodeJS.Timeout | null = null
+
     try {
+      // Crear timeout para consulta de base de datos
+      timeout = this.configManager.createDatabaseTimeout()
+
       // Obtener todas las cuotas con relación de presupuesto, ordenadas por fecha de creación (requisito 3.4)
       const quotas = await this.quotaRepository.find({
         relations: ['budget'],
         order: { _creationDate: 'ASC' }
       })
+
+      // Limpiar timeout después de la consulta exitosa
+      if (timeout) {
+        clearTimeout(timeout)
+        timeout = null
+      }
 
       if (!quotas || quotas.length === 0) {
         throw new DataRetrievalException(
@@ -163,6 +254,9 @@ export class ExportService {
           new Error('No se encontraron cuotas para exportar')
         )
       }
+
+      // Validar límites de registros
+      this.configManager.validateRecordCount(quotas.length)
 
       const headers = ['id', '_creationDate', 'amount', 'budgetId', 'isDeleted']
 
@@ -179,6 +273,11 @@ export class ExportService {
       const filePath = await this.csvGenerator.generateCSV(csvData, headers, 'quotas')
       return filePath
     } catch (error) {
+      // Limpiar timeout en caso de error
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+
       if (error instanceof DataRetrievalException) {
         throw error
       }
@@ -191,10 +290,21 @@ export class ExportService {
    * @returns Promise<string> - Ruta del archivo CSV generado
    */
   async exportInterestsToCSV(): Promise<string> {
+    let timeout: NodeJS.Timeout | null = null
+
     try {
+      // Crear timeout para consulta de base de datos
+      timeout = this.configManager.createDatabaseTimeout()
+
       const interests = await this.interestRepository.find({
         order: { paymentTerm: 'ASC' }
       })
+
+      // Limpiar timeout después de la consulta exitosa
+      if (timeout) {
+        clearTimeout(timeout)
+        timeout = null
+      }
 
       if (!interests || interests.length === 0) {
         throw new DataRetrievalException(
@@ -202,6 +312,9 @@ export class ExportService {
           new Error('No se encontraron configuraciones de interés para exportar')
         )
       }
+
+      // Validar límites de registros
+      this.configManager.validateRecordCount(interests.length)
 
       const headers = [
         'id',
@@ -226,6 +339,11 @@ export class ExportService {
       const filePath = await this.csvGenerator.generateCSV(csvData, headers, 'interests')
       return filePath
     } catch (error) {
+      // Limpiar timeout en caso de error
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+
       if (error instanceof DataRetrievalException) {
         throw error
       }
@@ -275,6 +393,11 @@ export class ExportService {
 
       const zipPath = join('temp/exports', `complete_export_${Date.now()}.zip`)
       const zipFilePath = await this.zipGenerator.createZip(tempFiles, zipPath)
+
+      // Validar tamaño del ZIP generado
+      const fs = await import('fs/promises')
+      const zipStats = await fs.stat(zipFilePath)
+      this.configManager.validateZipSize(zipStats.size)
 
       console.log(`Exportación completa finalizada: ${zipFilePath}`)
 
@@ -330,24 +453,33 @@ export class ExportService {
       return
     }
 
+    const operation = 'cleanupTempFiles'
     const fs = await import('fs/promises')
     let cleanedCount = 0
     let failedCount = 0
+    let totalSize = 0
 
     for (const file of files) {
       try {
         // Verificar si el archivo existe antes de intentar eliminarlo
         await fs.access(file)
+        const stats = await fs.stat(file)
+        totalSize += stats.size
+
         await fs.unlink(file)
         cleanedCount++
+
+        this.logger.logFileAccess(operation, file, 'DELETE', true, stats.size)
         console.log(`Archivo temporal eliminado: ${file}`)
       } catch (error) {
         failedCount++
+        this.logger.logFileAccess(operation, file, 'DELETE', false)
         // Continuar con la limpieza aunque falle un archivo
         console.warn(`No se pudo eliminar archivo temporal: ${file}`, error)
       }
     }
 
+    this.logger.logCleanup(operation, cleanedCount, failedCount, totalSize)
     console.log(`Limpieza completada: ${cleanedCount} archivos eliminados, ${failedCount} fallos`)
   }
 

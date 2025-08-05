@@ -219,10 +219,49 @@ export class FileUtils {
       const resolvedPath = resolve(filePath)
       const resolvedBasePath = resolve(allowedBasePath)
 
-      return resolvedPath.startsWith(resolvedBasePath)
+      // Verificar que esté dentro del directorio base permitido
+      if (!resolvedPath.startsWith(resolvedBasePath)) {
+        return false
+      }
+
+      // Verificar que no contenga caracteres peligrosos
+      const dangerousPatterns = [
+        /\.\./, // Path traversal
+        /[<>:"|?*]/, // Caracteres inválidos en Windows
+        /[\x00-\x1f]/, // Caracteres de control
+        /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i // Nombres reservados en Windows
+      ]
+
+      for (const pattern of dangerousPatterns) {
+        if (pattern.test(filePath)) {
+          return false
+        }
+      }
+
+      return true
     } catch (error) {
       return false
     }
+  }
+
+  /**
+   * Sanitiza un nombre de archivo para que sea seguro
+   * @param filename - Nombre de archivo a sanitizar
+   * @returns string - Nombre de archivo sanitizado
+   */
+  static sanitizeFilename(filename: string): string {
+    if (!filename || typeof filename !== 'string') {
+      return 'unnamed_file'
+    }
+
+    return filename
+      .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_') // Reemplazar caracteres inválidos
+      .replace(/^\.+/, '_') // No permitir nombres que empiecen con puntos
+      .replace(/\s+/g, '_') // Reemplazar espacios con guiones bajos
+      .replace(/^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i, '_$1') // Evitar nombres reservados
+      .substring(0, 100) // Limitar longitud
+      .trim()
+      .replace(/\.$/, '_') // No permitir nombres que terminen con punto
   }
 
   /**
