@@ -3,8 +3,9 @@ export { UserService } from './UserService'
 export { BudgetService } from './BudgetService'
 export { QuotaService } from './QuotaService'
 export { InterestService } from './InterestService'
+export { ExportService } from './ExportService'
 
-// Exception exports
+// Nunca mas hago excepciones para TS, extraño javita hermano
 export {
   UserNotFoundException as UserServiceUserNotFoundException,
   DuplicateEmailException as UserServiceDuplicateEmailException,
@@ -32,3 +33,5 @@ export {
   DuplicatePaymentTermException as InterestServiceDuplicatePaymentTermException,
   ValidationException as InterestServiceValidationException
 } from './InterestService'
+
+export type { ExportResult } from './ExportService'

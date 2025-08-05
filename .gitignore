@@ -7,3 +7,5 @@ out
 .kiro
 .vscode
 temp/exports/temp/integration-test
+temp
+*.js

@@ -18,12 +18,14 @@ export class FileUtils {
   static createTempDirectory(subDir?: string): string {
     const baseDir = resolve(FileUtils.DEFAULT_TEMP_DIR)
     const fullPath = subDir ? join(baseDir, subDir) : baseDir
-    
+
     try {
       mkdirSync(fullPath, { recursive: true })
       return fullPath
     } catch (error) {
-      throw new Error(`Error creando directorio temporal ${fullPath}: ${error instanceof Error ? error.message : 'Error desconocido'}`)
+      throw new Error(
+        `Error creando directorio temporal ${fullPath}: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      )
     }
   }
 
@@ -38,7 +40,7 @@ export class FileUtils {
     const timestamp = Date.now()
     const random = Math.random().toString(36).substring(2, 8)
     const uniqueFilename = `${filename}_${timestamp}_${random}.${extension}`
-    
+
     const tempDir = FileUtils.createTempDirectory(subDir)
     return join(tempDir, uniqueFilename)
   }
@@ -62,15 +64,15 @@ export class FileUtils {
 
     try {
       const files = readdirSync(directory, { withFileTypes: true })
-      
+
       for (const file of files) {
         const filePath = join(directory, file.name)
-        
+
         if (file.isFile()) {
           try {
             const stats = statSync(filePath)
             const fileAge = now - stats.mtime.getTime()
-            
+
             if (fileAge > maxAgeMs) {
               unlinkSync(filePath)
               deletedCount++
@@ -83,7 +85,7 @@ export class FileUtils {
           // Recursivamente limpiar subdirectorios
           const subDirDeleted = await FileUtils.cleanupTempFiles(maxAgeMs, filePath)
           deletedCount += subDirDeleted
-          
+
           // Intentar eliminar directorio si está vacío
           try {
             const remainingFiles = readdirSync(filePath)
@@ -96,7 +98,9 @@ export class FileUtils {
         }
       }
     } catch (error) {
-      throw new Error(`Error limpiando archivos temporales: ${error instanceof Error ? error.message : 'Error desconocido'}`)
+      throw new Error(
+        `Error limpiando archivos temporales: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      )
     }
 
     return deletedCount
@@ -109,7 +113,7 @@ export class FileUtils {
    */
   static async deleteFiles(filePaths: string[]): Promise<number> {
     let deletedCount = 0
-    
+
     for (const filePath of filePaths) {
       try {
         if (existsSync(filePath)) {
@@ -120,7 +124,7 @@ export class FileUtils {
         console.warn(`No se pudo eliminar archivo ${filePath}:`, error)
       }
     }
-    
+
     return deletedCount
   }
 
@@ -176,7 +180,7 @@ export class FileUtils {
    * @param filePath - Ruta del archivo
    * @returns object - Información del archivo o null si no existe
    */
-  static getFileInfo(filePath: string): { 
+  static getFileInfo(filePath: string): {
     path: string
     size: number
     created: Date
@@ -187,7 +191,7 @@ export class FileUtils {
       if (!FileUtils.fileExists(filePath)) {
         return null
       }
-      
+
       const stats = statSync(filePath)
       return {
         path: filePath,
@@ -202,16 +206,19 @@ export class FileUtils {
   }
 
   /**
-   * Valida que una ruta sea segura (previene path traversal)
+   * Valida que una ruta sea segura
    * @param filePath - Ruta a validar
    * @param allowedBasePath - Ruta base permitida
    * @returns boolean - True si la ruta es segura
    */
-  static isPathSafe(filePath: string, allowedBasePath: string = FileUtils.DEFAULT_TEMP_DIR): boolean {
+  static isPathSafe(
+    filePath: string,
+    allowedBasePath: string = FileUtils.DEFAULT_TEMP_DIR
+  ): boolean {
     try {
       const resolvedPath = resolve(filePath)
       const resolvedBasePath = resolve(allowedBasePath)
-      
+
       return resolvedPath.startsWith(resolvedBasePath)
     } catch (error) {
       return false
@@ -225,7 +232,7 @@ export class FileUtils {
    */
   static async createDirectories(paths: string[]): Promise<string[]> {
     const createdPaths: string[] = []
-    
+
     for (const path of paths) {
       try {
         mkdirSync(path, { recursive: true })
@@ -234,7 +241,7 @@ export class FileUtils {
         console.warn(`No se pudo crear directorio ${path}:`, error)
       }
     }
-    
+
     return createdPaths
   }
 
@@ -249,6 +256,8 @@ export class FileUtils {
   /**
    * Obtiene estadísticas del directorio temporal de exportaciones
    * @returns object - Estadísticas del directorio
+   * Que metodo de mierda, me da siempre error en el controller
+   * TODO: Reworkear esto, no se como pero hacerlo
    */
   static getTempDirectoryStats(): {
     exists: boolean
@@ -258,7 +267,7 @@ export class FileUtils {
     newestFile?: Date
   } {
     const tempDir = resolve(FileUtils.DEFAULT_TEMP_DIR)
-    
+
     if (!existsSync(tempDir)) {
       return {
         exists: false,
@@ -278,14 +287,14 @@ export class FileUtils {
         if (file.isFile()) {
           const filePath = join(tempDir, file.name)
           const stats = statSync(filePath)
-          
+
           fileCount++
           totalSize += stats.size
-          
+
           if (!oldestFile || stats.mtime < oldestFile) {
             oldestFile = stats.mtime
           }
-          
+
           if (!newestFile || stats.mtime > newestFile) {
             newestFile = stats.mtime
           }

@@ -100,5 +100,3 @@ export class DatabaseOperationException extends BaseException {
     )
   }
 }
-
-

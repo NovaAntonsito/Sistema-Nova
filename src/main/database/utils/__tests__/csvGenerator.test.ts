@@ -75,7 +75,12 @@ describe('CsvGenerator', () => {
       ]
       const headers = ['id', 'name', 'email']
 
-      const filePath = await csvGenerator.generateCSV(testData, headers, 'test-users', testOutputDir)
+      const filePath = await csvGenerator.generateCSV(
+        testData,
+        headers,
+        'test-users',
+        testOutputDir
+      )
 
       expect(existsSync(filePath)).toBe(true)
 
@@ -88,12 +93,15 @@ describe('CsvGenerator', () => {
     })
 
     it('should handle data with special characters', async () => {
-      const testData = [
-        { id: 1, name: 'John, Jr.', comment: 'Says "Hello"' },
-      ]
+      const testData = [{ id: 1, name: 'John, Jr.', comment: 'Says "Hello"' }]
       const headers = ['id', 'name', 'comment']
 
-      const filePath = await csvGenerator.generateCSV(testData, headers, 'test-special', testOutputDir)
+      const filePath = await csvGenerator.generateCSV(
+        testData,
+        headers,
+        'test-special',
+        testOutputDir
+      )
       const content = readFileSync(filePath, 'utf8')
       const lines = content.split('\r\n')
 

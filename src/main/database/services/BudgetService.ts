@@ -101,12 +101,12 @@ export class BudgetService {
     // Crear presupuesto
     const budget = new Budget()
     budget._expirationDate = createBudgetDto._expirationDate
-    budget.currentStatus = Status.ACTIVE // Requirement 2.4
+    budget.currentStatus = Status.ACTIVE
     budget.totalAmount = totalAmount
     budget.currentInterest = interestRate
     budget.paymentTerm = createBudgetDto.paymentTerm
     budget.code = code
-    budget.quotaList = [] // Requirement 2.5
+    budget.quotaList = []
     budget.user = user
 
     const savedBudget = await this.budgetRepository.save(budget)
@@ -172,7 +172,6 @@ export class BudgetService {
       throw new BudgetNotFoundException(id)
     }
 
-    // Solo se permite agregar cuotas después de la creación (Requirement 2.7, 2.8)
     if (updateBudgetDto.quotaToAdd) {
       await this.addQuotaToBudget(id, updateBudgetDto.quotaToAdd.amount)
     }

@@ -41,6 +41,9 @@ export class ZipCreationException extends ExportException {
  */
 export class FileCleanupException extends ExportException {
   constructor(directory: string, cause?: Error) {
-    super(`Error limpiando archivos temporales en: ${directory}`, { directory, cause: cause?.message })
+    super(`Error limpiando archivos temporales en: ${directory}`, {
+      directory,
+      cause: cause?.message
+    })
   }
 }

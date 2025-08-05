@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { ZipGenerator, type ExportMetadata } from '../zipGenerator'
+import { ZipGenerator } from '../zipGenerator'
 import { existsSync, rmSync, writeFileSync, mkdirSync } from 'fs'
 import { join } from 'path'
 
@@ -38,17 +38,17 @@ describe('ZipGenerator', () => {
   describe('calculateTotalSize', () => {
     it('should calculate total size of files', async () => {
       mkdirSync(testDir, { recursive: true })
-      
+
       const file1 = join(testDir, 'test1.txt')
       const file2 = join(testDir, 'test2.txt')
       const content1 = 'Hello World'
       const content2 = 'Test Content'
-      
+
       writeFileSync(file1, content1)
       writeFileSync(file2, content2)
 
       const totalSize = await zipGenerator.calculateTotalSize([file1, file2])
-      
+
       expect(totalSize).toBe(content1.length + content2.length)
     })
 
@@ -61,7 +61,7 @@ describe('ZipGenerator', () => {
   describe('validateFiles', () => {
     it('should return true for existing files', async () => {
       mkdirSync(testDir, { recursive: true })
-      
+
       const file1 = join(testDir, 'test1.txt')
       writeFileSync(file1, 'content')
 
@@ -78,13 +78,13 @@ describe('ZipGenerator', () => {
   describe('getFilesInfo', () => {
     it('should return correct file information', async () => {
       mkdirSync(testDir, { recursive: true })
-      
+
       const file1 = join(testDir, 'test1.txt')
       const content = 'test content'
       writeFileSync(file1, content)
 
       const filesInfo = await zipGenerator.getFilesInfo([file1])
-      
+
       expect(filesInfo).toHaveLength(1)
       expect(filesInfo[0].path).toBe(file1)
       expect(filesInfo[0].name).toBe('test1.txt')
@@ -94,7 +94,7 @@ describe('ZipGenerator', () => {
 
     it('should handle non-existing files', async () => {
       const filesInfo = await zipGenerator.getFilesInfo(['non-existent.txt'])
-      
+
       expect(filesInfo).toHaveLength(1)
       expect(filesInfo[0].exists).toBe(false)
       expect(filesInfo[0].size).toBe(0)
@@ -104,16 +104,16 @@ describe('ZipGenerator', () => {
   describe('createZip', () => {
     it('should create zip file with multiple files', async () => {
       mkdirSync(testDir, { recursive: true })
-      
+
       const file1 = join(testDir, 'test1.csv')
       const file2 = join(testDir, 'test2.csv')
       const zipPath = join(testDir, 'test.zip')
-      
+
       writeFileSync(file1, 'id,name\n1,John')
       writeFileSync(file2, 'id,amount\n1,100')
 
       const resultPath = await zipGenerator.createZip([file1, file2], zipPath)
-      
+
       expect(resultPath).toBe(zipPath)
       expect(existsSync(zipPath)).toBe(true)
     })
