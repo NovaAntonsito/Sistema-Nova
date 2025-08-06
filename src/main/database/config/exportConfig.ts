@@ -7,20 +7,20 @@ export interface ExportConfig {
   MAX_RECORDS_PER_EXPORT: number
   MAX_FILE_SIZE_MB: number
   MAX_ZIP_SIZE_MB: number
-  
+
   // Timeouts
   EXPORT_TIMEOUT_MS: number
   DATABASE_QUERY_TIMEOUT_MS: number
   FILE_WRITE_TIMEOUT_MS: number
-  
+
   // Rutas y directorios
   TEMP_DIR: string
   EXPORT_DIR: string
-  
+
   // Limpieza automática
   CLEANUP_INTERVAL_MS: number
   MAX_FILE_AGE_MS: number
-  
+
   // Seguridad
   ALLOWED_FILE_EXTENSIONS: string[]
   MAX_FILENAME_LENGTH: number
@@ -35,20 +35,20 @@ export const DEFAULT_EXPORT_CONFIG: ExportConfig = {
   MAX_RECORDS_PER_EXPORT: 100000,
   MAX_FILE_SIZE_MB: 50,
   MAX_ZIP_SIZE_MB: 200,
-  
+
   // Timeouts (Requisito 6.3)
   EXPORT_TIMEOUT_MS: 5 * 60 * 1000, // 5 minutos
   DATABASE_QUERY_TIMEOUT_MS: 2 * 60 * 1000, // 2 minutos
   FILE_WRITE_TIMEOUT_MS: 30 * 1000, // 30 segundos
-  
+
   // Rutas y directorios
   TEMP_DIR: 'temp/exports',
   EXPORT_DIR: 'exports',
-  
+
   // Limpieza automática
   CLEANUP_INTERVAL_MS: 60 * 60 * 1000, // 1 hora
   MAX_FILE_AGE_MS: 24 * 60 * 60 * 1000, // 24 horas
-  
+
   // Seguridad
   ALLOWED_FILE_EXTENSIONS: ['.csv', '.zip', '.json'],
   MAX_FILENAME_LENGTH: 100,
@@ -131,7 +131,9 @@ export class ExportConfigManager {
    */
   createTimeout(operation: string): NodeJS.Timeout {
     const timeout = setTimeout(() => {
-      throw new Error(`Operación '${operation}' excedió el tiempo límite (${this.config.EXPORT_TIMEOUT_MS}ms)`)
+      throw new Error(
+        `Operación '${operation}' excedió el tiempo límite (${this.config.EXPORT_TIMEOUT_MS}ms)`
+      )
     }, this.config.EXPORT_TIMEOUT_MS)
 
     return timeout
@@ -142,7 +144,9 @@ export class ExportConfigManager {
    */
   createDatabaseTimeout(): NodeJS.Timeout {
     const timeout = setTimeout(() => {
-      throw new Error(`Consulta de base de datos excedió el tiempo límite (${this.config.DATABASE_QUERY_TIMEOUT_MS}ms)`)
+      throw new Error(
+        `Consulta de base de datos excedió el tiempo límite (${this.config.DATABASE_QUERY_TIMEOUT_MS}ms)`
+      )
     }, this.config.DATABASE_QUERY_TIMEOUT_MS)
 
     return timeout
@@ -153,12 +157,12 @@ export class ExportConfigManager {
    */
   private loadEnvironmentOverrides(): void {
     const envMappings: Record<string, keyof ExportConfig> = {
-      'EXPORT_MAX_RECORDS': 'MAX_RECORDS_PER_EXPORT',
-      'EXPORT_MAX_FILE_SIZE_MB': 'MAX_FILE_SIZE_MB',
-      'EXPORT_MAX_ZIP_SIZE_MB': 'MAX_ZIP_SIZE_MB',
-      'EXPORT_TIMEOUT_MS': 'EXPORT_TIMEOUT_MS',
-      'EXPORT_TEMP_DIR': 'TEMP_DIR',
-      'EXPORT_DIR': 'EXPORT_DIR'
+      EXPORT_MAX_RECORDS: 'MAX_RECORDS_PER_EXPORT',
+      EXPORT_MAX_FILE_SIZE_MB: 'MAX_FILE_SIZE_MB',
+      EXPORT_MAX_ZIP_SIZE_MB: 'MAX_ZIP_SIZE_MB',
+      EXPORT_TIMEOUT_MS: 'EXPORT_TIMEOUT_MS',
+      EXPORT_TEMP_DIR: 'TEMP_DIR',
+      EXPORT_DIR: 'EXPORT_DIR'
     }
 
     for (const [envVar, configKey] of Object.entries(envMappings)) {

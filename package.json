@@ -28,9 +28,11 @@
     "@electron-toolkit/utils": "^4.0.0",
     "@types/better-sqlite3": "^7.6.13",
     "better-sqlite3": "^11.10.0",
+    "csv-parser": "^3.2.0",
     "react-router-dom": "^7.7.1",
     "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.25"
+    "typeorm": "^0.3.25",
+    "yauzl": "^3.2.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",
@@ -42,6 +44,7 @@
     "@types/node": "^22.16.5",
     "@types/react": "^19.1.1",
     "@types/react-dom": "^19.1.2",
+    "@types/yauzl": "^2.10.3",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/ui": "^3.2.4",
     "electron": "^35.1.5",

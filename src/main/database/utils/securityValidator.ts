@@ -107,9 +107,10 @@ export class SecurityValidator {
         result.isValid,
         result.errors.join('; ')
       )
-
     } catch (error) {
-      result.errors.push(`Error validando ruta: ${error instanceof Error ? error.message : 'Error desconocido'}`)
+      result.errors.push(
+        `Error validando ruta: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      )
       result.isValid = false
     }
 
@@ -180,9 +181,10 @@ export class SecurityValidator {
         result.isValid,
         `Original: ${filename}, Sanitized: ${sanitizedFilename}`
       )
-
     } catch (error) {
-      result.errors.push(`Error validando nombre de archivo: ${error instanceof Error ? error.message : 'Error desconocido'}`)
+      result.errors.push(
+        `Error validando nombre de archivo: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      )
       result.isValid = false
     }
 
@@ -233,7 +235,9 @@ export class SecurityValidator {
       })
 
       if (suspiciousCount > 0) {
-        result.warnings.push(`Se detectaron y sanitizaron ${suspiciousCount} valores con posible inyección de fórmulas`)
+        result.warnings.push(
+          `Se detectaron y sanitizaron ${suspiciousCount} valores con posible inyección de fórmulas`
+        )
       }
 
       result.sanitizedValue = sanitizedData
@@ -245,9 +249,10 @@ export class SecurityValidator {
         result.isValid,
         `Registros procesados: ${data.length}, Valores sanitizados: ${suspiciousCount}`
       )
-
     } catch (error) {
-      result.errors.push(`Error validando datos CSV: ${error instanceof Error ? error.message : 'Error desconocido'}`)
+      result.errors.push(
+        `Error validando datos CSV: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      )
       result.isValid = false
     }
 
@@ -266,7 +271,7 @@ export class SecurityValidator {
 
     // Caracteres que pueden iniciar fórmulas peligrosas
     const dangerousStarters = ['=', '+', '-', '@', '\t', '\r']
-    return dangerousStarters.some(starter => value.startsWith(starter))
+    return dangerousStarters.some((starter) => value.startsWith(starter))
   }
 
   /**
@@ -281,7 +286,7 @@ export class SecurityValidator {
 
     // Si empieza con carácter peligroso, agregar comilla simple
     const dangerousStarters = ['=', '+', '-', '@', '\t', '\r']
-    if (dangerousStarters.some(starter => value.startsWith(starter))) {
+    if (dangerousStarters.some((starter) => value.startsWith(starter))) {
       return `'${value}`
     }
 
@@ -312,12 +317,16 @@ export class SecurityValidator {
       const MAX_SIZE_BYTES = 50 * 1024 * 1024 // 50MB
 
       if (recordCount > MAX_RECORDS) {
-        result.errors.push(`Número de registros (${recordCount}) excede el límite máximo (${MAX_RECORDS})`)
+        result.errors.push(
+          `Número de registros (${recordCount}) excede el límite máximo (${MAX_RECORDS})`
+        )
         result.isValid = false
       }
 
       if (estimatedSize > MAX_SIZE_BYTES) {
-        result.errors.push(`Tamaño estimado (${(estimatedSize / 1024 / 1024).toFixed(2)}MB) excede el límite máximo (${MAX_SIZE_BYTES / 1024 / 1024}MB)`)
+        result.errors.push(
+          `Tamaño estimado (${(estimatedSize / 1024 / 1024).toFixed(2)}MB) excede el límite máximo (${MAX_SIZE_BYTES / 1024 / 1024}MB)`
+        )
         result.isValid = false
       }
 
@@ -337,9 +346,10 @@ export class SecurityValidator {
         result.isValid,
         `Records: ${recordCount}, Size: ${(estimatedSize / 1024 / 1024).toFixed(2)}MB`
       )
-
     } catch (error) {
-      result.errors.push(`Error validando límites de recursos: ${error instanceof Error ? error.message : 'Error desconocido'}`)
+      result.errors.push(
+        `Error validando límites de recursos: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      )
       result.isValid = false
     }
 
@@ -368,7 +378,11 @@ export class SecurityValidator {
 
     // Validar ruta de archivo si se proporciona
     if (params.filePath && params.allowedBasePath) {
-      const pathResult = this.validateFilePath(params.filePath, params.allowedBasePath, params.operation)
+      const pathResult = this.validateFilePath(
+        params.filePath,
+        params.allowedBasePath,
+        params.operation
+      )
       result.errors.push(...pathResult.errors)
       result.warnings.push(...pathResult.warnings)
       if (!pathResult.isValid) {
@@ -398,7 +412,11 @@ export class SecurityValidator {
 
     // Validar límites de recursos si se proporcionan
     if (params.recordCount !== undefined && params.estimatedSize !== undefined) {
-      const resourceResult = this.validateResourceLimits(params.recordCount, params.estimatedSize, params.operation)
+      const resourceResult = this.validateResourceLimits(
+        params.recordCount,
+        params.estimatedSize,
+        params.operation
+      )
       result.errors.push(...resourceResult.errors)
       result.warnings.push(...resourceResult.warnings)
       if (!resourceResult.isValid) {

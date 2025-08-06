@@ -50,14 +50,24 @@ export class CsvGenerator {
         this.configManager.validateRecordCount(data.length)
         this.logger.logSecurityValidation(operation, 'record-count-limit', true)
       } catch (error) {
-        this.logger.logLimitViolation(operation, 'record-count', data.length, this.configManager.getConfig().MAX_RECORDS_PER_EXPORT)
+        this.logger.logLimitViolation(
+          operation,
+          'record-count',
+          data.length,
+          this.configManager.getConfig().MAX_RECORDS_PER_EXPORT
+        )
         throw error
       }
 
       // Validar y sanitizar rutas
       const safeOutputDir = this.validateAndSanitizePath(outputDir)
       const safeFilename = this.sanitizeFilename(filename)
-      this.logger.logSecurityValidation(operation, 'path-sanitization', true, `${safeOutputDir}/${safeFilename}`)
+      this.logger.logSecurityValidation(
+        operation,
+        'path-sanitization',
+        true,
+        `${safeOutputDir}/${safeFilename}`
+      )
 
       // Crear directorio si no existe
       mkdirSync(safeOutputDir, { recursive: true })
@@ -75,9 +85,19 @@ export class CsvGenerator {
       const contentSizeBytes = Buffer.byteLength(csvContent, 'utf8')
       try {
         this.configManager.validateFileSize(contentSizeBytes)
-        this.logger.logSecurityValidation(operation, 'file-size-limit', true, `${(contentSizeBytes / 1024 / 1024).toFixed(2)}MB`)
+        this.logger.logSecurityValidation(
+          operation,
+          'file-size-limit',
+          true,
+          `${(contentSizeBytes / 1024 / 1024).toFixed(2)}MB`
+        )
       } catch (error) {
-        this.logger.logLimitViolation(operation, 'file-size', contentSizeBytes, this.configManager.getConfig().MAX_FILE_SIZE_MB * 1024 * 1024)
+        this.logger.logLimitViolation(
+          operation,
+          'file-size',
+          contentSizeBytes,
+          this.configManager.getConfig().MAX_FILE_SIZE_MB * 1024 * 1024
+        )
         throw error
       }
 
@@ -167,9 +187,9 @@ export class CsvGenerator {
 
     // Validar que no contenga caracteres peligrosos
     const dangerousPatterns = [
-      /\.\./,  // Path traversal
-      /[<>:"|?*]/,  // Caracteres inválidos en Windows
-      /[\x00-\x1f]/,  // Caracteres de control
+      /\.\./, // Path traversal
+      /[<>:"|?*]/, // Caracteres inválidos en Windows
+      /[\x00-\x1f]/ // Caracteres de control
     ]
 
     for (const pattern of dangerousPatterns) {
@@ -194,7 +214,7 @@ export class CsvGenerator {
    */
   private sanitizeFilename(filename: string): string {
     const config = this.configManager.getConfig()
-    
+
     return filename
       .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_') // Reemplazar caracteres inválidos
       .replace(/^\.+/, '_') // No permitir nombres que empiecen con puntos
@@ -297,9 +317,9 @@ export class CsvGenerator {
 
     // Caracteres peligrosos que pueden iniciar fórmulas
     const dangerousChars = ['=', '+', '-', '@', '\t', '\r']
-    
+
     // Si el valor comienza con un carácter peligroso, agregar comilla simple
-    if (dangerousChars.some(char => value.startsWith(char))) {
+    if (dangerousChars.some((char) => value.startsWith(char))) {
       return `'${value}`
     }
 

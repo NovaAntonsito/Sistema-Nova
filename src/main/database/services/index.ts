@@ -4,6 +4,7 @@ export { BudgetService } from './BudgetService'
 export { QuotaService } from './QuotaService'
 export { InterestService } from './InterestService'
 export { ExportService } from './ExportService'
+export { BackupManager } from './BackupManager'
 
 // Nunca mas hago excepciones para TS, extraño javita hermano
 export {

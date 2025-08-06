@@ -57,7 +57,7 @@ export class ExportLogger {
     this.auditLogPath = join(this.logDir, 'export-audit.log')
     this.errorLogPath = join(this.logDir, 'export-errors.log')
     this.metricsLogPath = join(this.logDir, 'export-metrics.log')
-    
+
     this.ensureLogDirectory()
   }
 
@@ -87,11 +87,7 @@ export class ExportLogger {
   /**
    * Registra una operación de exportación completada exitosamente
    */
-  logExportSuccess(
-    operation: string, 
-    duration: number, 
-    metadata?: Record<string, any>
-  ): void {
+  logExportSuccess(operation: string, duration: number, metadata?: Record<string, any>): void {
     this.log({
       timestamp: new Date(),
       level: LogLevel.AUDIT,
@@ -116,9 +112,9 @@ export class ExportLogger {
    * Registra un error en operación de exportación
    */
   logExportError(
-    operation: string, 
-    error: Error, 
-    duration?: number, 
+    operation: string,
+    error: Error,
+    duration?: number,
     metadata?: Record<string, any>
   ): void {
     this.log({
@@ -146,9 +142,9 @@ export class ExportLogger {
    * Registra información de validación de seguridad
    */
   logSecurityValidation(
-    operation: string, 
-    validationType: string, 
-    success: boolean, 
+    operation: string,
+    validationType: string,
+    success: boolean,
     details?: string
   ): void {
     this.log({
@@ -168,8 +164,8 @@ export class ExportLogger {
    * Registra acceso a archivos
    */
   logFileAccess(
-    operation: string, 
-    filePath: string, 
+    operation: string,
+    filePath: string,
     action: 'CREATE' | 'READ' | 'WRITE' | 'DELETE',
     success: boolean,
     fileSize?: number
@@ -285,13 +281,13 @@ export class ExportLogger {
    */
   private log(entry: LogEntry): void {
     const logLine = this.formatLogEntry(entry)
-    
+
     // Escribir a consola para desarrollo
     console.log(logLine)
-    
+
     // Escribir a archivo de auditoría
     this.writeToFile(this.auditLogPath, logLine)
-    
+
     // Si es un error, también escribir al log de errores
     if (entry.level === LogLevel.ERROR) {
       this.writeToFile(this.errorLogPath, logLine)
@@ -306,7 +302,7 @@ export class ExportLogger {
       ...metrics,
       timestamp: new Date().toISOString()
     })
-    
+
     this.writeToFile(this.metricsLogPath, metricsLine)
   }
 
@@ -317,24 +313,24 @@ export class ExportLogger {
     const timestamp = entry.timestamp.toISOString()
     const level = entry.level.padEnd(5)
     const operation = entry.operation.padEnd(20)
-    
+
     let logLine = `[${timestamp}] ${level} [${operation}] ${entry.message}`
-    
+
     if (entry.duration !== undefined) {
       logLine += ` (${entry.duration}ms)`
     }
-    
+
     if (entry.metadata) {
       logLine += ` | Metadata: ${JSON.stringify(entry.metadata)}`
     }
-    
+
     if (entry.error) {
       logLine += ` | Error: ${entry.error.message}`
       if (entry.error.stack) {
         logLine += ` | Stack: ${entry.error.stack}`
       }
     }
-    
+
     return logLine
   }
 
@@ -344,7 +340,7 @@ export class ExportLogger {
   private writeToFile(filePath: string, content: string): void {
     try {
       const logLine = content + '\n'
-      
+
       if (existsSync(filePath)) {
         appendFileSync(filePath, logLine, 'utf8')
       } else {
@@ -381,7 +377,7 @@ export class ExportLogger {
     lastErrorEntry?: Date
   } {
     const fs = require('fs')
-    
+
     const stats = {
       auditLogSize: 0,
       errorLogSize: 0,
@@ -389,20 +385,20 @@ export class ExportLogger {
       lastAuditEntry: undefined as Date | undefined,
       lastErrorEntry: undefined as Date | undefined
     }
-    
+
     try {
       if (existsSync(this.auditLogPath)) {
         const auditStats = fs.statSync(this.auditLogPath)
         stats.auditLogSize = auditStats.size
         stats.lastAuditEntry = auditStats.mtime
       }
-      
+
       if (existsSync(this.errorLogPath)) {
         const errorStats = fs.statSync(this.errorLogPath)
         stats.errorLogSize = errorStats.size
         stats.lastErrorEntry = errorStats.mtime
       }
-      
+
       if (existsSync(this.metricsLogPath)) {
         const metricsStats = fs.statSync(this.metricsLogPath)
         stats.metricsLogSize = metricsStats.size
@@ -410,7 +406,7 @@ export class ExportLogger {
     } catch (error) {
       console.error('Error obteniendo estadísticas de logs:', error)
     }
-    
+
     return stats
   }
 
@@ -421,15 +417,15 @@ export class ExportLogger {
     // Implementación básica - en producción se podría rotar logs
     const now = Date.now()
     const fs = require('fs')
-    
+
     const logFiles = [this.auditLogPath, this.errorLogPath, this.metricsLogPath]
-    
+
     for (const logFile of logFiles) {
       try {
         if (existsSync(logFile)) {
           const stats = fs.statSync(logFile)
           const fileAge = now - stats.mtime.getTime()
-          
+
           if (fileAge > maxAgeMs) {
             // En lugar de eliminar, podríamos archivar
             console.log(`Log file ${logFile} is older than ${maxAgeMs}ms, consider archiving`)
