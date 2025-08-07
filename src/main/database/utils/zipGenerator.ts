@@ -24,7 +24,6 @@ export interface ExportMetadata {
 export class ZipGenerator {
   /**
    * Crea un archivo ZIP con los archivos especificados
-   * Cumple con requisito 5.1 - generar archivo ZIP con todos los CSV
    * @param files - Array de rutas de archivos a incluir en el ZIP
    * @param outputPath - Ruta completa del archivo ZIP de salida
    * @returns Promise<string> - Ruta del archivo ZIP creado
@@ -70,8 +69,6 @@ export class ZipGenerator {
 
   /**
    * Implementación básica de ZIP usando compresión gzip
-   * Nota: Esta es una implementación simplificada para cumplir con los requisitos
-   * En producción se recomendaría usar una librería especializada como 'archiver'
    * @param files - Archivos a comprimir
    * @returns Promise<Buffer> - Contenido comprimido
    */

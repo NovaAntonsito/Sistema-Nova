@@ -9,3 +9,4 @@ out
 temp/exports/temp/integration-test
 temp
 *.js
+**/*[tT][eE][sS][tT]*/

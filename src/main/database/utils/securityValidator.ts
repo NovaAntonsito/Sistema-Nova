@@ -1,20 +1,13 @@
 import { resolve, normalize } from 'path'
 import { ExportLogger } from './exportLogger'
 
-/**
- * Resultado de validación de seguridad
- */
+
 export interface SecurityValidationResult {
   isValid: boolean
   errors: string[]
   warnings: string[]
   sanitizedValue?: any
 }
-
-/**
- * Validador de seguridad para operaciones de exportación
- * Centraliza todas las validaciones de seguridad en un solo lugar
- */
 export class SecurityValidator {
   private static instance: SecurityValidator
   private logger: ExportLogger
@@ -25,6 +18,7 @@ export class SecurityValidator {
 
   /**
    * Obtiene la instancia singleton del validador
+   * Porfin hice bien un singleton
    */
   static getInstance(): SecurityValidator {
     if (!SecurityValidator.instance) {

@@ -7,10 +7,10 @@
  * Tipos de entidades que pueden ser importadas
  */
 export enum EntityType {
-  USER = 'user',
-  BUDGET = 'budget',
-  QUOTA = 'quota',
-  INTEREST = 'interest'
+  USER = 'users',
+  BUDGET = 'budgets',
+  QUOTA = 'quotas',
+  INTEREST = 'interests'
 }
 
 /**
@@ -211,6 +211,139 @@ export interface CSVSchema {
 }
 
 /**
+ * Configuración de procesamiento por lotes
+ */
+export interface BatchProcessingConfig {
+  batchSize: number
+  maxConcurrentBatches: number
+  enableParallelProcessing: boolean
+  transactionBatchSize: number
+}
+
+/**
+ * Resultado de procesamiento por lotes
+ */
+export interface BatchProcessingResult<T> {
+  processedItems: T[]
+  errors: BatchProcessingError[]
+  totalBatches: number
+  successfulBatches: number
+  failedBatches: number
+  duration: number
+}
+
+/**
+ * Error de procesamiento por lotes
+ */
+export interface BatchProcessingError {
+  batchIndex: number
+  itemIndex: number
+  error: string
+  code: string
+}
+
+/**
+ * Configuración de streaming
+ */
+export interface StreamingConfig {
+  chunkSize: number
+  memoryLimitMB: number
+  enableBackpressure: boolean
+  bufferSize: number
+}
+
+/**
+ * Resultado de streaming
+ */
+export interface StreamingResult {
+  totalChunks: number
+  processedChunks: number
+  errors: StreamingError[]
+  duration: number
+  memoryUsage: MemoryUsage
+}
+
+/**
+ * Error de streaming
+ */
+export interface StreamingError {
+  chunkIndex: number
+  lineNumber: number
+  error: string
+  code: string
+}
+
+/**
+ * Uso de memoria
+ */
+export interface MemoryUsage {
+  heapUsed: number
+  heapTotal: number
+  external: number
+  rss: number
+}
+
+/**
+ * Métricas de rendimiento
+ */
+export interface PerformanceMetrics {
+  importId: string
+  startTime: Date
+  endTime: Date
+  totalDuration: number
+  
+  // Métricas de procesamiento
+  totalRecords: number
+  recordsPerSecond: number
+  batchesProcessed: number
+  averageBatchTime: number
+  
+  // Métricas de memoria
+  peakMemoryUsage: MemoryUsage
+  averageMemoryUsage: MemoryUsage
+  
+  // Métricas de base de datos
+  totalQueries: number
+  averageQueryTime: number
+  transactionCount: number
+  averageTransactionTime: number
+  
+  // Métricas de I/O
+  fileReadTime: number
+  fileWriteTime: number
+  networkTime: number
+}
+
+/**
+ * Progreso de importación
+ */
+export interface ImportProgress {
+  importId: string
+  currentPhase: ImportPhase
+  totalRecords: number
+  processedRecords: number
+  successfulRecords: number
+  failedRecords: number
+  currentBatch: number
+  totalBatches: number
+  estimatedTimeRemaining: number
+  currentSpeed: number // registros por segundo
+}
+
+/**
+ * Fases de importación
+ */
+export enum ImportPhase {
+  INITIALIZING = 'initializing',
+  PARSING = 'parsing',
+  VALIDATING = 'validating',
+  PROCESSING = 'processing',
+  FINALIZING = 'finalizing',
+  COMPLETED = 'completed',
+  FAILED = 'failed'
+}
+
+/**
  * Configuración de importación
  */
 export interface ImportConfig {
@@ -220,4 +353,22 @@ export interface ImportConfig {
   tempDirectory: string
   enableAutoRollback: boolean
   validationLevel: 'strict' | 'lenient'
+  
+  // Configuraciones de optimización
+  streamingThreshold: number // Tamaño de archivo en bytes para usar streaming
+  maxConcurrentBatches: number // Número máximo de lotes concurrentes
+  transactionBatchSize: number // Tamaño de lote para transacciones de BD
+  enableParallelProcessing: boolean // Habilitar procesamiento paralelo
+  memoryLimitMB: number // Límite de memoria en MB
+  
+  // Configuraciones de rendimiento
+  enableDatabaseOptimizations: boolean // Habilitar optimizaciones de BD
+  connectionPoolSize: number // Tamaño del pool de conexiones
+  queryTimeout: number // Timeout para queries en ms
+  enableIndexOptimization: boolean // Optimizar índices durante importación
+  
+  // Configuraciones de monitoreo
+  enableProgressReporting: boolean // Habilitar reporte de progreso
+  progressReportInterval: number // Intervalo de reporte en ms
+  enablePerformanceMetrics: boolean // Habilitar métricas de rendimiento
 }
