@@ -55,12 +55,12 @@ class ExportService {
   async exportUsers(): Promise<ApiResponse<string>> {
     try {
       const response = await window.electron.ipcRenderer.invoke('export:users')
-      
+
       // Handle file download if export was successful
       if (response.success && response.data) {
         await this.handleFileDownload(response.data, 'users.csv')
       }
-      
+
       return response
     } catch (error) {
       return {
@@ -76,12 +76,12 @@ class ExportService {
   async exportBudgets(): Promise<ApiResponse<string>> {
     try {
       const response = await window.electron.ipcRenderer.invoke('export:budgets')
-      
+
       // Handle file download if export was successful
       if (response.success && response.data) {
         await this.handleFileDownload(response.data, 'budgets.csv')
       }
-      
+
       return response
     } catch (error) {
       return {
@@ -97,12 +97,12 @@ class ExportService {
   async exportQuotas(): Promise<ApiResponse<string>> {
     try {
       const response = await window.electron.ipcRenderer.invoke('export:quotas')
-      
+
       // Handle file download if export was successful
       if (response.success && response.data) {
         await this.handleFileDownload(response.data, 'quotas.csv')
       }
-      
+
       return response
     } catch (error) {
       return {
@@ -118,12 +118,12 @@ class ExportService {
   async exportInterests(): Promise<ApiResponse<string>> {
     try {
       const response = await window.electron.ipcRenderer.invoke('export:interests')
-      
+
       // Handle file download if export was successful
       if (response.success && response.data) {
         await this.handleFileDownload(response.data, 'interests.csv')
       }
-      
+
       return response
     } catch (error) {
       return {
@@ -139,12 +139,12 @@ class ExportService {
   async exportComplete(): Promise<ApiResponse<ExportResult>> {
     try {
       const response = await window.electron.ipcRenderer.invoke('export:complete')
-      
+
       // Handle file download if export was successful
       if (response.success && response.data) {
         await this.handleFileDownload(response.data.zipFilePath, 'complete_export.zip')
       }
-      
+
       return response
     } catch (error) {
       return {
@@ -157,7 +157,9 @@ class ExportService {
   /**
    * Export selected data based on options
    */
-  async exportSelected(options: ExportOptions): Promise<ApiResponse<{ files: string[]; message: string }>> {
+  async exportSelected(
+    options: ExportOptions
+  ): Promise<ApiResponse<{ files: string[]; message: string }>> {
     try {
       const exportPromises: Promise<ApiResponse<string>>[] = []
       const exportedFiles: string[] = []
@@ -239,7 +241,9 @@ class ExportService {
   /**
    * Get export statistics for a specific entity type
    */
-  async getExportStats(entityType: 'users' | 'budgets' | 'quotas' | 'interests'): Promise<ApiResponse<number>> {
+  async getExportStats(
+    entityType: 'users' | 'budgets' | 'quotas' | 'interests'
+  ): Promise<ApiResponse<number>> {
     try {
       const response = await window.electron.ipcRenderer.invoke('export:stats', entityType)
       return response
@@ -254,11 +258,17 @@ class ExportService {
   /**
    * Handle file download for exported CSV files
    */
-  private async handleFileDownload(filePath: string, defaultFileName: string): Promise<FileDownloadResult> {
+  private async handleFileDownload(
+    filePath: string,
+    defaultFileName: string
+  ): Promise<FileDownloadResult> {
     try {
       // Request the backend to prepare the file for download
-      const downloadResult = await window.electron.ipcRenderer.invoke('export:prepareDownload', filePath)
-      
+      const downloadResult = await window.electron.ipcRenderer.invoke(
+        'export:prepareDownload',
+        filePath
+      )
+
       if (downloadResult.success) {
         // Trigger download callback if registered
         const downloadId = `download_${Date.now()}`
@@ -270,7 +280,7 @@ class ExportService {
             fileName: downloadResult.data.fileName || defaultFileName
           })
         }
-        
+
         return {
           success: true,
           filePath: downloadResult.data.filePath,
@@ -311,7 +321,7 @@ class ExportService {
         filePath,
         fileName
       })
-      
+
       return {
         success: response.success,
         filePath: response.data?.downloadPath,
@@ -331,7 +341,7 @@ class ExportService {
    */
   onExportProgress(exportId: string, callback: (progress: ExportProgress) => void): void {
     this.progressCallbacks.set(exportId, callback)
-    
+
     // Listen for progress updates from backend
     window.electron.ipcRenderer.on(`export:progress:${exportId}`, (_, progress: ExportProgress) => {
       callback(progress)
@@ -375,10 +385,10 @@ class ExportService {
   async cancelExport(exportId: string): Promise<ApiResponse<void>> {
     try {
       const response = await window.electron.ipcRenderer.invoke('export:cancel', exportId)
-      
+
       // Clean up progress listener for cancelled export
       this.removeExportProgressListener(exportId)
-      
+
       return response
     } catch (error) {
       return {
@@ -412,35 +422,36 @@ class ExportService {
     try {
       // Generate unique export ID
       const exportId = `export_${entityType}_${Date.now()}`
-      
+
       // Set up progress tracking if callback provided
       if (progressCallback) {
         this.onExportProgress(exportId, progressCallback)
       }
-      
+
       // Start export with progress tracking
       const response = await window.electron.ipcRenderer.invoke('export:withProgress', {
         entityType,
         exportId
       })
-      
+
       // Handle file download if export was successful
       if (response.success && response.data) {
         const fileName = entityType === 'complete' ? 'complete_export.zip' : `${entityType}.csv`
         const filePath = entityType === 'complete' ? response.data.zipFilePath : response.data
         await this.handleFileDownload(filePath, fileName)
       }
-      
+
       // Clean up progress listener
       if (progressCallback) {
         this.removeExportProgressListener(exportId)
       }
-      
+
       return response
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : `Error exporting ${entityType} with progress`
+        error:
+          error instanceof Error ? error.message : `Error exporting ${entityType} with progress`
       }
     }
   }
@@ -482,14 +493,18 @@ class ExportService {
     const errors: string[] = []
 
     // Check if at least one option is selected
-    const hasSelection = options.users || options.budgets || options.quotas || options.interests || options.complete
+    const hasSelection =
+      options.users || options.budgets || options.quotas || options.interests || options.complete
 
     if (!hasSelection) {
       errors.push('At least one export option must be selected')
     }
 
     // If complete is selected, warn about other selections being ignored
-    if (options.complete && (options.users || options.budgets || options.quotas || options.interests)) {
+    if (
+      options.complete &&
+      (options.users || options.budgets || options.quotas || options.interests)
+    ) {
       errors.push('When complete export is selected, individual options are ignored')
     }
 
@@ -505,7 +520,7 @@ class ExportService {
   cleanup(): void {
     this.progressCallbacks.clear()
     this.downloadCallbacks.clear()
-    
+
     // Remove all export-related listeners
     window.electron.ipcRenderer.removeAllListeners('export:progress')
     window.electron.ipcRenderer.removeAllListeners('export:download')

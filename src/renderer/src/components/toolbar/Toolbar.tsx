@@ -1,65 +1,60 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { ROUTES } from '../../utils/constants';
-import './Toolbar.css';
+import React from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { ROUTES } from '../../utils/constants'
+import './Toolbar.css'
 
 export interface ToolbarProps {
-  onCreateUser?: () => void;
-  onCreateBudget?: () => void;
-  onExport?: () => void;
-  onImport?: () => void;
+  onCreateUser?: () => void
+  onCreateBudget?: () => void
+  onExport?: () => void
+  onImport?: () => void
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({
-  onCreateUser,
-  onCreateBudget,
-  onExport,
-  onImport
-}) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+const Toolbar: React.FC<ToolbarProps> = ({ onCreateUser, onCreateBudget, onExport, onImport }) => {
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const handleCreateUser = () => {
     if (onCreateUser) {
-      onCreateUser();
+      onCreateUser()
     } else {
-      navigate(ROUTES.USERS);
+      navigate(ROUTES.USERS)
     }
-  };
+  }
 
   const handleCreateBudget = () => {
     if (onCreateBudget) {
-      onCreateBudget();
+      onCreateBudget()
     } else {
-      navigate(ROUTES.BUDGETS);
+      navigate(ROUTES.BUDGETS)
     }
-  };
+  }
 
   const handleExport = () => {
     if (onExport) {
-      onExport();
+      onExport()
     } else {
-      navigate(ROUTES.IMPORT_EXPORT);
+      navigate(ROUTES.IMPORT_EXPORT)
     }
-  };
+  }
 
   const handleImport = () => {
     if (onImport) {
-      onImport();
+      onImport()
     } else {
-      navigate(ROUTES.IMPORT_EXPORT);
+      navigate(ROUTES.IMPORT_EXPORT)
     }
-  };
+  }
 
   const isActive = (path: string) => {
-    return location.pathname === path;
-  };
+    return location.pathname === path
+  }
 
   return (
     <div className="toolbar">
       <div className="toolbar-container">
         <div className="toolbar-brand">
-          <button 
+          <button
             className="toolbar-brand-button"
             onClick={() => navigate(ROUTES.HOME)}
             aria-label="Ir al inicio"
@@ -67,7 +62,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             <span className="toolbar-brand-text">Sistema Nova</span>
           </button>
         </div>
-        
+
         <nav className="toolbar-nav" role="navigation" aria-label="Navegación principal">
           <div className="toolbar-actions">
             <button
@@ -113,7 +108,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
         </nav>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Toolbar;
+export default Toolbar

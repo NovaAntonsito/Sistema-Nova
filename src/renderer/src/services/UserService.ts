@@ -16,7 +16,7 @@ class UserService {
         email: userData.email,
         phoneNumber: userData.telefono || ''
       }
-      
+
       const response = await window.electron.ipcRenderer.invoke('user:create', createUserDto)
       return response
     } catch (error) {

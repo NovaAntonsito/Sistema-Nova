@@ -315,8 +315,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-container {
@@ -351,35 +355,35 @@
   .app-main {
     padding: var(--spacing-md);
   }
-  
+
   .home-buttons {
     grid-template-columns: 1fr;
   }
-  
+
   .toolbar-nav {
     flex-wrap: wrap;
     gap: var(--spacing-sm);
   }
-  
+
   .form-row {
     flex-direction: column;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-md);
   }
-  
+
   .page-actions {
     width: 100%;
     justify-content: flex-start;
   }
-}/* Vie
+} /* Vie
 w container styles */
 .view-container {
   padding: var(--spacing-xl);
@@ -439,19 +443,19 @@ w container styles */
   .view-container {
     padding: var(--spacing-lg) var(--spacing-md);
   }
-  
+
   .view-header h1 {
     font-size: var(--font-size-2xl);
   }
-  
+
   .view-header p {
     font-size: var(--font-size-base);
   }
-  
+
   .placeholder-content {
     padding: var(--spacing-xl);
   }
-  
+
   .placeholder-content h2 {
     font-size: var(--font-size-xl);
   }

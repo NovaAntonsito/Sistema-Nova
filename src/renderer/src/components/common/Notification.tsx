@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { NOTIFICATION_TYPES } from '../../utils/constants';
-import './Notification.css';
+import React, { useEffect, useState } from 'react'
+import { NOTIFICATION_TYPES } from '../../utils/constants'
+import './Notification.css'
 
 export interface NotificationProps {
-  id: string;
-  type: keyof typeof NOTIFICATION_TYPES;
-  message: string;
-  duration?: number;
-  onClose: (id: string) => void;
+  id: string
+  type: keyof typeof NOTIFICATION_TYPES
+  message: string
+  duration?: number
+  onClose: (id: string) => void
 }
 
 export const Notification: React.FC<NotificationProps> = ({
@@ -15,51 +15,49 @@ export const Notification: React.FC<NotificationProps> = ({
   type,
   message,
   duration = 5000,
-  onClose,
+  onClose
 }) => {
-  const [isVisible, setIsVisible] = useState(true);
-  const [isExiting, setIsExiting] = useState(false);
+  const [isVisible, setIsVisible] = useState(true)
+  const [isExiting, setIsExiting] = useState(false)
 
   useEffect(() => {
     if (duration > 0) {
       const timer = setTimeout(() => {
-        handleClose();
-      }, duration);
+        handleClose()
+      }, duration)
 
-      return () => clearTimeout(timer);
+      return () => clearTimeout(timer)
     }
-  }, [duration]);
+  }, [duration])
 
   const handleClose = () => {
-    setIsExiting(true);
+    setIsExiting(true)
     setTimeout(() => {
-      setIsVisible(false);
-      onClose(id);
-    }, 300); // Animation duration
-  };
+      setIsVisible(false)
+      onClose(id)
+    }, 300) // Animation duration
+  }
 
   const getIcon = () => {
     switch (type) {
       case NOTIFICATION_TYPES.SUCCESS:
-        return '✓';
+        return '✓'
       case NOTIFICATION_TYPES.ERROR:
-        return '✕';
+        return '✕'
       case NOTIFICATION_TYPES.WARNING:
-        return '⚠';
+        return '⚠'
       case NOTIFICATION_TYPES.INFO:
-        return 'ℹ';
+        return 'ℹ'
       default:
-        return 'ℹ';
+        return 'ℹ'
     }
-  };
+  }
 
-  if (!isVisible) return null;
+  if (!isVisible) return null
 
   return (
     <div
-      className={`notification notification--${type} ${
-        isExiting ? 'notification--exiting' : ''
-      }`}
+      className={`notification notification--${type} ${isExiting ? 'notification--exiting' : ''}`}
       role="alert"
       aria-live="polite"
     >
@@ -76,5 +74,5 @@ export const Notification: React.FC<NotificationProps> = ({
         ✕
       </button>
     </div>
-  );
-};
+  )
+}

@@ -1,24 +1,24 @@
-import React from 'react';
-import { Notification, NotificationProps } from './Notification';
-import './Notification.css';
+import React from 'react'
+import { Notification, NotificationProps } from './Notification'
+import './Notification.css'
 
 export interface NotificationData {
-  id: string;
-  type: NotificationProps['type'];
-  message: string;
-  duration?: number;
+  id: string
+  type: NotificationProps['type']
+  message: string
+  duration?: number
 }
 
 interface NotificationContainerProps {
-  notifications: NotificationData[];
-  onRemove: (id: string) => void;
+  notifications: NotificationData[]
+  onRemove: (id: string) => void
 }
 
 export const NotificationContainer: React.FC<NotificationContainerProps> = ({
   notifications,
-  onRemove,
+  onRemove
 }) => {
-  if (notifications.length === 0) return null;
+  if (notifications.length === 0) return null
 
   return (
     <div className="notification-container">
@@ -33,5 +33,5 @@ export const NotificationContainer: React.FC<NotificationContainerProps> = ({
         />
       ))}
     </div>
-  );
-};
+  )
+}

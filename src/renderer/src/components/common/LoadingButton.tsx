@@ -1,14 +1,14 @@
-import React, { ButtonHTMLAttributes } from 'react';
-import { LoadingSpinner } from './LoadingSpinner';
-import './LoadingButton.css';
+import React, { ButtonHTMLAttributes } from 'react'
+import { LoadingSpinner } from './LoadingSpinner'
+import './LoadingButton.css'
 
 export interface LoadingButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  loading?: boolean;
-  variant?: 'primary' | 'secondary' | 'danger' | 'success';
-  size?: 'small' | 'medium' | 'large';
-  fullWidth?: boolean;
-  loadingText?: string;
-  children: React.ReactNode;
+  loading?: boolean
+  variant?: 'primary' | 'secondary' | 'danger' | 'success'
+  size?: 'small' | 'medium' | 'large'
+  fullWidth?: boolean
+  loadingText?: string
+  children: React.ReactNode
 }
 
 export const LoadingButton: React.FC<LoadingButtonProps> = ({
@@ -22,8 +22,8 @@ export const LoadingButton: React.FC<LoadingButtonProps> = ({
   className = '',
   ...props
 }) => {
-  const isDisabled = disabled || loading;
-  
+  const isDisabled = disabled || loading
+
   const buttonClasses = [
     'loading-button',
     `loading-button--${variant}`,
@@ -31,10 +31,10 @@ export const LoadingButton: React.FC<LoadingButtonProps> = ({
     fullWidth ? 'loading-button--full-width' : '',
     loading ? 'loading-button--loading' : '',
     isDisabled ? 'loading-button--disabled' : '',
-    className,
+    className
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(' ')
 
   return (
     <button
@@ -56,5 +56,5 @@ export const LoadingButton: React.FC<LoadingButtonProps> = ({
         </span>
       </span>
     </button>
-  );
-};
+  )
+}

@@ -108,7 +108,7 @@ select.form-field__input:disabled {
 }
 
 /* Input types */
-input[type="number"].form-field__input {
+input[type='number'].form-field__input {
   text-align: right;
 }
 
@@ -118,7 +118,7 @@ input[type="number"].form-field__input {
     padding: 12px;
     font-size: 16px; /* Prevents zoom on iOS */
   }
-  
+
   textarea.form-field__input {
     min-height: 100px;
   }
@@ -135,11 +135,11 @@ input[type="number"].form-field__input {
   .form-field__input {
     border-width: 2px;
   }
-  
+
   .form-field__input--error {
     border-color: #dc2626;
   }
-  
+
   .form-field__error {
     color: #dc2626;
     font-weight: 600;

@@ -139,12 +139,12 @@
     margin: 10px;
     min-height: 300px;
   }
-  
+
   .error-boundary__actions {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .error-boundary__button {
     width: 100%;
     max-width: 200px;

@@ -1,20 +1,39 @@
+import { defineConfig } from 'vite'
 import { resolve } from 'path'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import react from '@vitejs/plugin-react'
+import { externalizeDepsPlugin } from 'electron-vite'
 
 export default defineConfig({
+  /* ----------  MAIN PROCESS  ---------- */
   main: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    build: {
+      rollupOptions: {
+        external: ['csv-parse']
+      }
+    }
   },
+
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    build: {
+      rollupOptions: {
+        external: []
+      }
+    }
   },
   renderer: {
     resolve: {
-      alias: {
-        '@renderer': resolve('src/renderer/src')
-      }
+      alias: { '@renderer': resolve('src/renderer/src') }
     },
-    plugins: [react()]
+    plugins: [react()],
+    optimizeDeps: {
+      include: ['csv-parse']
+    },
+    build: {
+      rollupOptions: {
+        external: ['csv-parse']
+      }
+    }
   }
 })

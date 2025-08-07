@@ -1,10 +1,10 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../utils/constants';
-import './HomeView.css';
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ROUTES } from '../utils/constants'
+import './HomeView.css'
 
 const HomeView: React.FC = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const homeButtons = [
     {
@@ -35,11 +35,11 @@ const HomeView: React.FC = () => {
       route: ROUTES.BUDGETS,
       color: 'warning'
     }
-  ];
+  ]
 
   const handleButtonClick = (route: string) => {
-    navigate(route);
-  };
+    navigate(route)
+  }
 
   return (
     <div className="home-view">
@@ -59,9 +59,7 @@ const HomeView: React.FC = () => {
               onClick={() => handleButtonClick(button.route)}
               aria-label={button.title}
             >
-              <div className="home-button-icon">
-                {button.icon}
-              </div>
+              <div className="home-button-icon">{button.icon}</div>
               <div className="home-button-content">
                 <h3 className="home-button-title">{button.title}</h3>
                 <p className="home-button-description">{button.description}</p>
@@ -71,7 +69,7 @@ const HomeView: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default HomeView;
+export default HomeView

@@ -19,7 +19,7 @@
     "build": "npm run typecheck && electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
-    "build:win": "npm run build && electron-builder --win",
+    "build:win": "electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux"
   },
@@ -28,6 +28,7 @@
     "@electron-toolkit/utils": "^4.0.0",
     "@types/better-sqlite3": "^7.6.13",
     "better-sqlite3": "^11.10.0",
+    "csv-parse": "^6.1.0",
     "csv-parser": "^3.2.0",
     "react-router-dom": "^7.7.1",
     "reflect-metadata": "^0.2.2",

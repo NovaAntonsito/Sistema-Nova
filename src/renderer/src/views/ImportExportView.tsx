@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 const ImportExportView: React.FC = () => {
   return (
@@ -7,7 +7,7 @@ const ImportExportView: React.FC = () => {
         <h1>Importación y Exportación</h1>
         <p>Vista para importar y exportar datos del sistema</p>
       </div>
-      
+
       <div className="view-content">
         <div className="placeholder-content">
           <h2>🚧 En construcción</h2>
@@ -15,7 +15,7 @@ const ImportExportView: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ImportExportView;
+export default ImportExportView

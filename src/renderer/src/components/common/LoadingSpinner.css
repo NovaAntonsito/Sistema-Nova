@@ -94,11 +94,11 @@
     animation: none;
     border-color: #3b82f6;
   }
-  
+
   .loading-spinner__circle--secondary {
     border-color: #6b7280;
   }
-  
+
   .loading-spinner__circle--white {
     border-color: #ffffff;
   }

@@ -1,32 +1,38 @@
-import React, { InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes } from 'react';
-import './FormField.css';
+import React, { InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes } from 'react'
+import './FormField.css'
 
 interface BaseFormFieldProps {
-  label: string;
-  error?: string | null;
-  touched?: boolean;
-  required?: boolean;
-  helpText?: string;
-  className?: string;
+  label: string
+  error?: string | null
+  touched?: boolean
+  required?: boolean
+  helpText?: string
+  className?: string
 }
 
-interface InputFieldProps extends BaseFormFieldProps, Omit<InputHTMLAttributes<HTMLInputElement>, 'className'> {
-  type?: 'text' | 'email' | 'tel' | 'number' | 'password';
-  component?: 'input';
+interface InputFieldProps
+  extends BaseFormFieldProps,
+    Omit<InputHTMLAttributes<HTMLInputElement>, 'className'> {
+  type?: 'text' | 'email' | 'tel' | 'number' | 'password'
+  component?: 'input'
 }
 
-interface TextareaFieldProps extends BaseFormFieldProps, Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'className'> {
-  component: 'textarea';
-  rows?: number;
+interface TextareaFieldProps
+  extends BaseFormFieldProps,
+    Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'className'> {
+  component: 'textarea'
+  rows?: number
 }
 
-interface SelectFieldProps extends BaseFormFieldProps, Omit<SelectHTMLAttributes<HTMLSelectElement>, 'className'> {
-  component: 'select';
-  options: Array<{ value: string; label: string; disabled?: boolean }>;
-  placeholder?: string;
+interface SelectFieldProps
+  extends BaseFormFieldProps,
+    Omit<SelectHTMLAttributes<HTMLSelectElement>, 'className'> {
+  component: 'select'
+  options: Array<{ value: string; label: string; disabled?: boolean }>
+  placeholder?: string
 }
 
-export type FormFieldProps = InputFieldProps | TextareaFieldProps | SelectFieldProps;
+export type FormFieldProps = InputFieldProps | TextareaFieldProps | SelectFieldProps
 
 export const FormField: React.FC<FormFieldProps> = (props) => {
   const {
@@ -37,42 +43,42 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
     helpText,
     className = '',
     ...fieldProps
-  } = props;
+  } = props
 
-  const hasError = touched && error;
-  const fieldId = fieldProps.id || `field-${Math.random().toString(36).substr(2, 9)}`;
+  const hasError = touched && error
+  const fieldId = fieldProps.id || `field-${Math.random().toString(36).substr(2, 9)}`
 
-  const fieldClasses = [
-    'form-field__input',
-    hasError ? 'form-field__input--error' : '',
-    className,
-  ]
+  const fieldClasses = ['form-field__input', hasError ? 'form-field__input--error' : '', className]
     .filter(Boolean)
-    .join(' ');
+    .join(' ')
 
   const renderField = () => {
     if (props.component === 'textarea') {
-      const { component, options, placeholder, ...textareaProps } = props as TextareaFieldProps;
+      const { component, options, placeholder, ...textareaProps } = props as TextareaFieldProps
       return (
         <textarea
           {...textareaProps}
           id={fieldId}
           className={fieldClasses}
           aria-invalid={hasError}
-          aria-describedby={hasError ? `${fieldId}-error` : helpText ? `${fieldId}-help` : undefined}
+          aria-describedby={
+            hasError ? `${fieldId}-error` : helpText ? `${fieldId}-help` : undefined
+          }
         />
-      );
+      )
     }
 
     if (props.component === 'select') {
-      const { component, options, placeholder, ...selectProps } = props as SelectFieldProps;
+      const { component, options, placeholder, ...selectProps } = props as SelectFieldProps
       return (
         <select
           {...selectProps}
           id={fieldId}
           className={fieldClasses}
           aria-invalid={hasError}
-          aria-describedby={hasError ? `${fieldId}-error` : helpText ? `${fieldId}-help` : undefined}
+          aria-describedby={
+            hasError ? `${fieldId}-error` : helpText ? `${fieldId}-help` : undefined
+          }
         >
           {placeholder && (
             <option value="" disabled>
@@ -80,20 +86,16 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
             </option>
           )}
           {options.map((option) => (
-            <option
-              key={option.value}
-              value={option.value}
-              disabled={option.disabled}
-            >
+            <option key={option.value} value={option.value} disabled={option.disabled}>
               {option.label}
             </option>
           ))}
         </select>
-      );
+      )
     }
 
     // Default to input
-    const { component, options, placeholder, ...inputProps } = props as InputFieldProps;
+    const { component, options, placeholder, ...inputProps } = props as InputFieldProps
     return (
       <input
         {...inputProps}
@@ -102,37 +104,33 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
         aria-invalid={hasError}
         aria-describedby={hasError ? `${fieldId}-error` : helpText ? `${fieldId}-help` : undefined}
       />
-    );
-  };
+    )
+  }
 
   return (
     <div className="form-field">
       <label htmlFor={fieldId} className="form-field__label">
         {label}
-        {required && <span className="form-field__required" aria-label="obligatorio">*</span>}
+        {required && (
+          <span className="form-field__required" aria-label="obligatorio">
+            *
+          </span>
+        )}
       </label>
-      
+
       {renderField()}
-      
+
       {hasError && (
-        <div
-          id={`${fieldId}-error`}
-          className="form-field__error"
-          role="alert"
-          aria-live="polite"
-        >
+        <div id={`${fieldId}-error`} className="form-field__error" role="alert" aria-live="polite">
           {error}
         </div>
       )}
-      
+
       {helpText && !hasError && (
-        <div
-          id={`${fieldId}-help`}
-          className="form-field__help"
-        >
+        <div id={`${fieldId}-help`} className="form-field__help">
           {helpText}
         </div>
       )}
     </div>
-  );
-};
+  )
+}

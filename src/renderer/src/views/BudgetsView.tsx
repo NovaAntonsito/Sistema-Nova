@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 const BudgetsView: React.FC = () => {
   return (
@@ -7,7 +7,7 @@ const BudgetsView: React.FC = () => {
         <h1>Gestión de Presupuestos</h1>
         <p>Vista para crear y gestionar presupuestos del sistema</p>
       </div>
-      
+
       <div className="view-content">
         <div className="placeholder-content">
           <h2>🚧 En construcción</h2>
@@ -15,7 +15,7 @@ const BudgetsView: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default BudgetsView;
+export default BudgetsView

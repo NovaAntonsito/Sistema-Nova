@@ -12,13 +12,13 @@ class BudgetService {
     try {
       // Map frontend form data to backend DTO format
       const createBudgetDto = {
-        _expirationDate: new Date(Date.now() + (budgetData.paymentTerm * 30 * 24 * 60 * 60 * 1000)), // Approximate expiration
+        _expirationDate: new Date(Date.now() + budgetData.paymentTerm * 30 * 24 * 60 * 60 * 1000), // Approximate expiration
         baseAmount: budgetData.baseAmount,
         paymentTerm: budgetData.paymentTerm,
         userId: budgetData.userId,
         code: budgetData.code
       }
-      
+
       const response = await window.electron.ipcRenderer.invoke('budget:create', createBudgetDto)
       return response
     } catch (error) {
@@ -107,21 +107,31 @@ class BudgetService {
   /**
    * Update budget
    */
-  async updateBudget(id: string, budgetData: Partial<BudgetFormData>): Promise<ApiResponse<Budget>> {
+  async updateBudget(
+    id: string,
+    budgetData: Partial<BudgetFormData>
+  ): Promise<ApiResponse<Budget>> {
     try {
       // Map frontend form data to backend DTO format
       const updateBudgetDto: any = {}
       if (budgetData.code !== undefined) updateBudgetDto.code = budgetData.code
       if (budgetData.baseAmount !== undefined) updateBudgetDto.baseAmount = budgetData.baseAmount
-      if (budgetData.interestPercentage !== undefined) updateBudgetDto.interestPercentage = budgetData.interestPercentage
+      if (budgetData.interestPercentage !== undefined)
+        updateBudgetDto.interestPercentage = budgetData.interestPercentage
       if (budgetData.paymentTerm !== undefined) {
         updateBudgetDto.paymentTerm = budgetData.paymentTerm
-        updateBudgetDto._expirationDate = new Date(Date.now() + (budgetData.paymentTerm * 30 * 24 * 60 * 60 * 1000))
+        updateBudgetDto._expirationDate = new Date(
+          Date.now() + budgetData.paymentTerm * 30 * 24 * 60 * 60 * 1000
+        )
       }
       if (budgetData.userId !== undefined) updateBudgetDto.userId = budgetData.userId
       if (budgetData.description !== undefined) updateBudgetDto.description = budgetData.description
 
-      const response = await window.electron.ipcRenderer.invoke('budget:update', id, updateBudgetDto)
+      const response = await window.electron.ipcRenderer.invoke(
+        'budget:update',
+        id,
+        updateBudgetDto
+      )
       return response
     } catch (error) {
       return {
@@ -242,7 +252,7 @@ class BudgetService {
    * Calculate total amount with interest
    */
   calculateTotalAmount(baseAmount: number, interestPercentage: number): number {
-    return baseAmount + (baseAmount * interestPercentage / 100)
+    return baseAmount + (baseAmount * interestPercentage) / 100
   }
 
   /**
@@ -255,9 +265,16 @@ class BudgetService {
   /**
    * Calculate total amount using backend service
    */
-  async calculateTotalAmountBackend(baseAmount: number, interestPercentage: number): Promise<ApiResponse<{ totalAmount: number }>> {
+  async calculateTotalAmountBackend(
+    baseAmount: number,
+    interestPercentage: number
+  ): Promise<ApiResponse<{ totalAmount: number }>> {
     try {
-      const response = await window.electron.ipcRenderer.invoke('budget:calculateTotalAmount', baseAmount, interestPercentage)
+      const response = await window.electron.ipcRenderer.invoke(
+        'budget:calculateTotalAmount',
+        baseAmount,
+        interestPercentage
+      )
       return response
     } catch (error) {
       return {
@@ -270,9 +287,16 @@ class BudgetService {
   /**
    * Calculate monthly payment using backend service
    */
-  async calculateMonthlyPaymentBackend(totalAmount: number, paymentTerm: number): Promise<ApiResponse<{ monthlyPayment: number }>> {
+  async calculateMonthlyPaymentBackend(
+    totalAmount: number,
+    paymentTerm: number
+  ): Promise<ApiResponse<{ monthlyPayment: number }>> {
     try {
-      const response = await window.electron.ipcRenderer.invoke('budget:calculateMonthlyPayment', totalAmount, paymentTerm)
+      const response = await window.electron.ipcRenderer.invoke(
+        'budget:calculateMonthlyPayment',
+        totalAmount,
+        paymentTerm
+      )
       return response
     } catch (error) {
       return {

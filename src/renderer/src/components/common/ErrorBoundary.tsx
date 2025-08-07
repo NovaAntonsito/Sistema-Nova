@@ -1,55 +1,55 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import './ErrorBoundary.css';
+import React, { Component, ErrorInfo, ReactNode } from 'react'
+import './ErrorBoundary.css'
 
 interface ErrorBoundaryState {
-  hasError: boolean;
-  error?: Error;
-  errorInfo?: ErrorInfo;
+  hasError: boolean
+  error?: Error
+  errorInfo?: ErrorInfo
 }
 
 interface ErrorBoundaryProps {
-  children: ReactNode;
-  fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
-  showDetails?: boolean;
+  children: ReactNode
+  fallback?: ReactNode
+  onError?: (error: Error, errorInfo: ErrorInfo) => void
+  showDetails?: boolean
 }
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false };
+    super(props)
+    this.state = { hasError: false }
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
+    return { hasError: true, error }
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.setState({
       error,
-      errorInfo,
-    });
+      errorInfo
+    })
 
     // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.error('ErrorBoundary caught an error:', error, errorInfo);
+      console.error('ErrorBoundary caught an error:', error, errorInfo)
     }
 
     // Call optional error handler
     if (this.props.onError) {
-      this.props.onError(error, errorInfo);
+      this.props.onError(error, errorInfo)
     }
   }
 
   handleRetry = () => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
-  };
+    this.setState({ hasError: false, error: undefined, errorInfo: undefined })
+  }
 
   render() {
     if (this.state.hasError) {
       // Custom fallback UI
       if (this.props.fallback) {
-        return this.props.fallback;
+        return this.props.fallback
       }
 
       // Default error UI
@@ -61,7 +61,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <p className="error-boundary__message">
               Ha ocurrido un error inesperado. Por favor, intenta recargar la página.
             </p>
-            
+
             <div className="error-boundary__actions">
               <button
                 className="error-boundary__button error-boundary__button--primary"
@@ -81,15 +81,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
             {this.props.showDetails && this.state.error && (
               <details className="error-boundary__details">
-                <summary className="error-boundary__details-summary">
-                  Detalles técnicos
-                </summary>
+                <summary className="error-boundary__details-summary">Detalles técnicos</summary>
                 <div className="error-boundary__error-info">
                   <h4>Error:</h4>
-                  <pre className="error-boundary__error-text">
-                    {this.state.error.toString()}
-                  </pre>
-                  
+                  <pre className="error-boundary__error-text">{this.state.error.toString()}</pre>
+
                   {this.state.errorInfo && (
                     <>
                       <h4>Stack trace:</h4>
@@ -103,9 +99,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             )}
           </div>
         </div>
-      );
+      )
     }
 
-    return this.props.children;
+    return this.props.children
   }
 }
