@@ -1,0 +1,210 @@
+/* Toolbar Component Styles */
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  height: var(--toolbar-height);
+}
+
+.toolbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+/* Brand section */
+.toolbar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.toolbar-brand-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  transition: background-color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.toolbar-brand-button:hover {
+  background-color: var(--color-background-soft);
+}
+
+.toolbar-brand-button:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.toolbar-brand-text {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+/* Navigation section */
+.toolbar-nav {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Toolbar buttons */
+.toolbar-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-width: 80px;
+  height: 48px;
+  color: var(--color-text);
+  text-decoration: none;
+  user-select: none;
+}
+
+.toolbar-button:hover {
+  background-color: var(--color-background-soft);
+  border-color: var(--color-border-light);
+  transform: translateY(-1px);
+}
+
+.toolbar-button:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.toolbar-button:active {
+  transform: translateY(0);
+}
+
+.toolbar-button.active {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.toolbar-button.active:hover {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.toolbar-button-icon {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+
+.toolbar-button-text {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  text-align: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .toolbar-container {
+    padding: 0 var(--spacing-md);
+  }
+  
+  .toolbar-actions {
+    gap: var(--spacing-xs);
+  }
+  
+  .toolbar-button {
+    min-width: 60px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+  
+  .toolbar-button-text {
+    font-size: 10px;
+  }
+  
+  .toolbar-brand-text {
+    font-size: var(--font-size-base);
+  }
+}
+
+@media (max-width: 576px) {
+  .toolbar-container {
+    padding: 0 var(--spacing-sm);
+  }
+  
+  .toolbar-button {
+    min-width: 50px;
+    padding: var(--spacing-xs);
+  }
+  
+  .toolbar-button-text {
+    display: none;
+  }
+  
+  .toolbar-button-icon {
+    font-size: var(--font-size-xl);
+  }
+  
+  .toolbar-brand-text {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .toolbar {
+    border-bottom-width: 2px;
+  }
+  
+  .toolbar-button {
+    border-width: 2px;
+  }
+  
+  .toolbar-button:focus {
+    outline-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .toolbar-button {
+    transition: none;
+  }
+  
+  .toolbar-button:hover {
+    transform: none;
+  }
+  
+  .toolbar-button:active {
+    transform: none;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .toolbar {
+    background-color: var(--color-background);
+    border-bottom-color: var(--color-border);
+  }
+}

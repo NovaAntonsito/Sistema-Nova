@@ -1,0 +1,224 @@
+/* HomeView Component Styles */
+
+.home-view {
+  min-height: 100vh;
+  background-color: var(--color-background);
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.home-container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+}
+
+/* Header section */
+.home-header {
+  text-align: center;
+  margin-bottom: var(--spacing-3xl);
+}
+
+.home-title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin: 0 0 var(--spacing-md) 0;
+  line-height: var(--line-height-tight);
+}
+
+.home-subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-secondary);
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+/* Buttons grid */
+.home-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-xl);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Home buttons */
+.home-button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  background-color: var(--color-background-soft);
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius-xl);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--shadow-sm);
+}
+
+.home-button:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-border-focus);
+}
+
+.home-button:focus {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.home-button:active {
+  transform: translateY(-2px);
+}
+
+/* Button variants */
+.home-button-primary {
+  border-color: var(--color-primary);
+}
+
+.home-button-primary:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.home-button-success {
+  border-color: var(--color-success);
+}
+
+.home-button-success:hover {
+  border-color: var(--color-success);
+  background-color: var(--color-success-light);
+}
+
+.home-button-info {
+  border-color: var(--color-info);
+}
+
+.home-button-info:hover {
+  border-color: var(--color-info);
+  background-color: var(--color-info-light);
+}
+
+.home-button-warning {
+  border-color: var(--color-warning);
+}
+
+.home-button-warning:hover {
+  border-color: var(--color-warning);
+  background-color: var(--color-warning-light);
+}
+
+/* Button content */
+.home-button-icon {
+  font-size: 3rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.home-button-content {
+  flex: 1;
+}
+
+.home-button-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin: 0 0 var(--spacing-sm) 0;
+  line-height: var(--line-height-tight);
+}
+
+.home-button-description {
+  font-size: var(--font-size-base);
+  color: var(--color-secondary);
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .home-view {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+  
+  .home-header {
+    margin-bottom: var(--spacing-2xl);
+  }
+  
+  .home-title {
+    font-size: var(--font-size-3xl);
+  }
+  
+  .home-subtitle {
+    font-size: var(--font-size-base);
+  }
+  
+  .home-buttons-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+  
+  .home-button {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-md);
+  }
+  
+  .home-button-icon {
+    font-size: 2.5rem;
+  }
+  
+  .home-button-title {
+    font-size: var(--font-size-lg);
+  }
+  
+  .home-button-description {
+    font-size: var(--font-size-sm);
+  }
+}
+
+@media (max-width: 576px) {
+  .home-view {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+  
+  .home-title {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .home-button {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+  
+  .home-button-icon {
+    font-size: 2rem;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .home-button {
+    transition: none;
+  }
+  
+  .home-button:hover {
+    transform: none;
+  }
+  
+  .home-button:active {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .home-button {
+    border-width: 3px;
+  }
+  
+  .home-button:focus {
+    outline-width: 4px;
+  }
+}
