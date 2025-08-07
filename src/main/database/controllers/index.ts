@@ -2,8 +2,9 @@ import { UserController } from './UserController'
 import { BudgetController } from './BudgetController'
 import { InterestController } from './InterestController'
 import { ExportController } from './ExportController'
+import { ImportController } from './ImportController'
 
-export { UserController, BudgetController, InterestController, ExportController }
+export { UserController, BudgetController, InterestController, ExportController, ImportController }
 
 // Controller manager to initialize and cleanup all controllers
 export class ControllerManager {
@@ -11,6 +12,7 @@ export class ControllerManager {
   private budgetController: BudgetController | null = null
   private interestController: InterestController | null = null
   private exportController: ExportController | null = null
+  private importController: ImportController | null = null
 
   constructor() {
     try {
@@ -29,6 +31,10 @@ export class ControllerManager {
       console.log('Initializing ExportController...')
       this.exportController = new ExportController()
       console.log('ExportController initialized successfully')
+
+      console.log('Initializing ImportController...')
+      this.importController = new ImportController()
+      console.log('ImportController initialized successfully')
     } catch (error) {
       console.error('Error initializing controllers:', error)
       throw error
@@ -51,6 +57,9 @@ export class ControllerManager {
       }
       if (this.exportController) {
         this.exportController.cleanup()
+      }
+      if (this.importController) {
+        this.importController.cleanup()
       }
     } catch (error) {
       console.error('Error cleaning up controllers:', error)

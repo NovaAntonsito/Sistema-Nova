@@ -184,7 +184,7 @@ export class BatchProcessor<T, R> extends EventEmitter {
         })
       } catch (error) {
         result.failedBatches++
-        
+
         // Agregar errores para todos los elementos del lote
         for (let j = 0; j < batch.length; j++) {
           result.errors.push({
@@ -204,7 +204,7 @@ export class BatchProcessor<T, R> extends EventEmitter {
 
     // Calcular métricas finales
     if (batchTimes.length > 0) {
-      this.performanceMetrics.averageBatchTime = 
+      this.performanceMetrics.averageBatchTime =
         batchTimes.reduce((a, b) => a + b, 0) / batchTimes.length
     }
   }
@@ -275,7 +275,7 @@ export class BatchProcessor<T, R> extends EventEmitter {
         } else {
           result.failedBatches++
           const failedBatch = (batchResult as any).batch
-          
+
           // Agregar errores para todos los elementos del lote fallido
           for (let j = 0; j < failedBatch.length; j++) {
             result.errors.push({
@@ -292,11 +292,10 @@ export class BatchProcessor<T, R> extends EventEmitter {
 
       // Reportar progreso
       const processedRecords = processedBatches * this.config.batchSize
-      const averageBatchTime = batchTimes.length > 0 
-        ? batchTimes.reduce((a, b) => a + b, 0) / batchTimes.length 
-        : 0
+      const averageBatchTime =
+        batchTimes.length > 0 ? batchTimes.reduce((a, b) => a + b, 0) / batchTimes.length : 0
       const remainingBatches = batches.length - processedBatches
-      const estimatedTimeRemaining = remainingBatches * averageBatchTime / concurrency
+      const estimatedTimeRemaining = (remainingBatches * averageBatchTime) / concurrency
 
       this.reportProgress({
         importId: this.importId,
@@ -308,14 +307,15 @@ export class BatchProcessor<T, R> extends EventEmitter {
         currentBatch: processedBatches,
         totalBatches: batches.length,
         estimatedTimeRemaining,
-        currentSpeed: batchGroup.reduce((sum, batch) => sum + batch.length, 0) / 
+        currentSpeed:
+          batchGroup.reduce((sum, batch) => sum + batch.length, 0) /
           (batchTimes[batchTimes.length - 1] / 1000 || 1)
       })
     }
 
     // Calcular métricas finales
     if (batchTimes.length > 0) {
-      this.performanceMetrics.averageBatchTime = 
+      this.performanceMetrics.averageBatchTime =
         batchTimes.reduce((a, b) => a + b, 0) / batchTimes.length
     }
   }

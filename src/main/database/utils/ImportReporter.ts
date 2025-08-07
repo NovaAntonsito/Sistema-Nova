@@ -257,10 +257,7 @@ export class ImportReporter {
    * @param performanceReport - Reporte de rendimiento opcional
    * @returns string - Reporte en formato texto
    */
-  generateHumanReadableReport(
-    report: ImportReport,
-    performanceReport?: PerformanceReport
-  ): string {
+  generateHumanReadableReport(report: ImportReport, performanceReport?: PerformanceReport): string {
     const lines: string[] = []
 
     lines.push('='.repeat(70))
@@ -282,9 +279,10 @@ export class ImportReporter {
     lines.push(`- Importaciones Fallidas: ${report.failedImports}`)
     lines.push(`- Total de Errores: ${report.errorsCount}`)
     lines.push(`- Total de Advertencias: ${report.warningsCount}`)
-    
+
     const totalRecords = report.entitiesProcessed.reduce((sum, e) => sum + e.totalRecords, 0)
-    const successRate = totalRecords > 0 ? Math.round((report.successfulImports / totalRecords) * 100) : 0
+    const successRate =
+      totalRecords > 0 ? Math.round((report.successfulImports / totalRecords) * 100) : 0
     lines.push(`- Tasa de Éxito: ${successRate}%`)
     lines.push('')
 
@@ -293,12 +291,14 @@ export class ImportReporter {
     lines.push('-'.repeat(50))
 
     for (const entityStat of report.entitiesProcessed) {
-      const entitySuccessRate = entityStat.totalRecords > 0 
-        ? Math.round((entityStat.successfulImports / entityStat.totalRecords) * 100) 
-        : 0
-      const recordsPerSecond = entityStat.duration > 0 
-        ? Math.round((entityStat.totalRecords / entityStat.duration) * 1000) 
-        : 0
+      const entitySuccessRate =
+        entityStat.totalRecords > 0
+          ? Math.round((entityStat.successfulImports / entityStat.totalRecords) * 100)
+          : 0
+      const recordsPerSecond =
+        entityStat.duration > 0
+          ? Math.round((entityStat.totalRecords / entityStat.duration) * 1000)
+          : 0
 
       lines.push(`${entityStat.entityType.toUpperCase()}:`)
       lines.push(`  - Total de Registros: ${entityStat.totalRecords}`)
@@ -316,8 +316,10 @@ export class ImportReporter {
     if (performanceReport) {
       lines.push('ANÁLISIS DE RENDIMIENTO:')
       lines.push('-'.repeat(50))
-      lines.push(`- Velocidad Promedio: ${performanceReport.averageRecordsPerSecond} registros/segundo`)
-      
+      lines.push(
+        `- Velocidad Promedio: ${performanceReport.averageRecordsPerSecond} registros/segundo`
+      )
+
       if (performanceReport.bottlenecks.length > 0) {
         lines.push('- Cuellos de Botella Detectados:')
         for (const bottleneck of performanceReport.bottlenecks) {
@@ -325,7 +327,7 @@ export class ImportReporter {
           lines.push(`    Sugerencia: ${bottleneck.suggestion}`)
         }
       }
-      
+
       if (performanceReport.recommendations.length > 0) {
         lines.push('- Recomendaciones:')
         for (const recommendation of performanceReport.recommendations) {
@@ -620,7 +622,7 @@ export class ImportReporter {
 
       for (const logFile of logFiles) {
         const logPath = join(this.config.logsDirectory, logFile)
-        
+
         try {
           const stats = await fs.stat(logPath)
           if (stats.mtime < cutoffDate) {
@@ -630,7 +632,7 @@ export class ImportReporter {
               `${path.parse(logFile).name}_backup_${Date.now()}.log`
             )
             await fs.copyFile(logPath, backupPath)
-            
+
             // Limpiar el archivo original
             await fs.writeFile(logPath, '', 'utf8')
             console.log(`Log limpiado: ${logFile}, respaldo creado: ${backupPath}`)
@@ -684,11 +686,17 @@ export class ImportReporter {
       // Intentar determinar el tipo de entidad basado en el prefijo del código de error
       if (error.code.startsWith('USER_') || error.message.toLowerCase().includes('usuario')) {
         grouped[EntityType.USER]++
-      } else if (error.code.startsWith('BUDGET_') || error.message.toLowerCase().includes('presupuesto')) {
+      } else if (
+        error.code.startsWith('BUDGET_') ||
+        error.message.toLowerCase().includes('presupuesto')
+      ) {
         grouped[EntityType.BUDGET]++
       } else if (error.code.startsWith('QUOTA_') || error.message.toLowerCase().includes('cuota')) {
         grouped[EntityType.QUOTA]++
-      } else if (error.code.startsWith('INTEREST_') || error.message.toLowerCase().includes('interés')) {
+      } else if (
+        error.code.startsWith('INTEREST_') ||
+        error.message.toLowerCase().includes('interés')
+      ) {
         grouped[EntityType.INTEREST]++
       }
       // Si no coincide con ningún patrón, no se cuenta en ninguna entidad específica
@@ -709,11 +717,20 @@ export class ImportReporter {
     for (const warning of warnings) {
       if (warning.code.startsWith('USER_') || warning.message.toLowerCase().includes('usuario')) {
         grouped[EntityType.USER]++
-      } else if (warning.code.startsWith('BUDGET_') || warning.message.toLowerCase().includes('presupuesto')) {
+      } else if (
+        warning.code.startsWith('BUDGET_') ||
+        warning.message.toLowerCase().includes('presupuesto')
+      ) {
         grouped[EntityType.BUDGET]++
-      } else if (warning.code.startsWith('QUOTA_') || warning.message.toLowerCase().includes('cuota')) {
+      } else if (
+        warning.code.startsWith('QUOTA_') ||
+        warning.message.toLowerCase().includes('cuota')
+      ) {
         grouped[EntityType.QUOTA]++
-      } else if (warning.code.startsWith('INTEREST_') || warning.message.toLowerCase().includes('interés')) {
+      } else if (
+        warning.code.startsWith('INTEREST_') ||
+        warning.message.toLowerCase().includes('interés')
+      ) {
         grouped[EntityType.INTEREST]++
       }
     }
@@ -819,7 +836,9 @@ export class ImportReporter {
     return relevantMetrics.reduce((sum, m) => sum + m.duration, 0)
   }
 
-  private identifyBottlenecks(entityPerformance: EntityPerformanceStats[]): PerformanceBottleneck[] {
+  private identifyBottlenecks(
+    entityPerformance: EntityPerformanceStats[]
+  ): PerformanceBottleneck[] {
     const bottlenecks: PerformanceBottleneck[] = []
 
     for (const perf of entityPerformance) {
@@ -863,7 +882,9 @@ export class ImportReporter {
     const overallSpeed = totalDuration > 0 ? (totalRecords / totalDuration) * 1000 : 0
 
     if (overallSpeed < 500) {
-      recommendations.push('Considerar aumentar el tamaño de lote para mejorar el rendimiento general')
+      recommendations.push(
+        'Considerar aumentar el tamaño de lote para mejorar el rendimiento general'
+      )
     }
 
     if (bottlenecks.length > 0) {

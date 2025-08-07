@@ -6,6 +6,7 @@ export { InterestService } from './InterestService'
 export { ExportService } from './ExportService'
 export { ImportService } from './ImportService'
 export { BackupManager } from './BackupManager'
+export { SecurityValidationService } from './SecurityValidationService'
 
 // Importer exports
 export { UserImporter, BudgetImporter, QuotaImporter, InterestImporter } from './importers'

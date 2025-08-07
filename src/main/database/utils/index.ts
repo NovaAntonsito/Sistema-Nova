@@ -7,6 +7,12 @@ export { FileUtils } from './fileUtils'
 export { CsvParser } from './csvParser'
 export { ZipExtractor } from './zipExtractor'
 export {
+  SecurityValidator,
+  type SecurityValidationResult,
+  type FileTypeValidationConfig,
+  type SecurityConfig
+} from './securityValidator'
+export {
   ExportException,
   FileWriteException,
   DataRetrievalException,

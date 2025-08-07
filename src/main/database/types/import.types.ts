@@ -291,23 +291,23 @@ export interface PerformanceMetrics {
   startTime: Date
   endTime: Date
   totalDuration: number
-  
+
   // Métricas de procesamiento
   totalRecords: number
   recordsPerSecond: number
   batchesProcessed: number
   averageBatchTime: number
-  
+
   // Métricas de memoria
   peakMemoryUsage: MemoryUsage
   averageMemoryUsage: MemoryUsage
-  
+
   // Métricas de base de datos
   totalQueries: number
   averageQueryTime: number
   transactionCount: number
   averageTransactionTime: number
-  
+
   // Métricas de I/O
   fileReadTime: number
   fileWriteTime: number
@@ -353,20 +353,20 @@ export interface ImportConfig {
   tempDirectory: string
   enableAutoRollback: boolean
   validationLevel: 'strict' | 'lenient'
-  
+
   // Configuraciones de optimización
   streamingThreshold: number // Tamaño de archivo en bytes para usar streaming
   maxConcurrentBatches: number // Número máximo de lotes concurrentes
   transactionBatchSize: number // Tamaño de lote para transacciones de BD
   enableParallelProcessing: boolean // Habilitar procesamiento paralelo
   memoryLimitMB: number // Límite de memoria en MB
-  
+
   // Configuraciones de rendimiento
   enableDatabaseOptimizations: boolean // Habilitar optimizaciones de BD
   connectionPoolSize: number // Tamaño del pool de conexiones
   queryTimeout: number // Timeout para queries en ms
   enableIndexOptimization: boolean // Optimizar índices durante importación
-  
+
   // Configuraciones de monitoreo
   enableProgressReporting: boolean // Habilitar reporte de progreso
   progressReportInterval: number // Intervalo de reporte en ms

@@ -5,10 +5,7 @@
 
 import { DataSource, QueryRunner, EntityManager } from 'typeorm'
 import { EventEmitter } from 'events'
-import {
-  ImportConfig,
-  PerformanceMetrics
-} from '../types/import.types'
+import { ImportConfig, PerformanceMetrics } from '../types/import.types'
 
 /**
  * Configuración de optimización de base de datos
@@ -276,13 +273,16 @@ export class DatabaseOptimizer extends EventEmitter {
     try {
       // Obtener información de índices existentes
       const tables = ['users', 'budgets', 'quotas', 'interests']
-      
+
       for (const tableName of tables) {
-        const indexes = await queryRunner.query(`
+        const indexes = await queryRunner.query(
+          `
           SELECT indexname, indexdef 
           FROM pg_indexes 
           WHERE tablename = $1 AND indexname NOT LIKE '%_pkey'
-        `, [tableName])
+        `,
+          [tableName]
+        )
 
         if (indexes.length > 0) {
           this.originalIndexes.set(tableName, indexes)
@@ -337,14 +337,14 @@ export class DatabaseOptimizer extends EventEmitter {
     if (this.dataSource.options.type === 'postgres') {
       // Para PostgreSQL, podemos ajustar configuraciones
       const queryRunner = await this.createOptimizedQueryRunner()
-      
+
       try {
         // Configuraciones de rendimiento para PostgreSQL
         await queryRunner.query('SET synchronous_commit = OFF')
         await queryRunner.query('SET wal_buffers = 16MB')
         await queryRunner.query('SET checkpoint_segments = 32')
         await queryRunner.query('SET checkpoint_completion_target = 0.9')
-        
+
         this.emit('connectionPoolOptimized')
       } finally {
         await queryRunner.release()
@@ -361,9 +361,9 @@ export class DatabaseOptimizer extends EventEmitter {
 
     try {
       // Configuraciones de transacción para mejor rendimiento
-      await queryRunner.query('SET transaction_isolation = \'READ COMMITTED\'')
+      await queryRunner.query("SET transaction_isolation = 'READ COMMITTED'")
       await queryRunner.query('SET lock_timeout = 30000') // 30 segundos
-      
+
       this.emit('transactionSettingsOptimized')
     } finally {
       await queryRunner.release()
@@ -380,8 +380,8 @@ export class DatabaseOptimizer extends EventEmitter {
     try {
       // Restaurar configuraciones por defecto
       await queryRunner.query('SET synchronous_commit = ON')
-      await queryRunner.query('SET transaction_isolation = \'READ COMMITTED\'')
-      
+      await queryRunner.query("SET transaction_isolation = 'READ COMMITTED'")
+
       this.emit('transactionSettingsRestored')
     } finally {
       await queryRunner.release()
@@ -394,16 +394,16 @@ export class DatabaseOptimizer extends EventEmitter {
   private enableQueryLogging(): void {
     // Interceptar queries para métricas
     const originalQuery = this.dataSource.createQueryRunner().query
-    
-    this.dataSource.createQueryRunner().query = async function(query: string, parameters?: any[]) {
+
+    this.dataSource.createQueryRunner().query = async function (query: string, parameters?: any[]) {
       const startTime = Date.now()
       try {
         const result = await originalQuery.call(this, query, parameters)
         const duration = Date.now() - startTime
-        
+
         // Registrar métrica
         this.recordQueryMetrics(query, duration)
-        
+
         return result
       } catch (error) {
         const duration = Date.now() - startTime
@@ -438,9 +438,10 @@ export class DatabaseOptimizer extends EventEmitter {
    * @returns PerformanceMetrics - Métricas de rendimiento
    */
   getPerformanceMetrics(): Partial<PerformanceMetrics> {
-    const averageQueryTime = this.queryMetrics.totalQueries > 0 
-      ? this.queryMetrics.totalTime / this.queryMetrics.totalQueries 
-      : 0
+    const averageQueryTime =
+      this.queryMetrics.totalQueries > 0
+        ? this.queryMetrics.totalTime / this.queryMetrics.totalQueries
+        : 0
 
     return {
       totalQueries: this.queryMetrics.totalQueries,

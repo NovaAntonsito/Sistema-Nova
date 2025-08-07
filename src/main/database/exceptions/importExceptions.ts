@@ -107,3 +107,59 @@ export class InvalidFileFormatException extends ImportException {
     this.name = 'InvalidFileFormatException'
   }
 }
+
+/**
+ * Excepción para errores de validación de seguridad
+ */
+export class SecurityValidationException extends ImportException {
+  constructor(
+    message: string,
+    public validationType: string,
+    public filePath?: string
+  ) {
+    super(message, 'SECURITY_VALIDATION_ERROR')
+    this.name = 'SecurityValidationException'
+  }
+}
+
+/**
+ * Excepción para tipos de archivo no permitidos
+ */
+export class InvalidFileTypeException extends ImportException {
+  constructor(
+    message: string,
+    public fileExtension: string,
+    public allowedExtensions: string[]
+  ) {
+    super(message, 'INVALID_FILE_TYPE')
+    this.name = 'InvalidFileTypeException'
+  }
+}
+
+/**
+ * Excepción para archivos que exceden el tamaño máximo
+ */
+export class FileSizeExceededException extends ImportException {
+  constructor(
+    message: string,
+    public actualSize: number,
+    public maxSize: number
+  ) {
+    super(message, 'FILE_SIZE_EXCEEDED')
+    this.name = 'FileSizeExceededException'
+  }
+}
+
+/**
+ * Excepción para path traversal detectado
+ */
+export class PathTraversalException extends ImportException {
+  constructor(
+    message: string,
+    public attemptedPath: string,
+    public allowedBasePath: string
+  ) {
+    super(message, 'PATH_TRAVERSAL_DETECTED')
+    this.name = 'PathTraversalException'
+  }
+}

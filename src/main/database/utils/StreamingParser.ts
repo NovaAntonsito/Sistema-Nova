@@ -120,9 +120,9 @@ export class StreamingParser<T> extends EventEmitter {
     let isFirstLine = true
 
     // Crear stream de lectura
-    const readStream = createReadStream(filePath, { 
+    const readStream = createReadStream(filePath, {
       encoding: 'utf8',
-      highWaterMark: this.config.bufferSize 
+      highWaterMark: this.config.bufferSize
     })
 
     // Crear parser CSV
@@ -158,22 +158,22 @@ export class StreamingParser<T> extends EventEmitter {
           if (currentChunkData.length >= this.config.chunkSize) {
             await this.processChunk(currentChunkData, processor, result)
             currentChunkData = []
-            
+
             // Verificar límite de memoria
             if (this.config.memoryLimitMB > 0) {
               const memUsage = this.getMemoryUsage()
               const memUsageMB = memUsage.heapUsed / (1024 * 1024)
-              
+
               if (memUsageMB > this.config.memoryLimitMB) {
                 // Forzar garbage collection si está disponible
                 if (global.gc) {
                   global.gc()
                 }
-                
+
                 // Si aún excede el límite, pausar brevemente
                 const newMemUsage = this.getMemoryUsage()
                 const newMemUsageMB = newMemUsage.heapUsed / (1024 * 1024)
-                
+
                 if (newMemUsageMB > this.config.memoryLimitMB && this.config.enableBackpressure) {
                   await this.sleep(100) // Pausa de 100ms
                 }
@@ -192,7 +192,7 @@ export class StreamingParser<T> extends EventEmitter {
           callback()
         }
       },
-      
+
       flush: async (callback) => {
         // Procesar chunk final si tiene datos
         if (currentChunkData.length > 0) {
@@ -203,11 +203,7 @@ export class StreamingParser<T> extends EventEmitter {
     })
 
     // Configurar pipeline
-    await pipelineAsync(
-      readStream,
-      csvParser,
-      chunkProcessor
-    )
+    await pipelineAsync(readStream, csvParser, chunkProcessor)
   }
 
   /**
@@ -226,12 +222,12 @@ export class StreamingParser<T> extends EventEmitter {
     try {
       await processor(chunkData, this.currentChunk)
       result.processedChunks++
-      
+
       this.processedLines += chunkData.length
       this.currentChunk++
 
       const chunkDuration = Date.now() - chunkStartTime
-      
+
       this.emit('chunkProcessed', {
         chunkIndex: this.currentChunk - 1,
         chunkSize: chunkData.length,
@@ -241,7 +237,6 @@ export class StreamingParser<T> extends EventEmitter {
 
       // Reportar progreso
       this.reportProgress(ImportPhase.PROCESSING, this.processedLines)
-      
     } catch (error) {
       this.errors.push({
         chunkIndex: this.currentChunk,
@@ -265,12 +260,16 @@ export class StreamingParser<T> extends EventEmitter {
    */
   private validateHeaders(record: string[], expectedHeaders: string[], lineNumber: number): void {
     if (record.length !== expectedHeaders.length) {
-      throw new Error(`Número incorrecto de columnas en línea ${lineNumber}. Esperado: ${expectedHeaders.length}, Encontrado: ${record.length}`)
+      throw new Error(
+        `Número incorrecto de columnas en línea ${lineNumber}. Esperado: ${expectedHeaders.length}, Encontrado: ${record.length}`
+      )
     }
 
     for (let i = 0; i < expectedHeaders.length; i++) {
       if (record[i].trim() !== expectedHeaders[i]) {
-        throw new Error(`Header incorrecto en columna ${i + 1}. Esperado: "${expectedHeaders[i]}", Encontrado: "${record[i]}"`)
+        throw new Error(
+          `Header incorrecto en columna ${i + 1}. Esperado: "${expectedHeaders[i]}", Encontrado: "${record[i]}"`
+        )
       }
     }
   }
@@ -320,15 +319,15 @@ export class StreamingParser<T> extends EventEmitter {
     return new Promise((resolve, reject) => {
       let lineCount = 0
       const readStream = createReadStream(filePath, { encoding: 'utf8' })
-      
+
       readStream.on('data', (chunk: string) => {
         lineCount += chunk.split('\n').length - 1
       })
-      
+
       readStream.on('end', () => {
         resolve(Math.max(0, lineCount - 1)) // -1 para excluir header
       })
-      
+
       readStream.on('error', reject)
     })
   }
@@ -341,9 +340,9 @@ export class StreamingParser<T> extends EventEmitter {
   private reportProgress(phase: ImportPhase, processedRecords: number): void {
     const currentTime = Date.now()
     const elapsedTime = currentTime - this.startTime
-    const speed = elapsedTime > 0 ? (processedRecords / (elapsedTime / 1000)) : 0
+    const speed = elapsedTime > 0 ? processedRecords / (elapsedTime / 1000) : 0
     const remainingRecords = this.totalLines - processedRecords
-    const estimatedTimeRemaining = speed > 0 ? (remainingRecords / speed * 1000) : 0
+    const estimatedTimeRemaining = speed > 0 ? (remainingRecords / speed) * 1000 : 0
 
     const progress: ImportProgress = {
       importId: this.importId,
@@ -384,7 +383,7 @@ export class StreamingParser<T> extends EventEmitter {
    * @returns Promise<void>
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   /**

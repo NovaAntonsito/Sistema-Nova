@@ -21,11 +21,6 @@ export type {
   ImportPhase
 } from '../../types/import.types'
 
-export type {
-  DatabaseOptimizationConfig,
-  OptimizationResult
-} from '../DatabaseOptimizer'
+export type { DatabaseOptimizationConfig, OptimizationResult } from '../DatabaseOptimizer'
 
-export type {
-  SystemConfig
-} from '../ConfigurationManager'
+export type { SystemConfig } from '../ConfigurationManager'

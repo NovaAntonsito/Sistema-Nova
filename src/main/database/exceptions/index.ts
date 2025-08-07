@@ -110,5 +110,9 @@ export {
   BackupException,
   ZipExtractionException,
   FileNotFoundException,
-  InvalidFileFormatException
+  InvalidFileFormatException,
+  SecurityValidationException,
+  InvalidFileTypeException,
+  FileSizeExceededException,
+  PathTraversalException
 } from './importExceptions'

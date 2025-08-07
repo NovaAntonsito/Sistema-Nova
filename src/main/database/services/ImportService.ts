@@ -38,6 +38,7 @@ import { ConfigurationManager } from '../utils/ConfigurationManager'
 import { BatchProcessor } from '../utils/BatchProcessor'
 import { StreamingParser } from '../utils/StreamingParser'
 import { DatabaseOptimizer } from '../utils/DatabaseOptimizer'
+import { SecurityValidationService } from './SecurityValidationService'
 
 /**
  * Servicio principal de importación
@@ -64,6 +65,7 @@ export class ImportService {
   // Componentes de optimización
   private configurationManager: ConfigurationManager
   private databaseOptimizer: DatabaseOptimizer
+  private securityValidationService: SecurityValidationService
   private performanceMetrics: Partial<PerformanceMetrics> = {}
   private progressCallback?: (progress: ImportProgress) => void
 
@@ -72,7 +74,7 @@ export class ImportService {
   constructor(config?: Partial<ImportConfig>) {
     // Inicializar gestor de configuración
     this.configurationManager = new ConfigurationManager()
-    
+
     // Configuración por defecto (se actualizará al cargar)
     const userDataPath = app ? app.getPath('userData') : process.cwd()
     this.config = {
@@ -82,7 +84,7 @@ export class ImportService {
       tempDirectory: join(userDataPath, 'temp', 'imports'),
       enableAutoRollback: true,
       validationLevel: 'strict',
-      
+
       // Configuraciones de optimización por defecto
       streamingThreshold: 10 * 1024 * 1024, // 10MB
       maxConcurrentBatches: 4,
@@ -112,6 +114,13 @@ export class ImportService {
     console.log(`Iniciando importación de usuarios desde: ${filePath}`)
 
     try {
+      // Validar seguridad del archivo antes de la importación
+      await this.securityValidationService.validateFileForImport(
+        filePath,
+        this.config.tempDirectory,
+        'import-users-csv'
+      )
+
       return await this.userImporter.importFromCSV(filePath)
     } catch (error) {
       console.error('Error en importación de usuarios:', error)
@@ -131,6 +140,13 @@ export class ImportService {
     console.log(`Iniciando importación de presupuestos desde: ${filePath}`)
 
     try {
+      // Validar seguridad del archivo antes de la importación
+      await this.securityValidationService.validateFileForImport(
+        filePath,
+        this.config.tempDirectory,
+        'import-budgets-csv'
+      )
+
       return await this.budgetImporter.importFromCSV(filePath)
     } catch (error) {
       console.error('Error en importación de presupuestos:', error)
@@ -150,6 +166,13 @@ export class ImportService {
     console.log(`Iniciando importación de cuotas desde: ${filePath}`)
 
     try {
+      // Validar seguridad del archivo antes de la importación
+      await this.securityValidationService.validateFileForImport(
+        filePath,
+        this.config.tempDirectory,
+        'import-quotas-csv'
+      )
+
       return await this.quotaImporter.importFromCSV(filePath)
     } catch (error) {
       console.error('Error en importación de cuotas:', error)
@@ -169,6 +192,13 @@ export class ImportService {
     console.log(`Iniciando importación de intereses desde: ${filePath}`)
 
     try {
+      // Validar seguridad del archivo antes de la importación
+      await this.securityValidationService.validateFileForImport(
+        filePath,
+        this.config.tempDirectory,
+        'import-interests-csv'
+      )
+
       return await this.interestImporter.importFromCSV(filePath)
     } catch (error) {
       console.error('Error en importación de intereses:', error)
@@ -197,7 +227,7 @@ export class ImportService {
 
       // Obtener configuración optimizada para el tamaño del archivo
       const optimizedConfig = this.configurationManager.getOptimizedConfigForFileSize(fileSize)
-      
+
       // Aplicar optimizaciones de base de datos si están habilitadas
       if (optimizedConfig.import.enableDatabaseOptimizations) {
         await this.databaseOptimizer.applyPreImportOptimizations()
@@ -262,6 +292,15 @@ export class ImportService {
     console.log(`Iniciando importación completa desde ZIP: ${zipFilePath}`)
 
     try {
+      // 0. Validar seguridad del archivo ZIP antes de procesar
+      console.log('Validando seguridad del archivo ZIP...')
+      await this.securityValidationService.validateZipFile(
+        zipFilePath,
+        this.config.tempDirectory,
+        'import-from-zip'
+      )
+      console.log('Validación de seguridad completada')
+
       // 1. Crear respaldo antes de la importación (Requisito 7.1)
       console.log('Creando respaldo de seguridad...')
       backupId = await this.createBackup()
@@ -401,6 +440,33 @@ export class ImportService {
    */
   async validateCSVFile(filePath: string, entityType: EntityType): Promise<ValidationResult> {
     try {
+      // Validar seguridad del archivo antes de procesar
+      const securityResult = await this.securityValidationService.validateFileForImport(
+        filePath,
+        this.config.tempDirectory,
+        `validate-csv-${entityType}`
+      )
+
+      if (!securityResult.isValid) {
+        return {
+          isValid: false,
+          errors: securityResult.errors.map((error, index) => ({
+            line: 0,
+            field: 'security',
+            value: filePath,
+            message: error,
+            code: `SECURITY_ERROR_${index}`
+          })),
+          warnings: securityResult.warnings.map((warning, index) => ({
+            line: 0,
+            field: 'security',
+            value: filePath,
+            message: warning,
+            code: `SECURITY_WARNING_${index}`
+          }))
+        }
+      }
+
       // Verificar que el archivo existe
       const fs = await import('fs/promises')
       await fs.access(filePath)
@@ -462,6 +528,33 @@ export class ImportService {
    */
   async validateZipFile(zipFilePath: string): Promise<ValidationResult> {
     try {
+      // Validar seguridad del archivo ZIP antes de procesar
+      const securityResult = await this.securityValidationService.validateZipFile(
+        zipFilePath,
+        this.config.tempDirectory,
+        'validate-zip-file'
+      )
+
+      if (!securityResult.isValid) {
+        return {
+          isValid: false,
+          errors: securityResult.errors.map((error, index) => ({
+            line: 0,
+            field: 'security',
+            value: zipFilePath,
+            message: error,
+            code: `SECURITY_ERROR_${index}`
+          })),
+          warnings: securityResult.warnings.map((warning, index) => ({
+            line: 0,
+            field: 'security',
+            value: zipFilePath,
+            message: warning,
+            code: `SECURITY_WARNING_${index}`
+          }))
+        }
+      }
+
       // Verificar que el archivo existe
       const fs = await import('fs/promises')
       await fs.access(zipFilePath)
@@ -540,7 +633,7 @@ export class ImportService {
   async updateConfiguration(updates: Partial<ImportConfig>): Promise<void> {
     await this.configurationManager.updateImportConfig(updates)
     this.config = this.configurationManager.getImportConfig()
-    
+
     // Reinicializar componentes si es necesario
     this.initializeComponents()
   }
@@ -577,6 +670,7 @@ export class ImportService {
     this.zipExtractor = new ZipExtractor()
     this.csvParser = new CsvParser()
     this.dataValidator = new DataValidator()
+    this.securityValidationService = new SecurityValidationService()
 
     // Inicializar optimizador de base de datos
     this.databaseOptimizer = new DatabaseOptimizer(
@@ -793,14 +887,14 @@ export class ImportService {
 
     // Obtener headers esperados
     const headers = this.getExpectedHeaders(entityType)
-    
+
     // Procesar archivo usando streaming
     const streamingResult = await streamingParser.parseCSVStream(
       filePath,
       async (chunk, chunkIndex) => {
         // Procesar chunk usando el importador apropiado
         const chunkResult = await this.processChunkWithImporter(chunk, entityType, chunkIndex)
-        
+
         // Acumular resultados
         result.successfulImports += chunkResult.successfulImports
         result.failedImports += chunkResult.failedImports
@@ -816,7 +910,7 @@ export class ImportService {
     result.duration = streamingResult.duration
 
     // Agregar errores de streaming
-    streamingResult.errors.forEach(error => {
+    streamingResult.errors.forEach((error) => {
       result.errors.push({
         line: error.lineNumber,
         message: error.error,
@@ -843,7 +937,7 @@ export class ImportService {
   ): Promise<ImportResult> {
     // Parsear archivo completo
     const parseResult = await this.csvParser.parseCSV(filePath, entityType)
-    
+
     if (parseResult.errors.length > 0) {
       // Retornar errores de parsing
       return {
@@ -853,7 +947,7 @@ export class ImportService {
         failedImports: parseResult.errors.length,
         updatedRecords: 0,
         createdRecords: 0,
-        errors: parseResult.errors.map(error => ({
+        errors: parseResult.errors.map((error) => ({
           line: error.line,
           field: error.field,
           value: error.value,
@@ -867,7 +961,7 @@ export class ImportService {
 
     // Crear procesador por lotes
     const batchProcessor = new BatchProcessor(config.batchProcessing, importId)
-    
+
     // Configurar callback de progreso
     if (this.progressCallback) {
       batchProcessor.setProgressCallback(this.progressCallback)
@@ -889,7 +983,7 @@ export class ImportService {
       failedImports: batchResult.errors.length,
       updatedRecords: 0, // Se calculará en el procesador específico
       createdRecords: 0, // Se calculará en el procesador específico
-      errors: batchResult.errors.map(error => ({
+      errors: batchResult.errors.map((error) => ({
         line: error.itemIndex + 2, // +2 por header y índice base 0
         message: error.error,
         code: error.code
@@ -915,7 +1009,7 @@ export class ImportService {
   ): Promise<ImportResult> {
     // Por ahora, usar los importadores existentes
     // TODO: Optimizar importadores para trabajar con chunks
-    
+
     switch (entityType) {
       case EntityType.USER:
         return await this.processUserChunk(chunk)
@@ -944,7 +1038,7 @@ export class ImportService {
   ): Promise<any[]> {
     // Procesar lote y retornar elementos procesados exitosamente
     const chunkResult = await this.processChunkWithImporter(batch, entityType, batchIndex)
-    
+
     // Retornar array de elementos exitosos (simplificado)
     return new Array(chunkResult.successfulImports).fill({})
   }
@@ -958,10 +1052,10 @@ export class ImportService {
     // Implementación simplificada - usar importador existente
     // TODO: Optimizar para procesamiento por chunks
     const tempFile = join(this.config.tempDirectory, `temp-users-${Date.now()}.csv`)
-    
+
     // Crear archivo temporal con el chunk
     await this.createTempCSVFile(tempFile, chunk, this.getExpectedHeaders(EntityType.USER))
-    
+
     try {
       return await this.userImporter.importFromCSV(tempFile)
     } finally {
@@ -982,9 +1076,9 @@ export class ImportService {
    */
   private async processBudgetChunk(chunk: any[]): Promise<ImportResult> {
     const tempFile = join(this.config.tempDirectory, `temp-budgets-${Date.now()}.csv`)
-    
+
     await this.createTempCSVFile(tempFile, chunk, this.getExpectedHeaders(EntityType.BUDGET))
-    
+
     try {
       return await this.budgetImporter.importFromCSV(tempFile)
     } finally {
@@ -1004,9 +1098,9 @@ export class ImportService {
    */
   private async processQuotaChunk(chunk: any[]): Promise<ImportResult> {
     const tempFile = join(this.config.tempDirectory, `temp-quotas-${Date.now()}.csv`)
-    
+
     await this.createTempCSVFile(tempFile, chunk, this.getExpectedHeaders(EntityType.QUOTA))
-    
+
     try {
       return await this.quotaImporter.importFromCSV(tempFile)
     } finally {
@@ -1026,9 +1120,9 @@ export class ImportService {
    */
   private async processInterestChunk(chunk: any[]): Promise<ImportResult> {
     const tempFile = join(this.config.tempDirectory, `temp-interests-${Date.now()}.csv`)
-    
+
     await this.createTempCSVFile(tempFile, chunk, this.getExpectedHeaders(EntityType.INTEREST))
-    
+
     try {
       return await this.interestImporter.importFromCSV(tempFile)
     } finally {
@@ -1050,17 +1144,17 @@ export class ImportService {
    */
   private async createTempCSVFile(filePath: string, data: any[], headers: string[]): Promise<void> {
     const fs = await import('fs/promises')
-    
+
     // Crear directorio si no existe
     const dir = join(filePath, '..')
     await fs.mkdir(dir, { recursive: true })
-    
+
     // Crear contenido CSV
     const csvContent = [
       headers.join(','),
-      ...data.map(row => headers.map(header => row[header] || '').join(','))
+      ...data.map((row) => headers.map((header) => row[header] || '').join(','))
     ].join('\n')
-    
+
     await fs.writeFile(filePath, csvContent, 'utf8')
   }
 
