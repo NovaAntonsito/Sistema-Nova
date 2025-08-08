@@ -9,10 +9,14 @@ import { ControllerManager } from './database/controllers'
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1200,
+    height: 800,
+    minWidth: 800,
+    minHeight: 600,
     show: false,
     autoHideMenuBar: false, // Mostrar la barra de menú
+    resizable: true,
+    maximizable: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -22,6 +26,25 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    // Maximize the window to use full screen
+    mainWindow.maximize()
+  })
+
+  // Handle window state changes
+  mainWindow.on('maximize', () => {
+    console.log('Window maximized')
+  })
+
+  mainWindow.on('unmaximize', () => {
+    console.log('Window unmaximized')
+  })
+
+  mainWindow.on('enter-full-screen', () => {
+    console.log('Entered full screen')
+  })
+
+  mainWindow.on('leave-full-screen', () => {
+    console.log('Left full screen')
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -153,6 +176,17 @@ function createWindow(): void {
           accelerator: 'F11',
           click: () => {
             mainWindow.setFullScreen(!mainWindow.isFullScreen())
+          }
+        },
+        {
+          label: 'Maximizar/Restaurar',
+          accelerator: 'Ctrl+Shift+M',
+          click: () => {
+            if (mainWindow.isMaximized()) {
+              mainWindow.unmaximize()
+            } else {
+              mainWindow.maximize()
+            }
           }
         },
         {

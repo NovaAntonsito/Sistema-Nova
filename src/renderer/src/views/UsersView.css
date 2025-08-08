@@ -1,11 +1,12 @@
 .users-view {
-  padding: 20px;
+  padding: 8px;
   color: #000;
 }
 
 .users-view h2 {
   color: #000;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+  margin-top: 0;
 }
 
 .loading-message,
@@ -17,7 +18,7 @@
 .users-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 8px;
   border: 1px solid #ddd;
 }
 
@@ -26,11 +27,12 @@
 }
 
 .users-table th {
-  padding: 12px;
+  padding: 8px;
   text-align: left;
   border-bottom: 2px solid #ddd;
   font-weight: bold;
   color: #000;
+  font-size: 14px;
 }
 
 .users-table th.actions-header {
@@ -50,8 +52,9 @@
 }
 
 .users-table td {
-  padding: 12px;
+  padding: 8px;
   color: #000;
+  font-size: 14px;
 }
 
 .actions-cell {

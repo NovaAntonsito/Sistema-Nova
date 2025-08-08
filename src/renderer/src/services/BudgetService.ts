@@ -1,312 +1,124 @@
-import { Budget, BudgetFormData, ApiResponse, Status } from '../types'
+// Status enum - duplicated here to avoid import issues
+export enum Status {
+  EXPIRED = 'EXPIRED',
+  ACTIVE = 'ACTIVE',
+  FINISHED = 'FINISHED'
+}
 
-/**
- * BudgetService - Frontend service for budget-related IPC communication
- * Handles all budget operations between frontend and backend
- */
-class BudgetService {
-  /**
-   * Create a new budget
-   */
-  async createBudget(budgetData: BudgetFormData): Promise<ApiResponse<Budget>> {
-    try {
-      // Map frontend form data to backend DTO format
-      const createBudgetDto = {
-        _expirationDate: new Date(Date.now() + budgetData.paymentTerm * 30 * 24 * 60 * 60 * 1000), // Approximate expiration
-        baseAmount: budgetData.baseAmount,
-        paymentTerm: budgetData.paymentTerm,
-        userId: budgetData.userId,
-        code: budgetData.code
-      }
+// Budget data types
+export interface CreateBudgetDto {
+  _expirationDate: Date
+  baseAmount: number
+  paymentTerm: number
+  userId: string
+  code?: string
+}
 
-      const response = await window.electron.ipcRenderer.invoke('budget:create', createBudgetDto)
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error creating budget'
-      }
-    }
-  }
-
-  /**
-   * Get all budgets
-   */
-  async getAllBudgets(): Promise<ApiResponse<Budget[]>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke('budget:getAll')
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error fetching budgets'
-      }
-    }
-  }
-
-  /**
-   * Get budget by ID
-   */
-  async getBudgetById(id: string): Promise<ApiResponse<Budget>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke('budget:getById', id)
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error fetching budget'
-      }
-    }
-  }
-
-  /**
-   * Search budget by code
-   */
-  async searchByCode(code: string): Promise<ApiResponse<Budget>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke('budget:searchByCode', code)
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error searching budget by code'
-      }
-    }
-  }
-
-  /**
-   * Get budgets by user ID
-   */
-  async getBudgetsByUserId(userId: string): Promise<ApiResponse<Budget[]>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke('budget:getByUserId', userId)
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error fetching budgets by user'
-      }
-    }
-  }
-
-  /**
-   * Get budgets by status
-   */
-  async getBudgetsByStatus(status: Status): Promise<ApiResponse<Budget[]>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke('budget:getByStatus', status)
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error fetching budgets by status'
-      }
-    }
-  }
-
-  /**
-   * Update budget
-   */
-  async updateBudget(
-    id: string,
-    budgetData: Partial<BudgetFormData>
-  ): Promise<ApiResponse<Budget>> {
-    try {
-      // Map frontend form data to backend DTO format
-      const updateBudgetDto: any = {}
-      if (budgetData.code !== undefined) updateBudgetDto.code = budgetData.code
-      if (budgetData.baseAmount !== undefined) updateBudgetDto.baseAmount = budgetData.baseAmount
-      if (budgetData.interestPercentage !== undefined)
-        updateBudgetDto.interestPercentage = budgetData.interestPercentage
-      if (budgetData.paymentTerm !== undefined) {
-        updateBudgetDto.paymentTerm = budgetData.paymentTerm
-        updateBudgetDto._expirationDate = new Date(
-          Date.now() + budgetData.paymentTerm * 30 * 24 * 60 * 60 * 1000
-        )
-      }
-      if (budgetData.userId !== undefined) updateBudgetDto.userId = budgetData.userId
-      if (budgetData.description !== undefined) updateBudgetDto.description = budgetData.description
-
-      const response = await window.electron.ipcRenderer.invoke(
-        'budget:update',
-        id,
-        updateBudgetDto
-      )
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error updating budget'
-      }
-    }
-  }
-
-  /**
-   * Add quota to budget
-   */
-  async addQuotaToBudget(budgetId: string, amount: number): Promise<ApiResponse<void>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke('budget:addQuota', budgetId, amount)
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error adding quota to budget'
-      }
-    }
-  }
-
-  /**
-   * Delete budget (logical deletion)
-   */
-  async deleteBudget(id: string): Promise<ApiResponse<void>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke('budget:delete', id)
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error deleting budget'
-      }
-    }
-  }
-
-  /**
-   * Update expired budgets
-   */
-  async updateExpiredBudgets(): Promise<ApiResponse<{ updatedCount: number }>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke('budget:updateExpired')
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error updating expired budgets'
-      }
-    }
-  }
-
-  /**
-   * Perform status maintenance
-   */
-  async performStatusMaintenance(): Promise<ApiResponse<{ expired: number; finished: number }>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke('budget:performStatusMaintenance')
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error performing status maintenance'
-      }
-    }
-  }
-
-  /**
-   * Get status summary
-   */
-  async getStatusSummary(): Promise<ApiResponse<any>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke('budget:getStatusSummary')
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error getting status summary'
-      }
-    }
-  }
-
-  /**
-   * Check if code is available
-   */
-  async isCodeAvailable(code: string): Promise<ApiResponse<{ isAvailable: boolean }>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke('budget:isCodeAvailable', code)
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error checking code availability'
-      }
-    }
-  }
-
-  /**
-   * Generate next available code
-   */
-  async generateNextCode(): Promise<ApiResponse<{ nextCode: string }>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke('budget:generateNextCode')
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error generating next code'
-      }
-    }
-  }
-
-  // Budget calculation helpers
-
-  /**
-   * Calculate total amount with interest
-   */
-  calculateTotalAmount(baseAmount: number, interestPercentage: number): number {
-    return baseAmount + (baseAmount * interestPercentage) / 100
-  }
-
-  /**
-   * Calculate monthly payment
-   */
-  calculateMonthlyPayment(totalAmount: number, paymentTerm: number): number {
-    return totalAmount / paymentTerm
-  }
-
-  /**
-   * Calculate total amount using backend service
-   */
-  async calculateTotalAmountBackend(
-    baseAmount: number,
-    interestPercentage: number
-  ): Promise<ApiResponse<{ totalAmount: number }>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke(
-        'budget:calculateTotalAmount',
-        baseAmount,
-        interestPercentage
-      )
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error calculating total amount'
-      }
-    }
-  }
-
-  /**
-   * Calculate monthly payment using backend service
-   */
-  async calculateMonthlyPaymentBackend(
-    totalAmount: number,
-    paymentTerm: number
-  ): Promise<ApiResponse<{ monthlyPayment: number }>> {
-    try {
-      const response = await window.electron.ipcRenderer.invoke(
-        'budget:calculateMonthlyPayment',
-        totalAmount,
-        paymentTerm
-      )
-      return response
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Error calculating monthly payment'
-      }
-    }
+export interface UpdateBudgetDto {
+  quotaToAdd?: {
+    amount: number
   }
 }
 
-// Export singleton instance
-export const budgetService = new BudgetService()
-export default budgetService
+export interface Budget {
+  id: string
+  _creationDate: Date
+  _expirationDate: Date
+  currentStatus: Status
+  totalAmount: number
+  currentInterest: number
+  paymentTerm: number
+  code: string
+  quotaList?: Quota[]
+  user?: BudgetUser
+  updatedAt: Date
+}
+
+export interface Quota {
+  id: string
+  _creationDate: Date
+  amount: number
+}
+
+export interface BudgetUser {
+  id: string
+  nombre: string
+  email: string
+  phoneNumber: string
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean
+  data?: T
+  message?: string
+  error?: string
+}
+
+// Budget service methods
+const createBudget = async (budgetData: CreateBudgetDto): Promise<ApiResponse<Budget>> => {
+  return await window.electron.ipcRenderer.invoke('budget:create', budgetData)
+}
+
+const getAllBudgets = async (): Promise<ApiResponse<Budget[]>> => {
+  return await window.electron.ipcRenderer.invoke('budget:getAll')
+}
+
+const getBudgetById = async (id: string): Promise<ApiResponse<Budget>> => {
+  return await window.electron.ipcRenderer.invoke('budget:getById', id)
+}
+
+const searchByCode = async (code: string): Promise<ApiResponse<Budget>> => {
+  return await window.electron.ipcRenderer.invoke('budget:searchByCode', code)
+}
+
+const getBudgetsByUserId = async (userId: string): Promise<ApiResponse<Budget[]>> => {
+  return await window.electron.ipcRenderer.invoke('budget:getByUserId', userId)
+}
+
+const getBudgetsByStatus = async (status: Status): Promise<ApiResponse<Budget[]>> => {
+  return await window.electron.ipcRenderer.invoke('budget:getByStatus', status)
+}
+
+const updateBudget = async (id: string, budgetData: UpdateBudgetDto): Promise<ApiResponse<Budget>> => {
+  return await window.electron.ipcRenderer.invoke('budget:update', id, budgetData)
+}
+
+const addQuotaToBudget = async (budgetId: string, amount: number): Promise<ApiResponse<null>> => {
+  return await window.electron.ipcRenderer.invoke('budget:addQuota', budgetId, amount)
+}
+
+const deleteBudget = async (id: string): Promise<ApiResponse<null>> => {
+  return await window.electron.ipcRenderer.invoke('budget:delete', id)
+}
+
+const isCodeAvailable = async (code: string): Promise<ApiResponse<{ isAvailable: boolean }>> => {
+  return await window.electron.ipcRenderer.invoke('budget:isCodeAvailable', code)
+}
+
+const generateNextCode = async (): Promise<ApiResponse<{ nextCode: string }>> => {
+  return await window.electron.ipcRenderer.invoke('budget:generateNextCode')
+}
+
+const calculateTotalAmount = async (baseAmount: number, interestPercentage: number): Promise<ApiResponse<{ totalAmount: number }>> => {
+  return await window.electron.ipcRenderer.invoke('budget:calculateTotalAmount', baseAmount, interestPercentage)
+}
+
+const calculateMonthlyPayment = async (totalAmount: number, paymentTerm: number): Promise<ApiResponse<{ monthlyPayment: number }>> => {
+  return await window.electron.ipcRenderer.invoke('budget:calculateMonthlyPayment', totalAmount, paymentTerm)
+}
+
+export { 
+  createBudget,
+  getAllBudgets, 
+  getBudgetById,
+  searchByCode,
+  getBudgetsByUserId,
+  getBudgetsByStatus,
+  updateBudget,
+  addQuotaToBudget,
+  deleteBudget,
+  isCodeAvailable,
+  generateNextCode,
+  calculateTotalAmount,
+  calculateMonthlyPayment
+}

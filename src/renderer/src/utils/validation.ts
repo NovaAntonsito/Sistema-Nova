@@ -1,255 +1,264 @@
-import { FORM_VALIDATION } from './constants'
-
-export interface ValidationRule {
-  required?: boolean
-  minLength?: number
-  maxLength?: number
-  pattern?: RegExp
-  custom?: (value: any) => string | null
-}
+// Validation utilities for forms
 
 export interface ValidationResult {
   isValid: boolean
   errors: string[]
 }
 
-export interface FieldValidationResult {
-  isValid: boolean
-  error: string | null
+export interface UserFormData {
+  nombre: string
+  apellido: string
+  email: string
+  telefono: string
+  direccion: string
 }
 
-// Generic validation function
-export const validateField = (value: any, rules: ValidationRule): FieldValidationResult => {
+export interface BudgetFormData {
+  code: string
+  baseAmount: string
+  interestPercentage: string
+  paymentTerm: string
+  userId: string
+  _expirationDate: string
+}
+
+// Email validation regex
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
+// Phone validation (basic format)
+const isValidPhone = (phone: string): boolean => {
+  const phoneRegex = /^[\d\s\-\+\(\)]+$/
+  return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 7
+}
+
+// Validate user form data
+export const validateUserForm = (data: UserFormData): ValidationResult => {
   const errors: string[] = []
 
-  // Required validation
-  if (rules.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
-    errors.push('Este campo es obligatorio')
+  // Validate nombre (required)
+  if (!data.nombre || data.nombre.trim().length === 0) {
+    errors.push('El nombre es requerido')
+  } else if (data.nombre.trim().length < 2) {
+    errors.push('El nombre debe tener al menos 2 caracteres')
   }
 
-  // Skip other validations if field is empty and not required
-  if (!value || (typeof value === 'string' && value.trim() === '')) {
-    return {
-      isValid: errors.length === 0,
-      error: errors[0] || null
+  // Validate apellido (required)
+  if (!data.apellido || data.apellido.trim().length === 0) {
+    errors.push('El apellido es requerido')
+  } else if (data.apellido.trim().length < 2) {
+    errors.push('El apellido debe tener al menos 2 caracteres')
+  }
+
+  // Validate email (required)
+  if (!data.email || data.email.trim().length === 0) {
+    errors.push('El email es requerido')
+  } else if (!isValidEmail(data.email)) {
+    errors.push('Debe ser un email válido')
+  }
+
+  // Validate telefono (required)
+  if (!data.telefono || data.telefono.trim().length === 0) {
+    errors.push('El teléfono es requerido')
+  } else if (!isValidPhone(data.telefono)) {
+    errors.push('El teléfono debe tener un formato válido')
+  }
+
+  // Validate direccion (optional, but if provided should have minimum length)
+  if (data.direccion && data.direccion.trim().length > 0 && data.direccion.trim().length < 5) {
+    errors.push('La dirección debe tener al menos 5 caracteres')
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  }
+}
+
+// Validate individual fields for real-time validation
+export const validateField = (fieldName: keyof UserFormData, value: string): string[] => {
+  const errors: string[] = []
+
+  switch (fieldName) {
+    case 'nombre':
+      if (!value || value.trim().length === 0) {
+        errors.push('El nombre es requerido')
+      } else if (value.trim().length < 2) {
+        errors.push('El nombre debe tener al menos 2 caracteres')
+      }
+      break
+
+    case 'apellido':
+      if (!value || value.trim().length === 0) {
+        errors.push('El apellido es requerido')
+      } else if (value.trim().length < 2) {
+        errors.push('El apellido debe tener al menos 2 caracteres')
+      }
+      break
+
+    case 'email':
+      if (!value || value.trim().length === 0) {
+        errors.push('El email es requerido')
+      } else if (!isValidEmail(value)) {
+        errors.push('Debe ser un email válido')
+      }
+      break
+
+    case 'telefono':
+      if (!value || value.trim().length === 0) {
+        errors.push('El teléfono es requerido')
+      } else if (!isValidPhone(value)) {
+        errors.push('El teléfono debe tener un formato válido')
+      }
+      break
+
+    case 'direccion':
+      if (value && value.trim().length > 0 && value.trim().length < 5) {
+        errors.push('La dirección debe tener al menos 5 caracteres')
+      }
+      break
+  }
+
+  return errors
+}
+
+// Validate budget form data
+export const validateBudgetForm = (data: BudgetFormData): ValidationResult => {
+  const errors: string[] = []
+
+  // Validate code (required)
+  if (!data.code || data.code.trim().length === 0) {
+    errors.push('El código es requerido')
+  } else if (data.code.trim().length < 3) {
+    errors.push('El código debe tener al menos 3 caracteres')
+  }
+
+  // Validate baseAmount (required, positive number)
+  if (!data.baseAmount || data.baseAmount.trim().length === 0) {
+    errors.push('El monto base es requerido')
+  } else {
+    const amount = parseFloat(data.baseAmount)
+    if (isNaN(amount) || amount <= 0) {
+      errors.push('El monto base debe ser un número positivo')
     }
   }
 
-  // String-specific validations
-  if (typeof value === 'string') {
-    // Min length validation
-    if (rules.minLength && value.length < rules.minLength) {
-      errors.push(`Debe tener al menos ${rules.minLength} caracteres`)
-    }
-
-    // Max length validation
-    if (rules.maxLength && value.length > rules.maxLength) {
-      errors.push(`No puede tener más de ${rules.maxLength} caracteres`)
-    }
-
-    // Pattern validation
-    if (rules.pattern && !rules.pattern.test(value)) {
-      errors.push('El formato no es válido')
+  // Validate interestPercentage (required, positive number)
+  if (!data.interestPercentage || data.interestPercentage.trim().length === 0) {
+    errors.push('El porcentaje de interés es requerido')
+  } else {
+    const percentage = parseFloat(data.interestPercentage)
+    if (isNaN(percentage) || percentage < 0) {
+      errors.push('El porcentaje de interés debe ser un número no negativo')
     }
   }
 
-  // Custom validation
-  if (rules.custom) {
-    const customError = rules.custom(value)
-    if (customError) {
-      errors.push(customError)
+  // Validate paymentTerm (required, positive integer)
+  if (!data.paymentTerm || data.paymentTerm.trim().length === 0) {
+    errors.push('El plazo de pago es requerido')
+  } else {
+    const term = parseInt(data.paymentTerm)
+    if (isNaN(term) || term <= 0) {
+      errors.push('El plazo de pago debe ser un número entero positivo')
+    }
+  }
+
+  // Validate userId (required)
+  if (!data.userId || data.userId.trim().length === 0) {
+    errors.push('Debe seleccionar un usuario')
+  }
+
+  // Validate expiration date (required, future date)
+  if (!data._expirationDate || data._expirationDate.trim().length === 0) {
+    errors.push('La fecha de expiración es requerida')
+  } else {
+    const expirationDate = new Date(data._expirationDate)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    if (isNaN(expirationDate.getTime())) {
+      errors.push('La fecha de expiración debe ser válida')
+    } else if (expirationDate <= today) {
+      errors.push('La fecha de expiración debe ser en el futuro')
     }
   }
 
   return {
     isValid: errors.length === 0,
-    error: errors[0] || null
+    errors
   }
 }
 
-// User form validation rules
-export const userValidationRules = {
-  nombre: {
-    required: true,
-    minLength: 2,
-    maxLength: FORM_VALIDATION.MAX_TEXT_LENGTH,
-    custom: (value: string) => {
-      if (value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
-        return 'Solo se permiten letras y espacios'
-      }
-      return null
-    }
-  },
-  apellido: {
-    required: true,
-    minLength: 2,
-    maxLength: FORM_VALIDATION.MAX_TEXT_LENGTH,
-    custom: (value: string) => {
-      if (value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
-        return 'Solo se permiten letras y espacios'
-      }
-      return null
-    }
-  },
-  email: {
-    required: true,
-    maxLength: FORM_VALIDATION.MAX_TEXT_LENGTH,
-    pattern: FORM_VALIDATION.EMAIL_REGEX,
-    custom: (value: string) => {
-      if (value && !FORM_VALIDATION.EMAIL_REGEX.test(value)) {
-        return 'Ingrese un email válido'
-      }
-      return null
-    }
-  },
-  telefono: {
-    required: false,
-    maxLength: 20,
-    custom: (value: string) => {
-      if (value && value.trim() && !FORM_VALIDATION.PHONE_REGEX.test(value)) {
-        return 'Ingrese un número de teléfono válido'
-      }
-      return null
-    }
-  },
-  direccion: {
-    required: false,
-    maxLength: FORM_VALIDATION.MAX_DESCRIPTION_LENGTH
-  }
-} as const
-
-// Budget form validation rules
-export const budgetValidationRules = {
-  code: {
-    required: true,
-    minLength: 3,
-    maxLength: 50,
-    custom: (value: string) => {
-      if (value && !/^[A-Z0-9-_]+$/.test(value)) {
-        return 'Solo se permiten letras mayúsculas, números, guiones y guiones bajos'
-      }
-      return null
-    }
-  },
-  baseAmount: {
-    required: true,
-    custom: (value: number | string) => {
-      const numValue = typeof value === 'string' ? parseFloat(value) : value
-      if (isNaN(numValue) || numValue <= 0) {
-        return 'Debe ser un número mayor a 0'
-      }
-      if (numValue > 999999999) {
-        return 'El monto es demasiado alto'
-      }
-      return null
-    }
-  },
-  interestPercentage: {
-    required: true,
-    custom: (value: number | string) => {
-      const numValue = typeof value === 'string' ? parseFloat(value) : value
-      if (isNaN(numValue) || numValue < 0) {
-        return 'Debe ser un número mayor o igual a 0'
-      }
-      if (numValue > 100) {
-        return 'El porcentaje no puede ser mayor a 100%'
-      }
-      return null
-    }
-  },
-  paymentTerm: {
-    required: true,
-    custom: (value: number | string) => {
-      const numValue = typeof value === 'string' ? parseInt(value, 10) : value
-      if (isNaN(numValue) || numValue <= 0) {
-        return 'Debe ser un número entero mayor a 0'
-      }
-      if (numValue > 360) {
-        return 'El plazo no puede ser mayor a 360 meses'
-      }
-      return null
-    }
-  },
-  userId: {
-    required: true,
-    custom: (value: string) => {
-      if (!value || value.trim() === '') {
-        return 'Debe seleccionar un usuario'
-      }
-      return null
-    }
-  },
-  description: {
-    required: false,
-    maxLength: FORM_VALIDATION.MAX_DESCRIPTION_LENGTH
-  }
-} as const
-
-// Validate entire form
-export const validateForm = <T extends Record<string, any>>(
-  data: T,
-  rules: Record<keyof T, ValidationRule>
-): ValidationResult & { fieldErrors: Record<keyof T, string | null> } => {
-  const fieldErrors = {} as Record<keyof T, string | null>
-  let isValid = true
+// Validate individual budget fields for real-time validation
+export const validateBudgetField = (fieldName: keyof BudgetFormData, value: string): string[] => {
   const errors: string[] = []
 
-  for (const field in rules) {
-    const fieldResult = validateField(data[field], rules[field])
-    fieldErrors[field] = fieldResult.error
-
-    if (!fieldResult.isValid) {
-      isValid = false
-      if (fieldResult.error) {
-        errors.push(`${String(field)}: ${fieldResult.error}`)
+  switch (fieldName) {
+    case 'code':
+      if (!value || value.trim().length === 0) {
+        errors.push('El código es requerido')
+      } else if (value.trim().length < 3) {
+        errors.push('El código debe tener al menos 3 caracteres')
       }
-    }
+      break
+
+    case 'baseAmount':
+      if (!value || value.trim().length === 0) {
+        errors.push('El monto base es requerido')
+      } else {
+        const amount = parseFloat(value)
+        if (isNaN(amount) || amount <= 0) {
+          errors.push('El monto base debe ser un número positivo')
+        }
+      }
+      break
+
+    case 'interestPercentage':
+      if (!value || value.trim().length === 0) {
+        errors.push('El porcentaje de interés es requerido')
+      } else {
+        const percentage = parseFloat(value)
+        if (isNaN(percentage) || percentage < 0) {
+          errors.push('El porcentaje de interés debe ser un número no negativo')
+        }
+      }
+      break
+
+    case 'paymentTerm':
+      if (!value || value.trim().length === 0) {
+        errors.push('El plazo de pago es requerido')
+      } else {
+        const term = parseInt(value)
+        if (isNaN(term) || term <= 0) {
+          errors.push('El plazo de pago debe ser un número entero positivo')
+        }
+      }
+      break
+
+    case 'userId':
+      if (!value || value.trim().length === 0) {
+        errors.push('Debe seleccionar un usuario')
+      }
+      break
+
+    case '_expirationDate':
+      if (!value || value.trim().length === 0) {
+        errors.push('La fecha de expiración es requerida')
+      } else {
+        const expirationDate = new Date(value)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        
+        if (isNaN(expirationDate.getTime())) {
+          errors.push('La fecha de expiración debe ser válida')
+        } else if (expirationDate <= today) {
+          errors.push('La fecha de expiración debe ser en el futuro')
+        }
+      }
+      break
   }
 
-  return {
-    isValid,
-    errors,
-    fieldErrors
-  }
-}
-
-// Specific validation functions for forms
-export const validateUserForm = (userData: {
-  nombre: string
-  apellido: string
-  email: string
-  telefono?: string
-  direccion?: string
-}) => {
-  return validateForm(userData, userValidationRules)
-}
-
-export const validateBudgetForm = (budgetData: {
-  code: string
-  baseAmount: number | string
-  interestPercentage: number | string
-  paymentTerm: number | string
-  userId: string
-  description?: string
-}) => {
-  return validateForm(budgetData, budgetValidationRules)
-}
-
-// Real-time validation helpers
-export const debounce = <T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): ((...args: Parameters<T>) => void) => {
-  let timeout: NodeJS.Timeout
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func(...args), wait)
-  }
-}
-
-// Format validation error messages
-export const formatValidationErrors = (errors: string[]): string => {
-  if (errors.length === 0) return ''
-  if (errors.length === 1) return errors[0]
-  return `Se encontraron ${errors.length} errores:\n${errors.map((e) => `• ${e}`).join('\n')}`
+  return errors
 }

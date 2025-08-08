@@ -1,20 +1,20 @@
-import Versions from './components/Versions'
-import UsersView from './views/UsersView'
-import { HashRouter as Router, Routes, Route } from 'react-router-dom'
+import React from 'react'
+import { HashRouter as Router } from 'react-router-dom'
+import { Layout } from './components/layout'
+import { NotificationContainer } from './components/common'
+import { AppRoutes } from './routes'
+import './App.css'
 
 function App(): React.JSX.Element {
-  //const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-
   return (
-    <>
-      <Router>
-        <Routes>
-          <Route path="/" element={<UsersView />} />
-          {/* Agrega más rutas aquí según sea necesario */}
-        </Routes>
-      </Router>
-      <Versions></Versions>
-    </>
+    <Router>
+      <div className="app">
+        <Layout>
+          <AppRoutes />
+        </Layout>
+        <NotificationContainer />
+      </div>
+    </Router>
   )
 }
 

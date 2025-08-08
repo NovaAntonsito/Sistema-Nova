@@ -11,7 +11,7 @@ const UsersView = () => {
     try {
       setLoading(true)
       const res = await getAllUsers()
-      setUsers(res.data)
+      setUsers(res.data || [])
     } catch (error) {
       console.error('Error al cargar usuarios:', error)
     } finally {

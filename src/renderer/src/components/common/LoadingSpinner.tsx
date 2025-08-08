@@ -1,39 +1,58 @@
 import React from 'react'
-import './LoadingSpinner.css'
 
-export interface LoadingSpinnerProps {
+interface LoadingSpinnerProps {
   size?: 'small' | 'medium' | 'large'
-  color?: 'primary' | 'secondary' | 'white'
   message?: string
-  overlay?: boolean
-  className?: string
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = 'medium',
-  color = 'primary',
-  message,
-  overlay = false,
-  className = ''
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
+  size = 'medium', 
+  message = 'Cargando...' 
 }) => {
-  const spinnerContent = (
-    <div className={`loading-spinner loading-spinner--${size} ${className}`}>
-      <div className={`loading-spinner__circle loading-spinner__circle--${color}`} />
-      {message && <p className="loading-spinner__message">{message}</p>}
-    </div>
-  )
-
-  if (overlay) {
-    return (
-      <div className="loading-spinner-overlay" role="status" aria-live="polite">
-        {spinnerContent}
-      </div>
-    )
+  const sizeMap = {
+    small: '20px',
+    medium: '40px',
+    large: '60px'
   }
 
+  const spinnerSize = sizeMap[size]
+
   return (
-    <div role="status" aria-live="polite">
-      {spinnerContent}
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px'
+    }}>
+      <div
+        style={{
+          width: spinnerSize,
+          height: spinnerSize,
+          border: '3px solid #f3f4f6',
+          borderTop: '3px solid #3b82f6',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          marginBottom: '12px'
+        }}
+      />
+      <p style={{
+        color: '#6b7280',
+        fontSize: '14px',
+        margin: 0
+      }}>
+        {message}
+      </p>
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   )
 }
+
+export default LoadingSpinner

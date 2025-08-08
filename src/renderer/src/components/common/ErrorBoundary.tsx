@@ -1,103 +1,79 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react'
-import './ErrorBoundary.css'
+import { Component, ErrorInfo, ReactNode } from 'react'
 
-interface ErrorBoundaryState {
-  hasError: boolean
-  error?: Error
-  errorInfo?: ErrorInfo
-}
-
-interface ErrorBoundaryProps {
+interface Props {
   children: ReactNode
   fallback?: ReactNode
-  onError?: (error: Error, errorInfo: ErrorInfo) => void
-  showDetails?: boolean
 }
 
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props)
-    this.state = { hasError: false }
+interface State {
+  hasError: boolean
+  error?: Error
+}
+
+class ErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+  public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error }
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    this.setState({
-      error,
-      errorInfo
-    })
-
-    // Log error to console in development
-    if (process.env.NODE_ENV === 'development') {
-      console.error('ErrorBoundary caught an error:', error, errorInfo)
-    }
-
-    // Call optional error handler
-    if (this.props.onError) {
-      this.props.onError(error, errorInfo)
-    }
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo)
   }
 
-  handleRetry = () => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined })
-  }
-
-  render() {
+  public render() {
     if (this.state.hasError) {
-      // Custom fallback UI
       if (this.props.fallback) {
         return this.props.fallback
       }
 
-      // Default error UI
       return (
-        <div className="error-boundary">
-          <div className="error-boundary__content">
-            <div className="error-boundary__icon">⚠️</div>
-            <h2 className="error-boundary__title">Algo salió mal</h2>
-            <p className="error-boundary__message">
-              Ha ocurrido un error inesperado. Por favor, intenta recargar la página.
-            </p>
-
-            <div className="error-boundary__actions">
-              <button
-                className="error-boundary__button error-boundary__button--primary"
-                onClick={this.handleRetry}
-                type="button"
-              >
-                Intentar de nuevo
-              </button>
-              <button
-                className="error-boundary__button error-boundary__button--secondary"
-                onClick={() => window.location.reload()}
-                type="button"
-              >
-                Recargar página
-              </button>
-            </div>
-
-            {this.props.showDetails && this.state.error && (
-              <details className="error-boundary__details">
-                <summary className="error-boundary__details-summary">Detalles técnicos</summary>
-                <div className="error-boundary__error-info">
-                  <h4>Error:</h4>
-                  <pre className="error-boundary__error-text">{this.state.error.toString()}</pre>
-
-                  {this.state.errorInfo && (
-                    <>
-                      <h4>Stack trace:</h4>
-                      <pre className="error-boundary__error-text">
-                        {this.state.errorInfo.componentStack}
-                      </pre>
-                    </>
-                  )}
-                </div>
-              </details>
-            )}
-          </div>
+        <div style={{
+          padding: '20px',
+          textAlign: 'center',
+          backgroundColor: '#fef2f2',
+          border: '1px solid #fecaca',
+          borderRadius: '8px',
+          margin: '20px'
+        }}>
+          <h2 style={{ color: '#dc2626', marginBottom: '16px' }}>
+            Algo salió mal
+          </h2>
+          <p style={{ color: '#7f1d1d', marginBottom: '16px' }}>
+            Ha ocurrido un error inesperado. Por favor, recarga la página.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              backgroundColor: '#dc2626',
+              color: 'white',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Recargar página
+          </button>
+          {this.state.error && (
+            <details style={{ marginTop: '16px', textAlign: 'left' }}>
+              <summary style={{ cursor: 'pointer', color: '#7f1d1d' }}>
+                Detalles del error
+              </summary>
+              <pre style={{
+                backgroundColor: '#f3f4f6',
+                padding: '8px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                overflow: 'auto',
+                marginTop: '8px'
+              }}>
+                {this.state.error.stack}
+              </pre>
+            </details>
+          )}
         </div>
       )
     }
@@ -105,3 +81,5 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return this.props.children
   }
 }
+
+export default ErrorBoundary
