@@ -5,11 +5,20 @@ import './Toolbar.css'
 interface ToolbarProps {
   onCreateUser?: () => void
   onCreateBudget?: () => void
+  onManageInterests?: () => void
+  onManageQuotas?: () => void
   onExport?: () => void
   onImport?: () => void
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ onCreateUser, onCreateBudget, onExport, onImport }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ 
+  onCreateUser, 
+  onCreateBudget, 
+  onManageInterests, 
+  onManageQuotas, 
+  onExport, 
+  onImport 
+}) => {
   const navigate = useNavigate()
 
   const handleCreateUser = () => {
@@ -44,6 +53,22 @@ const Toolbar: React.FC<ToolbarProps> = ({ onCreateUser, onCreateBudget, onExpor
     }
   }
 
+  const handleManageInterests = () => {
+    if (onManageInterests) {
+      onManageInterests()
+    } else {
+      navigate('/interests')
+    }
+  }
+
+  const handleManageQuotas = () => {
+    if (onManageQuotas) {
+      onManageQuotas()
+    } else {
+      navigate('/quotas')
+    }
+  }
+
   return (
     <div className="toolbar">
       <div className="toolbar-container">
@@ -70,6 +95,24 @@ const Toolbar: React.FC<ToolbarProps> = ({ onCreateUser, onCreateBudget, onExpor
           >
             <span className="btn-icon">💰</span>
             <span className="btn-text">Creación de Presupuestos</span>
+          </button>
+
+          <button
+            className="toolbar-btn toolbar-btn-primary"
+            onClick={handleManageInterests}
+            title="Gestionar configuraciones de interés"
+          >
+            <span className="btn-icon">📊</span>
+            <span className="btn-text">Configuración de Interés</span>
+          </button>
+
+          <button
+            className="toolbar-btn toolbar-btn-primary"
+            onClick={handleManageQuotas}
+            title="Gestionar cuotas de presupuestos"
+          >
+            <span className="btn-icon">💳</span>
+            <span className="btn-text">Gestión de Cuotas</span>
           </button>
 
           <button

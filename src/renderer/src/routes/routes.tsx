@@ -10,6 +10,10 @@ const UserCreateView = React.lazy(() => import('../views/users/UserCreateView'))
 const BudgetView = React.lazy(() => import('../views/BudgetView'))
 const BudgetCreateView = React.lazy(() => import('../views/budgets/BudgetCreateView'))
 const BudgetListView = React.lazy(() => import('../views/budgets/BudgetListView'))
+const InterestListView = React.lazy(() => import('../views/interests/InterestListView'))
+const InterestCreateView = React.lazy(() => import('../views/interests/InterestCreateView'))
+const QuotaListView = React.lazy(() => import('../views/quotas/QuotaListView'))
+const QuotaCreateView = React.lazy(() => import('../views/quotas/QuotaCreateView'))
 const ExportView = React.lazy(() => import('../views/import-export/ExportView'))
 const ImportView = React.lazy(() => import('../views/import-export/ImportView'))
 
@@ -51,6 +55,31 @@ export const routeConfigs: RouteConfig[] = [
     path: '/budgets/create',
     element: <BudgetCreateView />,
     title: 'Crear Presupuesto'
+  },
+  {
+    path: '/interests',
+    element: <InterestListView />,
+    title: 'Configuraciones de Interés'
+  },
+  {
+    path: '/interests/create',
+    element: <InterestCreateView />,
+    title: 'Nueva Configuración de Interés'
+  },
+  {
+    path: '/interests/edit/:id',
+    element: <InterestCreateView />,
+    title: 'Editar Configuración de Interés'
+  },
+  {
+    path: '/quotas',
+    element: <QuotaListView />,
+    title: 'Gestión de Cuotas'
+  },
+  {
+    path: '/quotas/create',
+    element: <QuotaCreateView />,
+    title: 'Agregar Cuota'
   },
   {
     path: '/export',
