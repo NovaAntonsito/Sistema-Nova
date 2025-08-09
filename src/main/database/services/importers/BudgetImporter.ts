@@ -10,17 +10,7 @@ import { DataValidator } from '../../validators/DataValidator'
 import { CsvParser } from '../../utils/csvParser'
 import { Budget } from '../../entities/Budget'
 import { Status } from '../../entities/Status'
-import {
-  BudgetImportData,
-  ImportResult,
-  EntityType,
-  ImportError,
-  ImportWarning
-} from '../../types/import.types'
-import {
-  ValidationException,
-  ReferentialIntegrityException
-} from '../../exceptions/importExceptions'
+import { BudgetImportData, ImportResult, EntityType } from '../../types/import.types'
 
 /**
  * Importador específico para presupuestos
@@ -86,14 +76,22 @@ export class BudgetImporter {
       const existingBudgetIds = existingBudgets.map((budget) => budget.id)
       const existingInterestTerms = existingInterests.map((interest) => interest.paymentTerm)
 
+      console.log('Inicializando contexto de validación...')
+      console.log('Usuarios existentes:', existingUserIds.length)
+      console.log('Presupuestos existentes:', existingBudgetIds.length)
+      console.log('Términos de interés existentes:', existingInterestTerms.length)
+
       await this.dataValidator.initializeContext({
         userIds: existingUserIds,
         budgetIds: existingBudgetIds,
         interestTerms: existingInterestTerms
       })
+      console.log('Contexto inicializado correctamente')
 
       // 3. Validar datos
+      console.log('Iniciando validación de presupuestos...')
       const validationResult = await this.dataValidator.validateBudgets(parseResult.data)
+      console.log('Validación completada:', validationResult)
 
       // Agregar errores de validación al resultado
       validationResult.errors.forEach((error) => {

@@ -4,7 +4,7 @@
  */
 
 import { writeFileSync, mkdirSync, existsSync, appendFileSync } from 'fs'
-import { join, dirname } from 'path'
+import { join } from 'path'
 import { app } from 'electron'
 import {
   ImportResult,
@@ -217,6 +217,11 @@ export class ImportReporter {
    */
   async saveReportToFile(report: ImportReport, fileName: string): Promise<void> {
     try {
+      // Crear directorio si no existe
+      if (!existsSync(this.config.outputDirectory)) {
+        mkdirSync(this.config.outputDirectory, { recursive: true })
+      }
+
       const filePath = join(this.config.outputDirectory, fileName)
       const reportJson = JSON.stringify(report, null, 2)
 
@@ -237,6 +242,11 @@ export class ImportReporter {
    */
   async saveErrorReportToFile(report: ErrorReport, fileName: string): Promise<void> {
     try {
+      // Crear directorio si no existe
+      if (!existsSync(this.config.outputDirectory)) {
+        mkdirSync(this.config.outputDirectory, { recursive: true })
+      }
+
       const filePath = join(this.config.outputDirectory, fileName)
       const reportJson = JSON.stringify(report, null, 2)
 

@@ -44,9 +44,10 @@ export class ExportService {
 
   /**
    * Exporta todos los usuarios (activos y eliminados lógicamente) a CSV
+   * @param customPath - Ruta personalizada donde guardar el archivo (opcional)
    * @returns Promise<string> - Ruta del archivo CSV generado
    */
-  async exportUsersToCSV(): Promise<string> {
+  async exportUsersToCSV(customPath?: string): Promise<string> {
     const startTime = Date.now()
     const operation = 'exportUsersToCSV'
     let timeout: NodeJS.Timeout | null = null
@@ -73,10 +74,32 @@ export class ExportService {
       }
 
       if (!users || users.length === 0) {
-        throw new DataRetrievalException(
-          'usuarios',
-          new Error('No se encontraron usuarios para exportar')
-        )
+        // En exportación completa, permitir entidades vacías
+        if (customPath === undefined) {
+          // Solo crear archivo con headers si no hay datos
+          const headers = [
+            'id',
+            'nombre',
+            'email',
+            'phoneNumber',
+            'isDeleted',
+            'createdAt',
+            'updatedAt'
+          ]
+          const filePath = await this.csvGenerator.generateCSV(
+            [],
+            headers,
+            'users',
+            'temp/exports',
+            customPath
+          )
+          return filePath
+        } else {
+          throw new DataRetrievalException(
+            'usuarios',
+            new Error('No se encontraron usuarios para exportar')
+          )
+        }
       }
 
       // Validar límites de registros
@@ -104,7 +127,13 @@ export class ExportService {
       }))
 
       // Generar archivo CSV
-      const filePath = await this.csvGenerator.generateCSV(csvData, headers, 'users')
+      const filePath = await this.csvGenerator.generateCSV(
+        csvData,
+        headers,
+        'users',
+        'temp/exports',
+        customPath
+      )
 
       const duration = Date.now() - startTime
       this.logger.logExportSuccess(operation, duration, {
@@ -133,7 +162,7 @@ export class ExportService {
    * Exporta todos los presupuestos (activos y eliminados lógicamente) a CSV
    * @returns Promise<string> - Ruta del archivo CSV generado
    */
-  async exportBudgetsToCSV(): Promise<string> {
+  async exportBudgetsToCSV(customPath?: string): Promise<string> {
     const startTime = Date.now()
     const operation = 'exportBudgetsToCSV'
     let timeout: NodeJS.Timeout | null = null
@@ -161,10 +190,36 @@ export class ExportService {
       }
 
       if (!budgets || budgets.length === 0) {
-        throw new DataRetrievalException(
-          'presupuestos',
-          new Error('No se encontraron presupuestos para exportar')
-        )
+        // En exportación completa, permitir entidades vacías
+        if (customPath === undefined) {
+          // Solo crear archivo con headers si no hay datos
+          const headers = [
+            'id',
+            '_creationDate',
+            '_expirationDate',
+            'currentStatus',
+            'totalAmount',
+            'currentInterest',
+            'paymentTerm',
+            'code',
+            'isDeleted',
+            'updatedAt',
+            'userId'
+          ]
+          const filePath = await this.csvGenerator.generateCSV(
+            [],
+            headers,
+            'budgets',
+            'temp/exports',
+            customPath
+          )
+          return filePath
+        } else {
+          throw new DataRetrievalException(
+            'presupuestos',
+            new Error('No se encontraron presupuestos para exportar')
+          )
+        }
       }
 
       // Validar límites de registros
@@ -200,7 +255,13 @@ export class ExportService {
       }))
 
       // Generar archivo CSV
-      const filePath = await this.csvGenerator.generateCSV(csvData, headers, 'budgets')
+      const filePath = await this.csvGenerator.generateCSV(
+        csvData,
+        headers,
+        'budgets',
+        'temp/exports',
+        customPath
+      )
 
       const duration = Date.now() - startTime
       this.logger.logExportSuccess(operation, duration, {
@@ -229,7 +290,7 @@ export class ExportService {
    * Exporta todas las cuotas a CSV con relaciones a presupuestos
    * @returns Promise<string> - Ruta del archivo CSV generado
    */
-  async exportQuotasToCSV(): Promise<string> {
+  async exportQuotasToCSV(customPath?: string): Promise<string> {
     let timeout: NodeJS.Timeout | null = null
 
     try {
@@ -249,10 +310,24 @@ export class ExportService {
       }
 
       if (!quotas || quotas.length === 0) {
-        throw new DataRetrievalException(
-          'cuotas',
-          new Error('No se encontraron cuotas para exportar')
-        )
+        // En exportación completa, permitir entidades vacías
+        if (customPath === undefined) {
+          // Solo crear archivo con headers si no hay datos
+          const headers = ['id', '_creationDate', 'amount', 'budgetId', 'isDeleted']
+          const filePath = await this.csvGenerator.generateCSV(
+            [],
+            headers,
+            'quotas',
+            'temp/exports',
+            customPath
+          )
+          return filePath
+        } else {
+          throw new DataRetrievalException(
+            'cuotas',
+            new Error('No se encontraron cuotas para exportar')
+          )
+        }
       }
 
       // Validar límites de registros
@@ -270,7 +345,13 @@ export class ExportService {
       }))
 
       // Generar archivo CSV
-      const filePath = await this.csvGenerator.generateCSV(csvData, headers, 'quotas')
+      const filePath = await this.csvGenerator.generateCSV(
+        csvData,
+        headers,
+        'quotas',
+        'temp/exports',
+        customPath
+      )
       return filePath
     } catch (error) {
       // Limpiar timeout en caso de error
@@ -289,7 +370,7 @@ export class ExportService {
    * Exporta todas las configuraciones de interés a CSV
    * @returns Promise<string> - Ruta del archivo CSV generado
    */
-  async exportInterestsToCSV(): Promise<string> {
+  async exportInterestsToCSV(customPath?: string): Promise<string> {
     let timeout: NodeJS.Timeout | null = null
 
     try {
@@ -307,10 +388,31 @@ export class ExportService {
       }
 
       if (!interests || interests.length === 0) {
-        throw new DataRetrievalException(
-          'intereses',
-          new Error('No se encontraron configuraciones de interés para exportar')
-        )
+        // En exportación completa, permitir entidades vacías
+        if (customPath === undefined) {
+          // Solo crear archivo con headers si no hay datos
+          const headers = [
+            'id',
+            'paymentTerm',
+            'interestPercentage',
+            'isActive',
+            'createdAt',
+            'updatedAt'
+          ]
+          const filePath = await this.csvGenerator.generateCSV(
+            [],
+            headers,
+            'interests',
+            'temp/exports',
+            customPath
+          )
+          return filePath
+        } else {
+          throw new DataRetrievalException(
+            'intereses',
+            new Error('No se encontraron configuraciones de interés para exportar')
+          )
+        }
       }
 
       // Validar límites de registros
@@ -336,7 +438,13 @@ export class ExportService {
       }))
 
       // Generar archivo CSV
-      const filePath = await this.csvGenerator.generateCSV(csvData, headers, 'interests')
+      const filePath = await this.csvGenerator.generateCSV(
+        csvData,
+        headers,
+        'interests',
+        'temp/exports',
+        customPath
+      )
       return filePath
     } catch (error) {
       // Limpiar timeout en caso de error
@@ -355,18 +463,40 @@ export class ExportService {
    * Realiza una exportación completa de todos los datos en un archivo ZIP
    * @returns Promise<ExportResult> - Resultado con ruta del ZIP y metadatos
    */
-  async exportCompleteData(): Promise<ExportResult> {
+  private isExporting = false
+
+  async exportCompleteData(customPath?: string): Promise<ExportResult> {
+    // Evitar exportaciones concurrentes
+    if (this.isExporting) {
+      throw new ExportException('Ya hay una exportación en progreso. Por favor espere.')
+    }
+
+    this.isExporting = true
     const tempFiles: string[] = []
 
     try {
       console.log('Iniciando exportación completa de datos...')
 
+      console.log('Exportando usuarios...')
       const usersFile = await this.exportUsersToCSV()
-      const budgetsFile = await this.exportBudgetsToCSV()
-      const quotasFile = await this.exportQuotasToCSV()
-      const interestsFile = await this.exportInterestsToCSV()
+      tempFiles.push(usersFile)
+      console.log(`Usuarios exportados: ${usersFile}`)
 
-      tempFiles.push(usersFile, budgetsFile, quotasFile, interestsFile)
+      console.log('Exportando presupuestos...')
+      const budgetsFile = await this.exportBudgetsToCSV()
+      tempFiles.push(budgetsFile)
+      console.log(`Presupuestos exportados: ${budgetsFile}`)
+
+      console.log('Exportando cuotas...')
+      const quotasFile = await this.exportQuotasToCSV()
+      tempFiles.push(quotasFile)
+      console.log(`Cuotas exportadas: ${quotasFile}`)
+
+      console.log('Exportando intereses...')
+      const interestsFile = await this.exportInterestsToCSV()
+      tempFiles.push(interestsFile)
+      console.log(`Intereses exportados: ${interestsFile}`)
+
       console.log('Archivos CSV individuales generados exitosamente')
 
       // Obtener conteos para metadatos
@@ -391,7 +521,12 @@ export class ExportService {
       const metadataPath = await this.createMetadataFile(metadata)
       tempFiles.push(metadataPath)
 
-      const zipPath = join('temp/exports', `complete_export_${Date.now()}.zip`)
+      let zipPath: string
+      if (customPath) {
+        zipPath = customPath.endsWith('.zip') ? customPath : `${customPath}.zip`
+      } else {
+        zipPath = join('temp/exports', `complete_export_${Date.now()}.zip`)
+      }
       const zipFilePath = await this.zipGenerator.createZip(tempFiles, zipPath)
 
       // Validar tamaño del ZIP generado
@@ -409,6 +544,7 @@ export class ExportService {
         metadata
       }
     } catch (error) {
+      console.error('Error en exportación completa:', error)
       await this.cleanupTempFiles(tempFiles)
 
       if (error instanceof ExportException) {
@@ -417,6 +553,8 @@ export class ExportService {
       throw new ExportException(
         `Error en exportación completa: ${error instanceof Error ? error.message : 'Error desconocido'}`
       )
+    } finally {
+      this.isExporting = false
     }
   }
 

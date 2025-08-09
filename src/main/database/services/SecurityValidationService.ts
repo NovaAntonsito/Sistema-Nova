@@ -36,7 +36,7 @@ export class SecurityValidationService {
     allowedBasePath: string,
     operation: string
   ): Promise<SecurityValidationResult> {
-    this.logger.logInfo(`Iniciando validación de seguridad para: ${filePath}`)
+    console.log(`Iniciando validación de seguridad para: ${filePath}`)
 
     try {
       // Realizar validación completa de seguridad
@@ -52,14 +52,14 @@ export class SecurityValidationService {
         await this.handleSecurityErrors(result, filePath, operation)
       }
 
-      this.logger.logInfo(
+      console.log(
         `Validación de seguridad completada para: ${filePath}. ` +
           `Errores: ${result.errors.length}, Advertencias: ${result.warnings.length}`
       )
 
       return result
     } catch (error) {
-      this.logger.logError(`Error en validación de seguridad: ${error}`)
+      console.error(`Error en validación de seguridad: ${error}`)
       throw error
     }
   }
@@ -71,19 +71,19 @@ export class SecurityValidationService {
    * @returns Promise<SecurityValidationResult>
    */
   async validateAndSanitizeData(data: any, operation: string): Promise<SecurityValidationResult> {
-    this.logger.logInfo(`Iniciando sanitización de datos para: ${operation}`)
+    console.log(`Iniciando sanitización de datos para: ${operation}`)
 
     try {
       const result = this.securityValidator.sanitizeInputData(data, operation)
 
-      this.logger.logInfo(
+      console.log(
         `Sanitización completada para: ${operation}. ` +
           `Errores: ${result.errors.length}, Advertencias: ${result.warnings.length}`
       )
 
       return result
     } catch (error) {
-      this.logger.logError(`Error en sanitización de datos: ${error}`)
+      console.error(`Error en sanitización de datos: ${error}`)
       throw new SecurityValidationException(
         `Error sanitizando datos: ${error instanceof Error ? error.message : 'Error desconocido'}`,
         'data-sanitization'
@@ -208,7 +208,7 @@ export class SecurityValidationService {
     allowedBasePath: string,
     operation: string
   ): Promise<SecurityValidationResult> {
-    this.logger.logInfo(`Validando archivo ZIP: ${zipFilePath}`)
+    console.log(`Validando archivo ZIP: ${zipFilePath}`)
 
     try {
       // Validar el archivo ZIP como archivo normal
@@ -235,14 +235,14 @@ export class SecurityValidationService {
         result.isValid = false
       }
 
-      this.logger.logInfo(
+      console.log(
         `Validación de ZIP completada: ${zipFilePath}. ` +
           `Válido: ${result.isValid}, Errores: ${result.errors.length}`
       )
 
       return result
     } catch (error) {
-      this.logger.logError(`Error validando archivo ZIP: ${error}`)
+      console.error(`Error validando archivo ZIP: ${error}`)
       throw error
     }
   }
@@ -261,7 +261,7 @@ export class SecurityValidationService {
    */
   updateSecurityConfiguration(config: any) {
     this.securityValidator.updateSecurityConfig(config)
-    this.logger.logInfo('Configuración de seguridad actualizada')
+    console.log('Configuración de seguridad actualizada')
   }
 
   // Métodos privados

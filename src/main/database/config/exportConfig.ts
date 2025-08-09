@@ -87,7 +87,7 @@ export class ExportConfigManager {
   /**
    * Actualiza un valor de configuración
    */
-  updateConfig(key: keyof ExportConfig, value: any): void {
+  updateConfig<K extends keyof ExportConfig>(key: K, value: ExportConfig[K]): void {
     this.config[key] = value
   }
 
@@ -171,10 +171,10 @@ export class ExportConfigManager {
         if (typeof this.config[configKey] === 'number') {
           const numValue = parseInt(envValue, 10)
           if (!isNaN(numValue)) {
-            this.config[configKey] = numValue as any
+            ;(this.config as any)[configKey] = numValue
           }
         } else {
-          this.config[configKey] = envValue as any
+          ;(this.config as unknown)[configKey] = envValue
         }
       }
     }

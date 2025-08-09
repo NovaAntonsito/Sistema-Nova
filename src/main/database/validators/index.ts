@@ -9,13 +9,13 @@ export { DataValidator } from './DataValidator'
 // Servicio de validación
 export {
   ValidationService,
-  ValidationServiceConfig,
-  CompleteValidationResult,
+  type ValidationServiceConfig,
+  type CompleteValidationResult,
   DEFAULT_VALIDATION_CONFIG
 } from './ValidationService'
 
 // Utilidades de validación
-export { ValidationUtils, ValidationRules, DEFAULT_VALIDATION_RULES } from './ValidationUtils'
+export { ValidationUtils, type ValidationRules, DEFAULT_VALIDATION_RULES } from './ValidationUtils'
 
 // Excepciones de validación
 export {

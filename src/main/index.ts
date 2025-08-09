@@ -9,10 +9,14 @@ import { ControllerManager } from './database/controllers'
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1200,
+    height: 800,
+    minWidth: 800,
+    minHeight: 600,
     show: false,
     autoHideMenuBar: false, // Mostrar la barra de menú
+    resizable: true,
+    maximizable: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -22,6 +26,25 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    // Maximize the window to use full screen
+    mainWindow.maximize()
+  })
+
+  // Handle window state changes
+  mainWindow.on('maximize', () => {
+    console.log('Window maximized')
+  })
+
+  mainWindow.on('unmaximize', () => {
+    console.log('Window unmaximized')
+  })
+
+  mainWindow.on('enter-full-screen', () => {
+    console.log('Entered full screen')
+  })
+
+  mainWindow.on('leave-full-screen', () => {
+    console.log('Left full screen')
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -156,6 +179,17 @@ function createWindow(): void {
           }
         },
         {
+          label: 'Maximizar/Restaurar',
+          accelerator: 'Ctrl+Shift+M',
+          click: () => {
+            if (mainWindow.isMaximized()) {
+              mainWindow.unmaximize()
+            } else {
+              mainWindow.maximize()
+            }
+          }
+        },
+        {
           type: 'separator'
         } as MenuItemConstructorOptions,
         {
@@ -235,6 +269,36 @@ app.whenReady().then(async () => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  // Handler para guardar archivos temporales
+  ipcMain.handle('file:save-temp', async (_, { fileName, fileData }) => {
+    try {
+      const fs = await import('fs/promises')
+      const path = await import('path')
+      // const os = await import('os')
+
+      // Crear directorio temporal en el directorio de datos de la aplicación
+      const { app } = await import('electron')
+      const userDataPath = app.getPath('userData')
+      const tempDir = path.join(userDataPath, 'temp', 'imports')
+      await fs.mkdir(tempDir, { recursive: true })
+
+      // Generar nombre único para el archivo
+      const timestamp = Date.now()
+      const tempFileName = `${timestamp}-${fileName}`
+      const tempFilePath = path.join(tempDir, tempFileName)
+
+      // Escribir archivo temporal
+      const buffer = Buffer.from(fileData)
+      await fs.writeFile(tempFilePath, buffer)
+
+      console.log(`Archivo temporal guardado: ${tempFilePath}`)
+      return tempFilePath
+    } catch (error) {
+      console.error('Error guardando archivo temporal:', error)
+      throw error
+    }
+  })
 
   createWindow()
 

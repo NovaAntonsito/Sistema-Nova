@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron'
+import { ipcMain, dialog, BrowserWindow } from 'electron'
 import { ExportService, ExportResult } from '../services/ExportService'
 import { UserRepository } from '../repositories/UserRepository'
 import { BudgetRepository } from '../repositories/BudgetRepository'
@@ -39,9 +39,9 @@ export class ExportController {
 
   private registerHandlers(): void {
     // Export users to CSV handler
-    ipcMain.handle('export:users', async (): Promise<ApiResponse<string>> => {
+    ipcMain.handle('export:users', async (_, savePath?: string): Promise<ApiResponse<string>> => {
       try {
-        const filePath = await this.exportService.exportUsersToCSV()
+        const filePath = await this.exportService.exportUsersToCSV(savePath)
         return ResponseFormatter.success(filePath, 'Usuarios exportados exitosamente')
       } catch (error) {
         return ResponseFormatter.error(error as Error)
@@ -49,44 +49,50 @@ export class ExportController {
     })
 
     // Export budgets to CSV handler
-    ipcMain.handle('export:budgets', async (): Promise<ApiResponse<string>> => {
+    ipcMain.handle('export:budgets', async (_, savePath?: string): Promise<ApiResponse<string>> => {
       try {
-        const filePath = await this.exportService.exportBudgetsToCSV()
+        const filePath = await this.exportService.exportBudgetsToCSV(savePath)
         return ResponseFormatter.success(filePath, 'Presupuestos exportados exitosamente')
       } catch (error) {
         return ResponseFormatter.error(error as Error)
       }
     })
 
-    ipcMain.handle('export:quotas', async (): Promise<ApiResponse<string>> => {
+    ipcMain.handle('export:quotas', async (_, savePath?: string): Promise<ApiResponse<string>> => {
       try {
-        const filePath = await this.exportService.exportQuotasToCSV()
+        const filePath = await this.exportService.exportQuotasToCSV(savePath)
         return ResponseFormatter.success(filePath, 'Cuotas exportadas exitosamente')
       } catch (error) {
         return ResponseFormatter.error(error as Error)
       }
     })
 
-    ipcMain.handle('export:interests', async (): Promise<ApiResponse<string>> => {
-      try {
-        const filePath = await this.exportService.exportInterestsToCSV()
-        return ResponseFormatter.success(
-          filePath,
-          'Configuraciones de interés exportadas exitosamente'
-        )
-      } catch (error) {
-        return ResponseFormatter.error(error as Error)
+    ipcMain.handle(
+      'export:interests',
+      async (_, savePath?: string): Promise<ApiResponse<string>> => {
+        try {
+          const filePath = await this.exportService.exportInterestsToCSV(savePath)
+          return ResponseFormatter.success(
+            filePath,
+            'Configuraciones de interés exportadas exitosamente'
+          )
+        } catch (error) {
+          return ResponseFormatter.error(error as Error)
+        }
       }
-    })
+    )
 
-    ipcMain.handle('export:complete', async (): Promise<ApiResponse<ExportResult>> => {
-      try {
-        const result = await this.exportService.exportCompleteData()
-        return ResponseFormatter.success(result, 'Exportación completa realizada exitosamente')
-      } catch (error) {
-        return ResponseFormatter.error(error as Error)
+    ipcMain.handle(
+      'export:complete',
+      async (_, savePath?: string): Promise<ApiResponse<ExportResult>> => {
+        try {
+          const result = await this.exportService.exportCompleteData(savePath)
+          return ResponseFormatter.success(result, 'Exportación completa realizada exitosamente')
+        } catch (error) {
+          return ResponseFormatter.error(error as Error)
+        }
       }
-    })
+    )
 
     // Get export statistics handler (optional utility)
     ipcMain.handle(
@@ -98,6 +104,44 @@ export class ExportController {
         try {
           const count = await this.exportService.getExportStats(entityType)
           return ResponseFormatter.success(count, `Estadísticas de ${entityType} obtenidas`)
+        } catch (error) {
+          return ResponseFormatter.error(error as Error)
+        }
+      }
+    )
+
+    // Show save dialog handler
+    ipcMain.handle(
+      'dialog:showSaveDialog',
+      async (
+        event,
+        options: {
+          title?: string
+          defaultPath?: string
+          filters?: Array<{ name: string; extensions: string[] }>
+        }
+      ): Promise<ApiResponse<string | null>> => {
+        try {
+          const window = BrowserWindow.fromWebContents(event.sender)
+          if (!window) {
+            return ResponseFormatter.error(new Error('No se pudo encontrar la ventana'))
+          }
+
+          const result = await dialog.showSaveDialog(window, {
+            title: options.title || 'Guardar archivo',
+            defaultPath: options.defaultPath,
+            filters: options.filters || [
+              { name: 'Archivos CSV', extensions: ['csv'] },
+              { name: 'Archivos ZIP', extensions: ['zip'] },
+              { name: 'Todos los archivos', extensions: ['*'] }
+            ]
+          })
+
+          if (result.canceled) {
+            return ResponseFormatter.success(null, 'Operación cancelada por el usuario')
+          }
+
+          return ResponseFormatter.success(result.filePath, 'Ruta seleccionada exitosamente')
         } catch (error) {
           return ResponseFormatter.error(error as Error)
         }
@@ -115,5 +159,6 @@ export class ExportController {
     ipcMain.removeAllListeners('export:interests')
     ipcMain.removeAllListeners('export:complete')
     ipcMain.removeAllListeners('export:stats')
+    ipcMain.removeAllListeners('dialog:showSaveDialog')
   }
 }

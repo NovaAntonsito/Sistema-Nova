@@ -7,7 +7,6 @@ import { EventEmitter } from 'events'
 import {
   BatchProcessingConfig,
   BatchProcessingResult,
-  BatchProcessingError,
   ImportProgress,
   ImportPhase,
   PerformanceMetrics,
@@ -17,7 +16,7 @@ import {
 /**
  * Función de procesamiento por lotes
  */
-export type BatchProcessor<T, R> = (batch: T[], batchIndex: number) => Promise<R[]>
+export type BatchProcessorFunction<T, R> = (batch: T[], batchIndex: number) => Promise<R[]>
 
 /**
  * Función de callback de progreso
@@ -150,7 +149,7 @@ export class BatchProcessor<T, R> extends EventEmitter {
       const batchStartTime = Date.now()
 
       try {
-        const batchResult = await processor(batch, i)
+        const batchResult = await (processor as any)(batch, i)
         result.processedItems.push(...batchResult)
         result.successfulBatches++
 
@@ -232,7 +231,7 @@ export class BatchProcessor<T, R> extends EventEmitter {
         const batchStartTime = Date.now()
 
         try {
-          const batchResult = await processor(batch, batchIndex)
+          const batchResult = await (processor as any)(batch, batchIndex)
           const batchTime = Date.now() - batchStartTime
           batchTimes.push(batchTime)
 
@@ -281,7 +280,7 @@ export class BatchProcessor<T, R> extends EventEmitter {
             result.errors.push({
               batchIndex: batchResult.batchIndex,
               itemIndex: j,
-              error: (batchResult as any).error,
+              error: (batchResult as unknown).error,
               code: 'BATCH_PROCESSING_ERROR'
             })
           }

@@ -17,13 +17,15 @@ export class CsvGenerator {
    * @param headers - Array con los nombres de las columnas
    * @param filename - Nombre del archivo (sin extensión)
    * @param outputDir - Directorio de salida (opcional, por defecto temp/exports)
+   * @param customPath - Ruta completa personalizada del archivo (opcional)
    * @returns Promise<string> - Ruta completa del archivo generado
    */
   async generateCSV<T extends Record<string, any>>(
     data: T[],
     headers: string[],
     filename: string,
-    outputDir: string = 'temp/exports'
+    outputDir: string = 'temp/exports',
+    customPath?: string
   ): Promise<string> {
     const startTime = Date.now()
     const operation = `generateCSV-${filename}`
@@ -69,13 +71,31 @@ export class CsvGenerator {
         `${safeOutputDir}/${safeFilename}`
       )
 
-      // Crear directorio si no existe
-      mkdirSync(safeOutputDir, { recursive: true })
+      let filePath: string
 
-      const filePath = join(safeOutputDir, `${safeFilename}.csv`)
+      if (customPath) {
+        // Usar ruta personalizada
+        filePath = normalize(customPath)
+        // Asegurar que tenga extensión .csv
+        if (!filePath.endsWith('.csv')) {
+          filePath += '.csv'
+        }
+        // Crear directorio padre si no existe
+        const parentDir = require('path').dirname(filePath)
+        mkdirSync(parentDir, { recursive: true })
 
-      // Validar que la ruta final sea segura
-      this.validateFinalPath(filePath, safeOutputDir)
+        // Para rutas personalizadas, solo validar la extensión
+        if (!filePath.toLowerCase().endsWith('.csv')) {
+          throw new Error('El archivo debe tener extensión .csv')
+        }
+      } else {
+        // Usar ruta por defecto
+        mkdirSync(safeOutputDir, { recursive: true })
+        filePath = join(safeOutputDir, `${safeFilename}.csv`)
+
+        // Validar que la ruta final sea segura solo para rutas por defecto
+        this.validateFinalPath(filePath, safeOutputDir)
+      }
       this.logger.logSecurityValidation(operation, 'final-path-validation', true, filePath)
 
       // Generar contenido CSV

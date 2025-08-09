@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: sistema-nova
+appId: Sistema de presupuestos Nova
+productName: Sistema de presupuestos Nova
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: sistema-nova
+  executableName: Sistema de presupuestos NOVA
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}

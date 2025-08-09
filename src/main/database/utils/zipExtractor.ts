@@ -1,6 +1,6 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
+import { mkdirSync, existsSync, createWriteStream } from 'fs'
 import { join, dirname, basename } from 'path'
-import { createGunzip } from 'zlib'
+import * as yauzl from 'yauzl'
 import {
   ZipExtractionException,
   FileNotFoundException,
@@ -47,55 +47,145 @@ export class ZipExtractor {
       errors: []
     }
 
-    try {
-      // Validar que el archivo ZIP existe
-      if (!existsSync(zipFilePath)) {
-        throw new FileNotFoundException(`Archivo ZIP no encontrado: ${zipFilePath}`, zipFilePath)
+    return new Promise((resolve, reject) => {
+      try {
+        // Validar que el archivo ZIP existe
+        if (!existsSync(zipFilePath)) {
+          throw new FileNotFoundException(`Archivo ZIP no encontrado: ${zipFilePath}`, zipFilePath)
+        }
+
+        // Validar extensión del archivo
+        if (!zipFilePath.toLowerCase().endsWith('.zip')) {
+          throw new InvalidFileFormatException(
+            'El archivo debe tener extensión .zip',
+            '.zip',
+            zipFilePath.split('.').pop()
+          )
+        }
+
+        // Crear directorio de extracción si no existe
+        if (!existsSync(extractPath)) {
+          mkdirSync(extractPath, { recursive: true })
+        }
+
+        console.log(`Extrayendo archivo ZIP: ${zipFilePath} -> ${extractPath}`)
+
+        // Abrir archivo ZIP usando yauzl
+        yauzl.open(zipFilePath, { lazyEntries: true }, (err, zipfile) => {
+          if (err) {
+            result.errors.push(err.message)
+            reject(
+              new ZipExtractionException(`Error abriendo archivo ZIP: ${err.message}`, zipFilePath)
+            )
+            return
+          }
+
+          if (!zipfile) {
+            const error = 'No se pudo abrir el archivo ZIP'
+            result.errors.push(error)
+            reject(new ZipExtractionException(error, zipFilePath))
+            return
+          }
+
+          result.totalFiles = zipfile.entryCount
+
+          zipfile.readEntry()
+
+          zipfile.on('entry', (entry) => {
+            // Validar que no sea un directorio
+            if (/\/$/.test(entry.fileName)) {
+              // Es un directorio, continuar con el siguiente
+              zipfile.readEntry()
+              return
+            }
+
+            // Validar extensión del archivo
+            const fileExtension = '.' + entry.fileName.split('.').pop()?.toLowerCase()
+            if (!this.ALLOWED_EXTENSIONS.includes(fileExtension)) {
+              console.warn(`Archivo con extensión no permitida ignorado: ${entry.fileName}`)
+              zipfile.readEntry()
+              return
+            }
+
+            // Validar tamaño del archivo
+            if (entry.uncompressedSize > this.MAX_EXTRACTED_SIZE) {
+              const error = `Archivo demasiado grande: ${entry.fileName} (${entry.uncompressedSize} bytes)`
+              result.errors.push(error)
+              zipfile.readEntry()
+              return
+            }
+
+            // Extraer archivo
+            zipfile.openReadStream(entry, (err, readStream) => {
+              if (err) {
+                result.errors.push(`Error extrayendo ${entry.fileName}: ${err.message}`)
+                zipfile.readEntry()
+                return
+              }
+
+              if (!readStream) {
+                result.errors.push(`No se pudo crear stream para ${entry.fileName}`)
+                zipfile.readEntry()
+                return
+              }
+
+              // Crear ruta de archivo extraído
+              const extractedFilePath = join(extractPath, entry.fileName)
+
+              // Crear directorio si es necesario
+              mkdirSync(dirname(extractedFilePath), { recursive: true })
+
+              // Crear stream de escritura
+              const writeStream = createWriteStream(extractedFilePath)
+
+              writeStream.on('close', () => {
+                result.extractedFiles.push(extractedFilePath)
+                console.log(`Archivo extraído: ${entry.fileName}`)
+                zipfile.readEntry()
+              })
+
+              writeStream.on('error', (err) => {
+                result.errors.push(`Error escribiendo ${entry.fileName}: ${err.message}`)
+                zipfile.readEntry()
+              })
+
+              // Pipe del stream de lectura al de escritura
+              readStream.pipe(writeStream)
+            })
+          })
+
+          zipfile.on('end', () => {
+            console.log(`Extracción completada: ${result.extractedFiles.length} archivos extraídos`)
+            resolve(result)
+          })
+
+          zipfile.on('error', (err) => {
+            result.errors.push(err.message)
+            reject(
+              new ZipExtractionException(
+                `Error procesando archivo ZIP: ${err.message}`,
+                zipFilePath
+              )
+            )
+          })
+        })
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
+        result.errors.push(errorMessage)
+
+        if (
+          error instanceof ZipExtractionException ||
+          error instanceof FileNotFoundException ||
+          error instanceof InvalidFileFormatException
+        ) {
+          reject(error)
+        } else {
+          reject(
+            new ZipExtractionException(`Error extrayendo archivo ZIP: ${errorMessage}`, zipFilePath)
+          )
+        }
       }
-
-      // Validar extensión del archivo
-      if (!zipFilePath.toLowerCase().endsWith('.zip')) {
-        throw new InvalidFileFormatException(
-          'El archivo debe tener extensión .zip',
-          '.zip',
-          zipFilePath.split('.').pop()
-        )
-      }
-
-      // Crear directorio de extracción si no existe
-      if (!existsSync(extractPath)) {
-        mkdirSync(extractPath, { recursive: true })
-      }
-
-      console.log(`Extrayendo archivo ZIP: ${zipFilePath} -> ${extractPath}`)
-
-      // Leer y descomprimir el archivo ZIP
-      const compressedContent = readFileSync(zipFilePath)
-      const decompressedContent = await this.decompressContent(compressedContent)
-
-      // Parsear el contenido del archivo
-      const extractedFiles = await this.parseArchiveContent(decompressedContent, extractPath)
-
-      result.extractedFiles = extractedFiles
-      result.totalFiles = extractedFiles.length
-
-      console.log(`Extracción completada: ${result.totalFiles} archivos extraídos`)
-
-      return result
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-      result.errors.push(errorMessage)
-
-      if (
-        error instanceof ZipExtractionException ||
-        error instanceof FileNotFoundException ||
-        error instanceof InvalidFileFormatException
-      ) {
-        throw error
-      }
-
-      throw new ZipExtractionException(`Error extrayendo archivo ZIP: ${errorMessage}`, zipFilePath)
-    }
+    })
   }
 
   /**
@@ -135,24 +225,63 @@ export class ZipExtractor {
    * @returns Promise<string[]> - Lista de nombres de archivos
    */
   async listZipContents(zipFilePath: string): Promise<string[]> {
-    try {
-      if (!existsSync(zipFilePath)) {
-        throw new FileNotFoundException(`Archivo ZIP no encontrado: ${zipFilePath}`, zipFilePath)
-      }
+    return new Promise((resolve, reject) => {
+      try {
+        if (!existsSync(zipFilePath)) {
+          throw new FileNotFoundException(`Archivo ZIP no encontrado: ${zipFilePath}`, zipFilePath)
+        }
 
-      const compressedContent = readFileSync(zipFilePath)
-      const decompressedContent = await this.decompressContent(compressedContent)
+        const fileNames: string[] = []
 
-      return this.parseFileList(decompressedContent)
-    } catch (error) {
-      if (error instanceof FileNotFoundException) {
-        throw error
+        yauzl.open(zipFilePath, { lazyEntries: true }, (err, zipfile) => {
+          if (err) {
+            reject(
+              new ZipExtractionException(`Error abriendo archivo ZIP: ${err.message}`, zipFilePath)
+            )
+            return
+          }
+
+          if (!zipfile) {
+            reject(new ZipExtractionException('No se pudo abrir el archivo ZIP', zipFilePath))
+            return
+          }
+
+          zipfile.readEntry()
+
+          zipfile.on('entry', (entry) => {
+            // Solo agregar archivos, no directorios
+            if (!/\/$/.test(entry.fileName)) {
+              fileNames.push(entry.fileName)
+            }
+            zipfile.readEntry()
+          })
+
+          zipfile.on('end', () => {
+            resolve(fileNames)
+          })
+
+          zipfile.on('error', (err) => {
+            reject(
+              new ZipExtractionException(
+                `Error procesando archivo ZIP: ${err.message}`,
+                zipFilePath
+              )
+            )
+          })
+        })
+      } catch (error) {
+        if (error instanceof FileNotFoundException) {
+          reject(error)
+        } else {
+          reject(
+            new ZipExtractionException(
+              `Error listando contenido del ZIP: ${error instanceof Error ? error.message : 'Error desconocido'}`,
+              zipFilePath
+            )
+          )
+        }
       }
-      throw new ZipExtractionException(
-        `Error listando contenido del ZIP: ${error instanceof Error ? error.message : 'Error desconocido'}`,
-        zipFilePath
-      )
-    }
+    })
   }
 
   /**
@@ -179,146 +308,5 @@ export class ZipExtractor {
         // Ignorar errores al eliminar directorios (pueden no estar vacíos)
       }
     }
-  }
-
-  // Métodos privados
-
-  /**
-   * Descomprime el contenido usando gzip
-   * @param compressedContent - Contenido comprimido
-   * @returns Promise<Buffer> - Contenido descomprimido
-   */
-  private async decompressContent(compressedContent: Buffer): Promise<Buffer> {
-    return new Promise((resolve, reject) => {
-      const chunks: Buffer[] = []
-      const gunzip = createGunzip()
-
-      gunzip.on('data', (chunk) => chunks.push(chunk))
-      gunzip.on('end', () => {
-        const decompressedContent = Buffer.concat(chunks)
-
-        // Validar tamaño descomprimido
-        if (decompressedContent.length > this.MAX_EXTRACTED_SIZE) {
-          reject(
-            new ZipExtractionException(
-              `Archivo descomprimido demasiado grande: ${decompressedContent.length} bytes. Máximo: ${this.MAX_EXTRACTED_SIZE} bytes`
-            )
-          )
-          return
-        }
-
-        resolve(decompressedContent)
-      })
-      gunzip.on('error', (error) => {
-        reject(new ZipExtractionException(`Error descomprimiendo archivo: ${error.message}`))
-      })
-
-      gunzip.write(compressedContent)
-      gunzip.end()
-    })
-  }
-
-  /**
-   * Parsea el contenido del archivo y extrae los archivos individuales
-   * @param content - Contenido descomprimido
-   * @param extractPath - Directorio de extracción
-   * @returns Promise<string[]> - Array de rutas de archivos extraídos
-   */
-  private async parseArchiveContent(content: Buffer, extractPath: string): Promise<string[]> {
-    const extractedFiles: string[] = []
-    const contentStr = content.toString('utf8')
-
-    // Validar formato del archivo
-    if (!contentStr.startsWith('EXPORT_ARCHIVE\n')) {
-      throw new ZipExtractionException('Formato de archivo ZIP inválido')
-    }
-
-    const lines = contentStr.split('\n')
-    let currentFile: { name: string; size: number; content: string } | null = null
-    let collectingContent = false
-    let contentLines: string[] = []
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-
-      if (line.startsWith('FILE: ')) {
-        // Nuevo archivo encontrado
-        const fileName = line.substring(6).trim()
-        currentFile = { name: fileName, size: 0, content: '' }
-        collectingContent = false
-        contentLines = []
-      } else if (line.startsWith('SIZE: ') && currentFile) {
-        // Tamaño del archivo
-        currentFile.size = parseInt(line.substring(6).trim())
-      } else if (line === 'START:' && currentFile) {
-        // Inicio del contenido del archivo
-        collectingContent = true
-      } else if (line === 'END_FILE' && currentFile && collectingContent) {
-        // Fin del archivo actual
-        currentFile.content = contentLines.join('\n')
-
-        // Validar extensión del archivo
-        const fileExtension = '.' + currentFile.name.split('.').pop()?.toLowerCase()
-        if (!this.ALLOWED_EXTENSIONS.includes(fileExtension)) {
-          console.warn(`Archivo con extensión no permitida ignorado: ${currentFile.name}`)
-          currentFile = null
-          collectingContent = false
-          contentLines = []
-          continue
-        }
-
-        // Escribir archivo extraído
-        const extractedFilePath = join(extractPath, currentFile.name)
-
-        try {
-          // Crear directorio si es necesario
-          mkdirSync(dirname(extractedFilePath), { recursive: true })
-
-          // Escribir contenido del archivo
-          writeFileSync(extractedFilePath, currentFile.content, 'utf8')
-          extractedFiles.push(extractedFilePath)
-
-          console.log(`Archivo extraído: ${currentFile.name} (${currentFile.size} bytes)`)
-        } catch (error) {
-          throw new ZipExtractionException(
-            `Error escribiendo archivo extraído ${currentFile.name}: ${error instanceof Error ? error.message : 'Error desconocido'}`
-          )
-        }
-
-        currentFile = null
-        collectingContent = false
-        contentLines = []
-      } else if (collectingContent) {
-        // Recopilar líneas del contenido del archivo
-        contentLines.push(line)
-      }
-    }
-
-    return extractedFiles
-  }
-
-  /**
-   * Parsea la lista de archivos sin extraerlos
-   * @param content - Contenido descomprimido
-   * @returns string[] - Lista de nombres de archivos
-   */
-  private parseFileList(content: Buffer): string[] {
-    const fileNames: string[] = []
-    const contentStr = content.toString('utf8')
-
-    if (!contentStr.startsWith('EXPORT_ARCHIVE\n')) {
-      throw new ZipExtractionException('Formato de archivo ZIP inválido')
-    }
-
-    const lines = contentStr.split('\n')
-
-    for (const line of lines) {
-      if (line.startsWith('FILE: ')) {
-        const fileName = line.substring(6).trim()
-        fileNames.push(fileName)
-      }
-    }
-
-    return fileNames
   }
 }
