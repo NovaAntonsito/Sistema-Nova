@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  createBudget, 
-  updateBudget, 
-  Budget, 
-  CreateBudgetDto, 
+import {
+  createBudget,
+  updateBudget,
+  Budget,
+  CreateBudgetDto,
   UpdateBudgetDto,
   calculateTotalAmount,
   calculateMonthlyPayment,
@@ -32,7 +32,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
     totalAmount: 0,
     monthlyPayment: 0
   })
-  
+
   const [formData, setFormData] = useState<BudgetFormData>({
     code: '',
     baseAmount: '',
@@ -54,7 +54,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
     if (budget) {
       const expirationDate = new Date(budget._expirationDate)
       const formattedDate = expirationDate.toISOString().split('T')[0]
-      
+
       setFormData({
         code: budget.code || '',
         baseAmount: '', // Base amount is not directly available, would need to calculate
@@ -63,7 +63,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
         userId: budget.user?.id || '',
         _expirationDate: formattedDate
       })
-      
+
       setCalculatedValues({
         totalAmount: budget.totalAmount || 0,
         monthlyPayment: 0 // Will be calculated
@@ -92,10 +92,17 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
     const interestPercentage = parseFloat(formData.interestPercentage)
     const paymentTerm = parseInt(formData.paymentTerm)
 
-    if (!isNaN(baseAmount) && !isNaN(interestPercentage) && !isNaN(paymentTerm) && baseAmount > 0 && interestPercentage >= 0 && paymentTerm > 0) {
+    if (
+      !isNaN(baseAmount) &&
+      !isNaN(interestPercentage) &&
+      !isNaN(paymentTerm) &&
+      baseAmount > 0 &&
+      interestPercentage >= 0 &&
+      paymentTerm > 0
+    ) {
       calculateTotalAmountAsync(baseAmount, interestPercentage)
     } else {
-      setCalculatedValues(prev => ({ ...prev, totalAmount: 0, monthlyPayment: 0 }))
+      setCalculatedValues((prev) => ({ ...prev, totalAmount: 0, monthlyPayment: 0 }))
     }
   }, [formData.baseAmount, formData.interestPercentage, formData.paymentTerm])
 
@@ -127,8 +134,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
       const result = await calculateTotalAmount(baseAmount, interestPercentage)
       if (result.success && result.data) {
         const totalAmount = result.data.totalAmount
-        setCalculatedValues(prev => ({ ...prev, totalAmount }))
-        
+        setCalculatedValues((prev) => ({ ...prev, totalAmount }))
+
         // Calculate monthly payment if payment term is available
         const paymentTerm = parseInt(formData.paymentTerm)
         if (!isNaN(paymentTerm) && paymentTerm > 0) {
@@ -144,7 +151,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
     try {
       const result = await calculateMonthlyPayment(totalAmount, paymentTerm)
       if (result.success && result.data) {
-        setCalculatedValues(prev => ({ ...prev, monthlyPayment: result.data!.monthlyPayment }))
+        setCalculatedValues((prev) => ({ ...prev, monthlyPayment: result.data!.monthlyPayment }))
       }
     } catch (error) {
       console.error('Error calculating monthly payment:', error)
@@ -152,12 +159,12 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
   }
 
   const handleInputChange = (field: keyof BudgetFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    
+    setFormData((prev) => ({ ...prev, [field]: value }))
+
     // Real-time validation for touched fields
     if (touched[field]) {
       const errors = validateBudgetField(field, value)
-      setFieldErrors(prev => ({ ...prev, [field]: errors }))
+      setFieldErrors((prev) => ({ ...prev, [field]: errors }))
     }
 
     // Special handling for code field - check availability
@@ -171,9 +178,9 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
       const result = await isCodeAvailable(code)
       if (result.success && result.data) {
         if (!result.data.isAvailable && (!budget || budget.code !== code)) {
-          setFieldErrors(prev => ({ 
-            ...prev, 
-            code: ['Este código ya está en uso'] 
+          setFieldErrors((prev) => ({
+            ...prev,
+            code: ['Este código ya está en uso']
           }))
         }
       }
@@ -183,9 +190,9 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
   }
 
   const handleBlur = (field: keyof BudgetFormData) => {
-    setTouched(prev => ({ ...prev, [field]: true }))
+    setTouched((prev) => ({ ...prev, [field]: true }))
     const errors = validateBudgetField(field, formData[field])
-    setFieldErrors(prev => ({ ...prev, [field]: errors }))
+    setFieldErrors((prev) => ({ ...prev, [field]: errors }))
   }
 
   const handleUserSearch = (searchTerm: string) => {
@@ -194,41 +201,51 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
   }
 
   const selectUser = (user: User) => {
-    setFormData(prev => ({ ...prev, userId: user.id }))
+    setFormData((prev) => ({ ...prev, userId: user.id }))
     setUserSearchTerm(user.nombre)
     setShowUserDropdown(false)
-    
+
     // Clear user field errors
-    setFieldErrors(prev => ({ ...prev, userId: [] }))
+    setFieldErrors((prev) => ({ ...prev, userId: [] }))
   }
 
-  const filteredUsers = users.filter(user =>
-    user.nombre.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(userSearchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.nombre.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(userSearchTerm.toLowerCase())
   )
 
-  const selectedUser = users.find(user => user.id === formData.userId)
+  const selectedUser = users.find((user) => user.id === formData.userId)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validate all fields
     const validation = validateBudgetForm(formData)
     if (!validation.isValid) {
       // Set all fields as touched to show errors
-      const allTouched = Object.keys(formData).reduce((acc, key) => {
-        acc[key] = true
-        return acc
-      }, {} as Record<string, boolean>)
+      const allTouched = Object.keys(formData).reduce(
+        (acc, key) => {
+          acc[key] = true
+          return acc
+        },
+        {} as Record<string, boolean>
+      )
       setTouched(allTouched)
-      
+
       // Set field errors
-      const errors = Object.keys(formData).reduce((acc, key) => {
-        acc[key] = validateBudgetField(key as keyof BudgetFormData, formData[key as keyof BudgetFormData])
-        return acc
-      }, {} as Record<string, string[]>)
+      const errors = Object.keys(formData).reduce(
+        (acc, key) => {
+          acc[key] = validateBudgetField(
+            key as keyof BudgetFormData,
+            formData[key as keyof BudgetFormData]
+          )
+          return acc
+        },
+        {} as Record<string, string[]>
+      )
       setFieldErrors(errors)
-      
+
       addNotification({
         type: 'error',
         message: 'Por favor corrige los errores en el formulario'
@@ -237,10 +254,10 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
     }
 
     setIsLoading(true)
-    
+
     try {
       let result
-      
+
       if (budget) {
         // Update existing budget (limited functionality)
         const updateData: UpdateBudgetDto = {
@@ -262,16 +279,18 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
       if (result.success && result.data) {
         addNotification({
           type: 'success',
-          message: budget ? 'Presupuesto actualizado exitosamente' : 'Presupuesto creado exitosamente'
+          message: budget
+            ? 'Presupuesto actualizado exitosamente'
+            : 'Presupuesto creado exitosamente'
         })
-        
+
         if (onSubmit) {
           onSubmit(result.data)
         }
         if (onSuccess) {
           onSuccess(result.data)
         }
-        
+
         // Reset form if creating new budget
         if (!budget) {
           setFormData({
@@ -311,7 +330,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
     required: boolean = true
   ) => {
     const hasError = fieldErrors[field] && fieldErrors[field].length > 0
-    
+
     return (
       <div className="form-field">
         <label htmlFor={field} className="form-label">
@@ -341,7 +360,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
 
   const renderUserSelect = () => {
     const hasError = fieldErrors.userId && fieldErrors.userId.length > 0
-    
+
     return (
       <div className="form-field">
         <label htmlFor="userId" className="form-label">
@@ -368,11 +387,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
           {showUserDropdown && filteredUsers.length > 0 && (
             <div className="user-dropdown">
               {filteredUsers.slice(0, 10).map((user) => (
-                <div
-                  key={user.id}
-                  className="user-dropdown-item"
-                  onClick={() => selectUser(user)}
-                >
+                <div key={user.id} className="user-dropdown-item" onClick={() => selectUser(user)}>
                   <div className="user-name">{user.nombre}</div>
                   <div className="user-email">{user.email}</div>
                 </div>
@@ -396,17 +411,13 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
       <div className="form-header">
         <h2>{budget ? 'Editar Presupuesto' : 'Crear Presupuesto'}</h2>
       </div>
-      
+
       <div className="form-body">
         <div className="form-row">
-          <div className="form-col">
-            {renderField('code', 'Código')}
-          </div>
-          <div className="form-col">
-            {renderField('baseAmount', 'Monto Base', 'number')}
-          </div>
+          <div className="form-col">{renderField('code', 'Código')}</div>
+          <div className="form-col">{renderField('baseAmount', 'Monto Base', 'number')}</div>
         </div>
-        
+
         <div className="form-row">
           <div className="form-col">
             {renderField('interestPercentage', 'Porcentaje de Interés (%)', 'number')}
@@ -415,11 +426,9 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
             {renderField('paymentTerm', 'Plazo de Pago (meses)', 'number')}
           </div>
         </div>
-        
+
         <div className="form-row">
-          <div className="form-col">
-            {renderUserSelect()}
-          </div>
+          <div className="form-col">{renderUserSelect()}</div>
           <div className="form-col">
             {renderField('_expirationDate', 'Fecha de Expiración', 'date')}
           </div>
@@ -434,7 +443,10 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
                 <div className="calculated-field">
                   <label className="form-label">Monto Total</label>
                   <div className="calculated-value">
-                    ${calculatedValues.totalAmount.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+                    $
+                    {calculatedValues.totalAmount.toLocaleString('es-ES', {
+                      minimumFractionDigits: 2
+                    })}
                   </div>
                 </div>
               </div>
@@ -442,7 +454,10 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
                 <div className="calculated-field">
                   <label className="form-label">Pago Mensual</label>
                   <div className="calculated-value">
-                    ${calculatedValues.monthlyPayment.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+                    $
+                    {calculatedValues.monthlyPayment.toLocaleString('es-ES', {
+                      minimumFractionDigits: 2
+                    })}
                   </div>
                 </div>
               </div>
@@ -450,7 +465,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
           </div>
         )}
       </div>
-      
+
       <div className="form-actions">
         {onCancel && (
           <button
@@ -462,12 +477,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ budget, onSubmit, onCancel, onS
             Cancelar
           </button>
         )}
-        <button
-          type="submit"
-          className="btn btn--primary"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Procesando...' : (budget ? 'Actualizar' : 'Crear')}
+        <button type="submit" className="btn btn--primary" disabled={isLoading}>
+          {isLoading ? 'Procesando...' : budget ? 'Actualizar' : 'Crear'}
         </button>
       </div>
     </form>

@@ -103,15 +103,15 @@
   .modal-backdrop {
     padding: 10px;
   }
-  
+
   .modal-content {
     max-height: 95vh;
   }
-  
+
   .modal-header {
     padding: 16px 20px 12px;
   }
-  
+
   .modal-title {
     font-size: 18px;
   }

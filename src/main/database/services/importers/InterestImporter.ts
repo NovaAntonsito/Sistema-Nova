@@ -1,23 +1,8 @@
-/**
- * Importador específico para configuraciones de interés desde CSV
- * Cumple con requisitos: 4.1, 4.2, 4.3, 4.4, 4.5
- */
-
 import { InterestRepository } from '../../repositories/InterestRepository'
 import { DataValidator } from '../../validators/DataValidator'
 import { CsvParser } from '../../utils/csvParser'
 import { Interest } from '../../entities/Interest'
-import {
-  InterestImportData,
-  ImportResult,
-  EntityType,
-  ImportError,
-  ImportWarning
-} from '../../types/import.types'
-import {
-  ValidationException,
-  ReferentialIntegrityException
-} from '../../exceptions/importExceptions'
+import { InterestImportData, ImportResult, EntityType } from '../../types/import.types'
 
 /**
  * Importador específico para configuraciones de interés

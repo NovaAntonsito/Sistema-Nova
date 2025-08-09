@@ -1,6 +1,6 @@
-import { createWriteStream, readFileSync, statSync, mkdirSync } from 'fs'
+import { createWriteStream, statSync, mkdirSync, existsSync } from 'fs'
 import { join, dirname, basename } from 'path'
-import { createGzip } from 'zlib'
+import archiver from 'archiver'
 
 /**
  * Interfaz para metadatos de exportación
@@ -19,7 +19,7 @@ export interface ExportMetadata {
 
 /**
  * Utilidad para crear archivos ZIP con múltiples archivos CSV
- * Implementa funcionalidad básica de ZIP usando Node.js nativo
+ * Implementa funcionalidad de ZIP usando la librería archiver
  */
 export class ZipGenerator {
   /**
@@ -29,102 +29,74 @@ export class ZipGenerator {
    * @returns Promise<string> - Ruta del archivo ZIP creado
    */
   async createZip(files: string[], outputPath: string): Promise<string> {
-    try {
-      // Crear directorio de salida si no existe
-      mkdirSync(dirname(outputPath), { recursive: true })
+    return new Promise((resolve, reject) => {
+      try {
+        // Crear directorio de salida si no existe
+        const outputDir = dirname(outputPath)
+        if (!existsSync(outputDir)) {
+          mkdirSync(outputDir, { recursive: true })
+          console.log(`Directorio creado: ${outputDir}`)
+        }
 
-      // Validar que todos los archivos existan
-      const filesExist = await this.validateFiles(files)
-      if (!filesExist) {
-        throw new Error('Algunos archivos no existen y no pueden ser incluidos en el ZIP')
-      }
+        console.log(`Iniciando creación de ZIP: ${outputPath}`)
 
-      console.log(`Creando archivo ZIP con ${files.length} archivos...`)
+        // Crear el archivo ZIP
+        const archive = archiver('zip', {
+          zlib: { level: 9 } // Máxima compresión
+        })
 
-      // Crear el contenido ZIP usando una implementación básica pero funcional
-      const zipContent = await this.createSimpleZip(files)
+        const output = createWriteStream(outputPath)
+        archive.pipe(output)
 
-      // Escribir el contenido ZIP al archivo
-      const writeStream = createWriteStream(outputPath)
+        console.log(`Stream de salida configurado para: ${outputPath}`)
 
-      return new Promise((resolve, reject) => {
-        writeStream.on('finish', () => {
-          console.log(`Archivo ZIP creado exitosamente: ${outputPath}`)
+        // Manejar eventos
+        output.on('close', () => {
+          const totalBytes = archive.pointer()
+          console.log(`ZIP creado exitosamente: ${outputPath} (${totalBytes} bytes)`)
           resolve(outputPath)
         })
-        writeStream.on('error', (error) => {
-          console.error('Error escribiendo archivo ZIP:', error)
+
+        output.on('error', (error) => {
+          console.error('Error en stream de salida:', error)
           reject(error)
         })
 
-        writeStream.write(zipContent)
-        writeStream.end()
-      })
-    } catch (error) {
-      throw new Error(
-        `Error creando archivo ZIP: ${error instanceof Error ? error.message : 'Error desconocido'}`
-      )
-    }
-  }
+        archive.on('error', (error) => {
+          console.error('Error en archiver:', error)
+          reject(error)
+        })
 
-  /**
-   * Implementación básica de ZIP usando compresión gzip
-   * @param files - Archivos a comprimir
-   * @returns Promise<Buffer> - Contenido comprimido
-   */
-  private async createSimpleZip(files: string[]): Promise<Buffer> {
-    const fileContents: Buffer[] = []
+        archive.on('warning', (warning) => {
+          console.warn('Advertencia en archiver:', warning)
+        })
 
-    // Agregar encabezado del archivo comprimido
-    const header = Buffer.from('EXPORT_ARCHIVE\n', 'utf8')
-    fileContents.push(header)
+        // Agregar archivos al ZIP
+        console.log(`Agregando ${files.length} archivos al ZIP`)
+        for (const filePath of files) {
+          console.log(`Verificando archivo: ${filePath}`)
+          if (existsSync(filePath)) {
+            const fileName = basename(filePath)
+            archive.file(filePath, { name: fileName })
+            console.log(`Archivo agregado al ZIP: ${fileName}`)
+          } else {
+            console.warn(`Archivo no encontrado: ${filePath}`)
+            reject(new Error(`Archivo requerido no encontrado: ${filePath}`))
+            return
+          }
+        }
 
-    for (const filePath of files) {
-      try {
-        const content = readFileSync(filePath)
-        const fileName = basename(filePath)
-        const fileSize = content.length
-
-        // Crear entrada con metadatos del archivo
-        const fileHeader = Buffer.from(`FILE: ${fileName}\nSIZE: ${fileSize}\nSTART:\n`, 'utf8')
-        const fileEnd = Buffer.from('\nEND_FILE\n', 'utf8')
-
-        fileContents.push(fileHeader)
-        fileContents.push(content)
-        fileContents.push(fileEnd)
-
-        console.log(`Archivo agregado al ZIP: ${fileName} (${fileSize} bytes)`)
+        // Finalizar el archivo ZIP
+        console.log('Finalizando archivo ZIP...')
+        archive.finalize()
       } catch (error) {
-        throw new Error(
-          `Error leyendo archivo ${filePath}: ${error instanceof Error ? error.message : 'Error desconocido'}`
+        console.error('Error en createZip:', error)
+        reject(
+          new Error(
+            `Error creando archivo ZIP: ${error instanceof Error ? error.message : 'Error desconocido'}`
+          )
         )
       }
-    }
-
-    // Agregar pie del archivo
-    const footer = Buffer.from('END_ARCHIVE\n', 'utf8')
-    fileContents.push(footer)
-
-    // Combinar todos los contenidos
-    const combinedContent = Buffer.concat(fileContents)
-
-    // Comprimir usando gzip para reducir el tamaño
-    return new Promise((resolve, reject) => {
-      const chunks: Buffer[] = []
-      const gzip = createGzip({ level: 6 }) // Nivel de compresión balanceado
-
-      gzip.on('data', (chunk) => chunks.push(chunk))
-      gzip.on('end', () => {
-        const compressedContent = Buffer.concat(chunks)
-        console.log(
-          `Compresión completada: ${combinedContent.length} -> ${compressedContent.length} bytes`
-        )
-        resolve(compressedContent)
-      })
-      gzip.on('error', reject)
-
-      gzip.write(combinedContent)
-      gzip.end()
     })
   }
 
@@ -178,7 +150,7 @@ export class ZipGenerator {
     for (const filePath of files) {
       try {
         statSync(filePath)
-      } catch (error) {
+      } catch {
         return false
       }
     }

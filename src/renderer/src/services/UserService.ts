@@ -56,9 +56,9 @@ const searchByNombre = async (nombre: string): Promise<ApiResponse<User[]>> => {
   return await window.electron.ipcRenderer.invoke('user:searchByNombre', nombre)
 }
 
-export { 
+export {
   createUser,
-  getAllUsers, 
+  getAllUsers,
   getUserById,
   updateUser,
   deleteUser,

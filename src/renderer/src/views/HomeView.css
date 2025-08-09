@@ -100,34 +100,34 @@
   .home-view {
     padding: 20px 16px;
   }
-  
+
   .home-title {
     font-size: 2rem;
   }
-  
+
   .home-subtitle {
     font-size: 1rem;
   }
-  
+
   .home-buttons {
     grid-template-columns: 1fr;
     gap: 16px;
     margin-top: 30px;
   }
-  
+
   .home-btn {
     padding: 20px;
     min-height: 100px;
   }
-  
+
   .btn-icon {
     font-size: 2.5rem;
   }
-  
+
   .btn-content h3 {
     font-size: 1.2rem;
   }
-  
+
   .btn-content p {
     font-size: 0.9rem;
   }
@@ -137,30 +137,30 @@
   .home-view {
     padding: 16px 12px;
   }
-  
+
   .home-title {
     font-size: 1.8rem;
   }
-  
+
   .home-buttons {
     gap: 12px;
     margin-top: 24px;
   }
-  
+
   .home-btn {
     padding: 16px;
     gap: 16px;
     min-height: 90px;
   }
-  
+
   .btn-icon {
     font-size: 2rem;
   }
-  
+
   .btn-content h3 {
     font-size: 1.1rem;
   }
-  
+
   .btn-content p {
     font-size: 0.85rem;
   }
@@ -177,7 +177,7 @@
   .home-btn {
     border: 2px solid transparent;
   }
-  
+
   .home-btn:focus {
     border-color: currentColor;
   }

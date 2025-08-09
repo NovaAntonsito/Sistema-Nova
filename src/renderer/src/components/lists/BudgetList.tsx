@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { 
-  getAllBudgets, 
-  deleteBudget,
-  Budget 
-} from '../../services/BudgetService'
+import { getAllBudgets, deleteBudget, Budget } from '../../services/BudgetService'
 import { getAllUsers, User } from '../../services/UserService'
 import { Status } from '../../services/BudgetService'
 import { useNotification } from '../../hooks/useNotification'
@@ -15,7 +11,11 @@ interface BudgetListProps {
   refreshTrigger?: number // Used to trigger refresh from parent
 }
 
-const BudgetList: React.FC<BudgetListProps> = ({ onBudgetEdit, onBudgetSelect, refreshTrigger }) => {
+const BudgetList: React.FC<BudgetListProps> = ({
+  onBudgetEdit,
+  onBudgetSelect,
+  refreshTrigger
+}) => {
   const { addNotification } = useNotification()
   const [budgets, setBudgets] = useState<Budget[]>([])
   const [users, setUsers] = useState<User[]>([])
@@ -35,10 +35,7 @@ const BudgetList: React.FC<BudgetListProps> = ({ onBudgetEdit, onBudgetSelect, r
     setIsLoading(true)
     try {
       // Load budgets and users in parallel
-      const [budgetsResult, usersResult] = await Promise.all([
-        getAllBudgets(),
-        getAllUsers()
-      ])
+      const [budgetsResult, usersResult] = await Promise.all([getAllBudgets(), getAllUsers()])
 
       if (budgetsResult.success && budgetsResult.data) {
         setBudgets(budgetsResult.data)
@@ -81,7 +78,7 @@ const BudgetList: React.FC<BudgetListProps> = ({ onBudgetEdit, onBudgetSelect, r
           message: 'Presupuesto eliminado exitosamente'
         })
         // Remove budget from local state
-        setBudgets(prev => prev.filter(b => b.id !== budget.id))
+        setBudgets((prev) => prev.filter((b) => b.id !== budget.id))
       } else {
         addNotification({
           type: 'error',
@@ -113,21 +110,22 @@ const BudgetList: React.FC<BudgetListProps> = ({ onBudgetEdit, onBudgetSelect, r
     // Apply search filter
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase()
-      filtered = budgets.filter(budget =>
-        budget.code.toLowerCase().includes(term) ||
-        budget.user?.nombre.toLowerCase().includes(term) ||
-        budget.user?.email.toLowerCase().includes(term)
+      filtered = budgets.filter(
+        (budget) =>
+          budget.code.toLowerCase().includes(term) ||
+          budget.user?.nombre.toLowerCase().includes(term) ||
+          budget.user?.email.toLowerCase().includes(term)
       )
     }
 
     // Apply status filter
     if (statusFilter !== 'ALL') {
-      filtered = filtered.filter(budget => budget.currentStatus === statusFilter)
+      filtered = filtered.filter((budget) => budget.currentStatus === statusFilter)
     }
 
     // Apply user filter
     if (userFilter !== 'ALL') {
-      filtered = filtered.filter(budget => budget.user?.id === userFilter)
+      filtered = filtered.filter((budget) => budget.user?.id === userFilter)
     }
 
     // Apply sorting
@@ -142,7 +140,11 @@ const BudgetList: React.FC<BudgetListProps> = ({ onBudgetEdit, onBudgetSelect, r
       }
 
       // Handle date fields
-      if (sortField === '_creationDate' || sortField === '_expirationDate' || sortField === 'updatedAt') {
+      if (
+        sortField === '_creationDate' ||
+        sortField === '_expirationDate' ||
+        sortField === 'updatedAt'
+      ) {
         aValue = new Date(aValue as string).getTime()
         bValue = new Date(bValue as string).getTime()
       }
@@ -189,11 +191,7 @@ const BudgetList: React.FC<BudgetListProps> = ({ onBudgetEdit, onBudgetSelect, r
     }
 
     const config = statusConfig[status]
-    return (
-      <span className={`status-badge ${config.className}`}>
-        {config.label}
-      </span>
-    )
+    return <span className={`status-badge ${config.className}`}>{config.label}</span>
   }
 
   const getSortIcon = (field: keyof Budget) => {
@@ -245,18 +243,14 @@ const BudgetList: React.FC<BudgetListProps> = ({ onBudgetEdit, onBudgetSelect, r
               className="filter-select"
             >
               <option value="ALL">Todos los usuarios</option>
-              {users.map(user => (
+              {users.map((user) => (
                 <option key={user.id} value={user.id}>
                   {user.nombre}
                 </option>
               ))}
             </select>
           </div>
-          <button
-            onClick={loadData}
-            className="btn btn--secondary btn--small"
-            disabled={isLoading}
-          >
+          <button onClick={loadData} className="btn btn--secondary btn--small" disabled={isLoading}>
             🔄 Actualizar
           </button>
         </div>
@@ -275,53 +269,32 @@ const BudgetList: React.FC<BudgetListProps> = ({ onBudgetEdit, onBudgetSelect, r
           <table className="budget-table">
             <thead>
               <tr>
-                <th
-                  className="sortable"
-                  onClick={() => handleSort('code')}
-                >
+                <th className="sortable" onClick={() => handleSort('code')}>
                   Código {getSortIcon('code')}
                 </th>
-                <th
-                  className="sortable"
-                  onClick={() => handleSort('user' as keyof Budget)}
-                >
+                <th className="sortable" onClick={() => handleSort('user' as keyof Budget)}>
                   Usuario {getSortIcon('user' as keyof Budget)}
                 </th>
-                <th
-                  className="sortable"
-                  onClick={() => handleSort('totalAmount')}
-                >
+                <th className="sortable" onClick={() => handleSort('totalAmount')}>
                   Monto Total {getSortIcon('totalAmount')}
                 </th>
-                <th
-                  className="sortable"
-                  onClick={() => handleSort('paymentTerm')}
-                >
+                <th className="sortable" onClick={() => handleSort('paymentTerm')}>
                   Plazo {getSortIcon('paymentTerm')}
                 </th>
-                <th
-                  className="sortable"
-                  onClick={() => handleSort('currentStatus')}
-                >
+                <th className="sortable" onClick={() => handleSort('currentStatus')}>
                   Estado {getSortIcon('currentStatus')}
                 </th>
-                <th
-                  className="sortable"
-                  onClick={() => handleSort('_expirationDate')}
-                >
+                <th className="sortable" onClick={() => handleSort('_expirationDate')}>
                   Fecha Expiración {getSortIcon('_expirationDate')}
                 </th>
-                <th
-                  className="sortable"
-                  onClick={() => handleSort('_creationDate')}
-                >
+                <th className="sortable" onClick={() => handleSort('_creationDate')}>
                   Fecha Creación {getSortIcon('_creationDate')}
                 </th>
                 <th className="actions-column">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {filteredAndSortedBudgets.map(budget => (
+              {filteredAndSortedBudgets.map((budget) => (
                 <tr
                   key={budget.id}
                   className="budget-row"

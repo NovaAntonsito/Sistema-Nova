@@ -229,7 +229,7 @@ export class SecurityValidator {
       }
 
       let suspiciousCount = 0
-      const sanitizedData = data.map((row, index) => {
+      const sanitizedData = data.map((row, _index) => {
         if (typeof row !== 'object' || row === null) {
           return row
         }

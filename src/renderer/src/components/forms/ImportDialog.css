@@ -91,7 +91,7 @@
   margin-bottom: 16px;
 }
 
-.import-dialog__option input[type="checkbox"] {
+.import-dialog__option input[type='checkbox'] {
   margin: 0;
   width: 18px;
   height: 18px;
@@ -492,27 +492,25 @@
   border-color: #dc2626;
 }
 
-
-
 /* Responsive design */
 @media (max-width: 768px) {
   .import-dialog__content {
     padding: 16px;
   }
-  
+
   .import-dialog__options {
     gap: 24px;
   }
-  
+
   .import-dialog__drop-zone {
     padding: 16px;
   }
-  
+
   .import-dialog__actions {
     padding: 16px;
     flex-direction: column;
   }
-  
+
   .import-dialog__button {
     width: 100%;
   }

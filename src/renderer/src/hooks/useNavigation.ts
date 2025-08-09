@@ -6,7 +6,7 @@ export const useNavigation = () => {
   const location = useLocation()
 
   const getCurrentRoute = () => {
-    return routeConfigs.find(route => route.path === location.pathname)
+    return routeConfigs.find((route) => route.path === location.pathname)
   }
 
   const getCurrentTitle = () => {

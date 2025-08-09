@@ -73,15 +73,7 @@ const AppRoutes: React.FC = () => {
             <Route
               key={route.path}
               path={route.path}
-              element={
-                route.protected ? (
-                  <RouteGuard>
-                    {route.element}
-                  </RouteGuard>
-                ) : (
-                  route.element
-                )
-              }
+              element={route.protected ? <RouteGuard>{route.element}</RouteGuard> : route.element}
             />
           ))}
           {/* Catch-all route for 404 */}

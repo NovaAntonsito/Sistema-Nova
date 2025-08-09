@@ -97,26 +97,26 @@
   .user-view {
     padding: 16px;
   }
-  
+
   .user-view-header {
     flex-direction: column;
     gap: 16px;
     align-items: stretch;
   }
-  
+
   .header-actions {
     margin-left: 0;
   }
-  
+
   .btn--large {
     width: 100%;
     justify-content: center;
   }
-  
+
   .header-content h1 {
     font-size: 24px;
   }
-  
+
   .header-description {
     font-size: 14px;
   }
@@ -126,11 +126,11 @@
   .user-view {
     padding: 12px;
   }
-  
+
   .user-view-header {
     padding: 16px;
   }
-  
+
   .header-content h1 {
     font-size: 20px;
   }

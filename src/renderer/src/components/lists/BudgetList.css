@@ -38,7 +38,9 @@
   border-radius: 6px;
   font-size: 14px;
   width: 300px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .search-input:focus {
@@ -58,7 +60,9 @@
   font-size: 14px;
   background-color: white;
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   min-width: 150px;
 }
 
@@ -88,8 +92,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .empty-state {
@@ -294,24 +302,24 @@
     padding: 16px;
     margin: 16px;
   }
-  
+
   .budget-list-header {
     flex-direction: column;
     gap: 16px;
     align-items: stretch;
   }
-  
+
   .budget-list-controls {
     flex-direction: column;
     gap: 8px;
     align-items: stretch;
   }
-  
+
   .search-input,
   .filter-select {
     width: 100%;
   }
-  
+
   .table-container {
     overflow-x: scroll;
   }
@@ -323,16 +331,16 @@
     padding: 8px 6px;
     font-size: 12px;
   }
-  
+
   .budget-user .user-email {
     display: none;
   }
-  
+
   .budget-actions {
     flex-direction: column;
     gap: 4px;
   }
-  
+
   .actions-column {
     width: 80px;
   }
@@ -342,11 +350,11 @@
   .budget-list-controls {
     gap: 6px;
   }
-  
+
   .filter-select {
     min-width: unset;
   }
-  
+
   .status-badge {
     font-size: 10px;
     padding: 2px 6px;

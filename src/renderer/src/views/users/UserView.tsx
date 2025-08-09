@@ -30,7 +30,7 @@ const UserView: React.FC = () => {
 
   const handleFormSuccess = () => {
     // Refresh the user list
-    setRefreshTrigger(prev => prev + 1)
+    setRefreshTrigger((prev) => prev + 1)
     // Close modals
     setIsCreateModalOpen(false)
     setIsEditModalOpen(false)
@@ -50,19 +50,17 @@ const UserView: React.FC = () => {
   return (
     <div className="user-view">
       <NotificationContainer />
-      
+
       <div className="user-view-header">
         <div className="header-content">
           <h1>Gestión de Usuarios</h1>
           <p className="header-description">
-            Administra los usuarios del sistema. Puedes crear nuevos usuarios, editar información existente y eliminar usuarios cuando sea necesario.
+            Administra los usuarios del sistema. Puedes crear nuevos usuarios, editar información
+            existente y eliminar usuarios cuando sea necesario.
           </p>
         </div>
         <div className="header-actions">
-          <button
-            onClick={handleCreateUser}
-            className="btn btn--primary btn--large"
-          >
+          <button onClick={handleCreateUser} className="btn btn--primary btn--large">
             + Crear Usuario
           </button>
         </div>
@@ -83,10 +81,7 @@ const UserView: React.FC = () => {
         title="Crear Nuevo Usuario"
         size="medium"
       >
-        <UserForm
-          onSuccess={handleFormSuccess}
-          onCancel={handleCloseCreateModal}
-        />
+        <UserForm onSuccess={handleFormSuccess} onCancel={handleCloseCreateModal} />
       </Modal>
 
       {/* Edit User Modal */}

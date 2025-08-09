@@ -177,7 +177,7 @@ export const validateBudgetForm = (data: BudgetFormData): ValidationResult => {
     const expirationDate = new Date(data._expirationDate)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    
+
     if (isNaN(expirationDate.getTime())) {
       errors.push('La fecha de expiración debe ser válida')
     } else if (expirationDate <= today) {
@@ -250,7 +250,7 @@ export const validateBudgetField = (fieldName: keyof BudgetFormData, value: stri
         const expirationDate = new Date(value)
         const today = new Date()
         today.setHours(0, 0, 0, 0)
-        
+
         if (isNaN(expirationDate.getTime())) {
           errors.push('La fecha de expiración debe ser válida')
         } else if (expirationDate <= today) {

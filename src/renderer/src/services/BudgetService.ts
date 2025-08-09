@@ -79,7 +79,10 @@ const getBudgetsByStatus = async (status: Status): Promise<ApiResponse<Budget[]>
   return await window.electron.ipcRenderer.invoke('budget:getByStatus', status)
 }
 
-const updateBudget = async (id: string, budgetData: UpdateBudgetDto): Promise<ApiResponse<Budget>> => {
+const updateBudget = async (
+  id: string,
+  budgetData: UpdateBudgetDto
+): Promise<ApiResponse<Budget>> => {
   return await window.electron.ipcRenderer.invoke('budget:update', id, budgetData)
 }
 
@@ -99,17 +102,31 @@ const generateNextCode = async (): Promise<ApiResponse<{ nextCode: string }>> =>
   return await window.electron.ipcRenderer.invoke('budget:generateNextCode')
 }
 
-const calculateTotalAmount = async (baseAmount: number, interestPercentage: number): Promise<ApiResponse<{ totalAmount: number }>> => {
-  return await window.electron.ipcRenderer.invoke('budget:calculateTotalAmount', baseAmount, interestPercentage)
+const calculateTotalAmount = async (
+  baseAmount: number,
+  interestPercentage: number
+): Promise<ApiResponse<{ totalAmount: number }>> => {
+  return await window.electron.ipcRenderer.invoke(
+    'budget:calculateTotalAmount',
+    baseAmount,
+    interestPercentage
+  )
 }
 
-const calculateMonthlyPayment = async (totalAmount: number, paymentTerm: number): Promise<ApiResponse<{ monthlyPayment: number }>> => {
-  return await window.electron.ipcRenderer.invoke('budget:calculateMonthlyPayment', totalAmount, paymentTerm)
+const calculateMonthlyPayment = async (
+  totalAmount: number,
+  paymentTerm: number
+): Promise<ApiResponse<{ monthlyPayment: number }>> => {
+  return await window.electron.ipcRenderer.invoke(
+    'budget:calculateMonthlyPayment',
+    totalAmount,
+    paymentTerm
+  )
 }
 
-export { 
+export {
   createBudget,
-  getAllBudgets, 
+  getAllBudgets,
   getBudgetById,
   searchByCode,
   getBudgetsByUserId,

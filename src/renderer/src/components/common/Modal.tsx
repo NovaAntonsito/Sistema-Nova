@@ -9,13 +9,7 @@ interface ModalProps {
   size?: 'small' | 'medium' | 'large'
 }
 
-const Modal: React.FC<ModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  title, 
-  children, 
-  size = 'medium' 
-}) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 'medium' }) => {
   // Handle escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -52,18 +46,12 @@ const Modal: React.FC<ModalProps> = ({
         {title && (
           <div className="modal-header">
             <h2 className="modal-title">{title}</h2>
-            <button
-              className="modal-close"
-              onClick={onClose}
-              aria-label="Cerrar modal"
-            >
+            <button className="modal-close" onClick={onClose} aria-label="Cerrar modal">
               ×
             </button>
           </div>
         )}
-        <div className="modal-body">
-          {children}
-        </div>
+        <div className="modal-body">{children}</div>
       </div>
     </div>
   )

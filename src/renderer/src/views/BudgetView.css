@@ -68,18 +68,18 @@
   .budget-view {
     padding: 16px;
   }
-  
+
   .budget-view-header {
     flex-direction: column;
     gap: 16px;
     align-items: stretch;
     text-align: center;
   }
-  
+
   .budget-view-header h1 {
     font-size: 24px;
   }
-  
+
   .btn--large {
     padding: 12px 24px;
     font-size: 14px;
@@ -91,11 +91,11 @@
   .budget-view {
     padding: 12px;
   }
-  
+
   .budget-view-header h1 {
     font-size: 20px;
   }
-  
+
   .budget-view-header {
     margin-bottom: 16px;
   }

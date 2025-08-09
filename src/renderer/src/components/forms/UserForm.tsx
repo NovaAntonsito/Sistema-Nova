@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { createUser, updateUser, User, CreateUserDto, UpdateUserDto } from '../../services/UserService'
+import {
+  createUser,
+  updateUser,
+  User,
+  CreateUserDto,
+  UpdateUserDto
+} from '../../services/UserService'
 import { validateUserForm, validateField, UserFormData } from '../../utils/validation'
 import { useNotification } from '../../hooks/useNotification'
 import './UserForm.css'
@@ -48,53 +54,66 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, onSuccess
   }, [user])
 
   const handleInputChange = (field: keyof UserFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    
+    setFormData((prev) => ({ ...prev, [field]: value }))
+
     // Real-time validation for touched fields
     if (touched[field]) {
       const errors = validateField(field, value)
-      setFieldErrors(prev => ({ ...prev, [field]: errors }))
+      setFieldErrors((prev) => ({ ...prev, [field]: errors }))
     }
   }
 
   const handleBlur = (field: keyof UserFormData) => {
-    setTouched(prev => ({ ...prev, [field]: true }))
+    setTouched((prev) => ({ ...prev, [field]: true }))
     const errors = validateField(field, formData[field])
-    setFieldErrors(prev => ({ ...prev, [field]: errors }))
+    setFieldErrors((prev) => ({ ...prev, [field]: errors }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validate all fields
     const validation = validateUserForm(formData)
     if (!validation.isValid) {
       // Set all fields as touched to show errors
-      const allTouched = Object.keys(formData).reduce((acc, key) => {
-        acc[key] = true
-        return acc
-      }, {} as Record<string, boolean>)
+      const allTouched = Object.keys(formData).reduce(
+        (acc, key) => {
+          acc[key] = true
+          return acc
+        },
+        {} as Record<string, boolean>
+      )
       setTouched(allTouched)
-      
+
       // Set field errors
-      const errors = Object.keys(formData).reduce((acc, key) => {
-        acc[key] = validateField(key as keyof UserFormData, formData[key as keyof UserFormData])
-        return acc
-      }, {} as Record<string, string[]>)
+      const errors = Object.keys(formData).reduce(
+        (acc, key) => {
+          acc[key] = validateField(key as keyof UserFormData, formData[key as keyof UserFormData])
+          return acc
+        },
+        {} as Record<string, string[]>
+      )
       setFieldErrors(errors)
-      
+
       addNotification({
         type: 'error',
         message: 'Por favor corrige los errores en el formulario'
       })
+
+      // Focus first field with error
+      const firstErrorField = Object.keys(errors).find((key) => errors[key].length > 0)
+      if (firstErrorField) {
+        const fieldElement = document.getElementById(firstErrorField)
+        fieldElement?.focus()
+      }
       return
     }
 
     setIsLoading(true)
-    
+
     try {
       let result
-      
+
       if (user) {
         // Update existing user
         const updateData: UpdateUserDto = {
@@ -114,18 +133,21 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, onSuccess
       }
 
       if (result.success && result.data) {
+        const successMessage = user
+          ? 'Usuario actualizado exitosamente'
+          : 'Usuario creado exitosamente'
         addNotification({
           type: 'success',
-          message: user ? 'Usuario actualizado exitosamente' : 'Usuario creado exitosamente'
+          message: successMessage
         })
-        
+
         if (onSubmit) {
           onSubmit(result.data)
         }
         if (onSuccess) {
           onSuccess(result.data)
         }
-        
+
         // Reset form if creating new user
         if (!user) {
           setFormData({
@@ -162,25 +184,34 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, onSuccess
     required: boolean = true
   ) => {
     const hasError = fieldErrors[field] && fieldErrors[field].length > 0
-    
+    const fieldId = field
+    const errorId = `${field}-error`
+
     return (
       <div className="form-field">
-        <label htmlFor={field} className="form-label">
+        <label htmlFor={fieldId} className="form-label">
           {label}
-          {required && <span className="required">*</span>}
+          {required && (
+            <span className="required" aria-label="requerido">
+              *
+            </span>
+          )}
         </label>
         <input
-          id={field}
+          id={fieldId}
           type={type}
           value={formData[field]}
           onChange={(e) => handleInputChange(field, e.target.value)}
           onBlur={() => handleBlur(field)}
           className={`form-input ${hasError ? 'form-input--error' : ''}`}
           disabled={isLoading}
-          aria-describedby={hasError ? `${field}-error` : undefined}
+          required={required}
+          aria-required={required}
+          aria-invalid={hasError}
+          aria-describedby={hasError ? errorId : undefined}
         />
         {hasError && (
-          <div id={`${field}-error`} className="form-error">
+          <div id={errorId} className="form-error" role="alert" aria-live="polite">
             {fieldErrors[field].map((error, index) => (
               <div key={index}>{error}</div>
             ))}
@@ -191,44 +222,39 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, onSuccess
   }
 
   return (
-    <form onSubmit={handleSubmit} className="user-form">
+    <form onSubmit={handleSubmit} className="user-form" noValidate aria-labelledby="form-title">
       <div className="form-header">
-        <h2>{user ? 'Editar Usuario' : 'Crear Usuario'}</h2>
+        <h2 id="form-title">{user ? 'Editar Usuario' : 'Crear Usuario'}</h2>
       </div>
-      
-      <div className="form-body">
+
+      <fieldset className="form-body" disabled={isLoading}>
+        <legend className="sr-only">Información del usuario</legend>
+
         <div className="form-row">
-          <div className="form-col">
-            {renderField('nombre', 'Nombre')}
-          </div>
-          <div className="form-col">
-            {renderField('apellido', 'Apellido')}
-          </div>
+          <div className="form-col">{renderField('nombre', 'Nombre')}</div>
+          <div className="form-col">{renderField('apellido', 'Apellido')}</div>
         </div>
-        
+
         <div className="form-row">
-          <div className="form-col">
-            {renderField('email', 'Email', 'email')}
-          </div>
-          <div className="form-col">
-            {renderField('telefono', 'Teléfono', 'tel')}
-          </div>
+          <div className="form-col">{renderField('email', 'Email', 'email')}</div>
+          <div className="form-col">{renderField('telefono', 'Teléfono', 'tel')}</div>
         </div>
-        
+
         <div className="form-row">
           <div className="form-col-full">
             {renderField('direccion', 'Dirección', 'text', false)}
           </div>
         </div>
-      </div>
-      
-      <div className="form-actions">
+      </fieldset>
+
+      <div className="form-actions" role="group" aria-label="Acciones del formulario">
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
             className="btn btn--secondary"
             disabled={isLoading}
+            aria-label="Cancelar y cerrar formulario"
           >
             Cancelar
           </button>
@@ -237,10 +263,28 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel, onSuccess
           type="submit"
           className="btn btn--primary"
           disabled={isLoading}
+          aria-label={
+            isLoading ? 'Procesando solicitud' : user ? 'Actualizar usuario' : 'Crear nuevo usuario'
+          }
         >
-          {isLoading ? 'Procesando...' : (user ? 'Actualizar' : 'Crear')}
+          {isLoading ? (
+            <>
+              <span className="sr-only">Procesando solicitud</span>
+              <span aria-hidden="true">Procesando...</span>
+            </>
+          ) : user ? (
+            'Actualizar'
+          ) : (
+            'Crear'
+          )}
         </button>
       </div>
+
+      {isLoading && (
+        <div className="sr-only" aria-live="polite" aria-atomic="true">
+          Procesando formulario, por favor espere
+        </div>
+      )}
     </form>
   )
 }

@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import Modal from '../common/Modal'
 import { useNotification } from '../../hooks/useNotification'
-import { 
-  exportUsers, 
-  exportBudgets, 
-  exportQuotas, 
-  exportInterests, 
-  exportComplete 
+import {
+  exportUsers,
+  exportBudgets,
+  exportQuotas,
+  exportInterests,
+  exportComplete,
+  showSaveDialog
 } from '../../services/ExportService'
 import './ExportDialog.css'
 
@@ -33,12 +34,13 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose }) => {
   })
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState<string>('')
+  const [selectedPath, setSelectedPath] = useState<string>('')
   const { addNotification } = useNotification()
 
   const handleOptionChange = (option: keyof ExportOptions) => {
-    setExportOptions(prev => {
+    setExportOptions((prev) => {
       const newOptions = { ...prev, [option]: !prev[option] }
-      
+
       // If complete is selected, unselect all others
       if (option === 'complete' && newOptions.complete) {
         return {
@@ -49,26 +51,55 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose }) => {
           complete: true
         }
       }
-      
+
       // If any individual option is selected, unselect complete
       if (option !== 'complete' && newOptions[option]) {
         newOptions.complete = false
       }
-      
+
       return newOptions
     })
   }
 
+  const handleSelectLocation = async () => {
+    try {
+      const isCompleteExport = exportOptions.complete
+      const filters = isCompleteExport
+        ? [{ name: 'Archivos ZIP', extensions: ['zip'] }]
+        : [{ name: 'Archivos CSV', extensions: ['csv'] }]
+
+      const result = await showSaveDialog({
+        title: 'Seleccionar ubicación para guardar',
+        defaultPath: isCompleteExport ? 'exportacion_completa.zip' : 'exportacion.csv',
+        filters
+      })
+
+      if (result.success && result.data) {
+        setSelectedPath(result.data)
+      }
+    } catch (error) {
+      console.error('Error selecting save location:', error)
+      addNotification({
+        type: 'error',
+        message: 'Error al seleccionar ubicación de guardado'
+      })
+    }
+  }
+
   const handleExport = async () => {
     const selectedOptions = Object.entries(exportOptions).filter(([_, selected]) => selected)
-    
+
     if (selectedOptions.length === 0) {
       addNotification({
         type: 'warning',
         message: 'Por favor selecciona al menos una opción de exportación'
       })
+
       return
     }
+
+    // Si no se ha seleccionado una ubicación, usar la predeterminada
+    let savePath = selectedPath || undefined
 
     setIsExporting(true)
     setExportProgress('Iniciando exportación...')
@@ -79,7 +110,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose }) => {
       if (exportOptions.complete) {
         setExportProgress('Exportando datos completos...')
         exportPromises.push(
-          exportComplete().then(response => ({
+          exportComplete(savePath).then((response) => ({
             type: 'complete',
             response
           }))
@@ -87,8 +118,9 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose }) => {
       } else {
         if (exportOptions.users) {
           setExportProgress('Exportando usuarios...')
+          const userPath = savePath ? savePath.replace(/\.[^/.]+$/, '_usuarios.csv') : undefined
           exportPromises.push(
-            exportUsers().then(response => ({
+            exportUsers(userPath).then((response) => ({
               type: 'users',
               response
             }))
@@ -97,8 +129,11 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose }) => {
 
         if (exportOptions.budgets) {
           setExportProgress('Exportando presupuestos...')
+          const budgetPath = savePath
+            ? savePath.replace(/\.[^/.]+$/, '_presupuestos.csv')
+            : undefined
           exportPromises.push(
-            exportBudgets().then(response => ({
+            exportBudgets(budgetPath).then((response) => ({
               type: 'budgets',
               response
             }))
@@ -107,8 +142,9 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose }) => {
 
         if (exportOptions.quotas) {
           setExportProgress('Exportando cuotas...')
+          const quotaPath = savePath ? savePath.replace(/\.[^/.]+$/, '_cuotas.csv') : undefined
           exportPromises.push(
-            exportQuotas().then(response => ({
+            exportQuotas(quotaPath).then((response) => ({
               type: 'quotas',
               response
             }))
@@ -117,8 +153,11 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose }) => {
 
         if (exportOptions.interests) {
           setExportProgress('Exportando configuraciones de interés...')
+          const interestPath = savePath
+            ? savePath.replace(/\.[^/.]+$/, '_intereses.csv')
+            : undefined
           exportPromises.push(
-            exportInterests().then(response => ({
+            exportInterests(interestPath).then((response) => ({
               type: 'interests',
               response
             }))
@@ -127,28 +166,28 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose }) => {
       }
 
       const results = await Promise.all(exportPromises)
-      
+
       // Check if all exports were successful
-      const failedExports = results.filter(result => !result.response.success)
-      
+      const failedExports = results.filter((result) => !result.response.success)
+
       if (failedExports.length > 0) {
-        const errorMessages = failedExports.map(failed => 
-          `${failed.type}: ${failed.response.error || 'Error desconocido'}`
-        ).join(', ')
-        
+        const errorMessages = failedExports
+          .map((failed) => `${failed.type}: ${failed.response.error || 'Error desconocido'}`)
+          .join(', ')
+
         addNotification({
           type: 'error',
           message: `Error en exportación: ${errorMessages}`
         })
       } else {
         const successCount = results.length
-        const exportTypes = results.map(result => result.type).join(', ')
-        
+        const exportTypes = results.map((result) => result.type).join(', ')
+
         addNotification({
           type: 'success',
           message: `Exportación exitosa: ${successCount} archivo(s) generado(s) (${exportTypes})`
         })
-        
+
         // Reset form and close dialog
         setExportOptions({
           users: false,
@@ -157,6 +196,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose }) => {
           interests: false,
           complete: false
         })
+        setSelectedPath('')
         onClose()
       }
     } catch (error) {
@@ -181,27 +221,51 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose }) => {
         complete: false
       })
       setExportProgress('')
+      setSelectedPath('')
       onClose()
     }
   }
 
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={handleClose} 
-      title="Exportar Datos"
-      size="medium"
-    >
+    <Modal isOpen={isOpen} onClose={handleClose} title="Exportar Datos" size="medium">
       <div className="export-dialog">
         <div className="export-dialog__content">
           <p className="export-dialog__description">
             Selecciona los datos que deseas exportar. Los archivos se guardarán en formato CSV.
           </p>
 
+          <div className="export-dialog__location">
+            <h3 className="export-dialog__section-title">Ubicación de Guardado</h3>
+            <div className="export-dialog__location-controls">
+              <button
+                type="button"
+                className="export-dialog__location-button"
+                onClick={handleSelectLocation}
+                disabled={isExporting}
+                aria-label="Seleccionar ubicación donde guardar los archivos"
+              >
+                📁 Seleccionar Ubicación
+              </button>
+              {selectedPath && (
+                <div className="export-dialog__selected-path">
+                  <span className="export-dialog__path-label">Guardar en:</span>
+                  <span className="export-dialog__path-value" title={selectedPath}>
+                    {selectedPath}
+                  </span>
+                </div>
+              )}
+              {!selectedPath && (
+                <small className="export-dialog__path-hint">
+                  Si no seleccionas una ubicación, se usará la carpeta predeterminada
+                </small>
+              )}
+            </div>
+          </div>
+
           <div className="export-dialog__options">
             <div className="export-dialog__section">
               <h3 className="export-dialog__section-title">Exportación Individual</h3>
-              
+
               <label className="export-dialog__option">
                 <input
                   type="checkbox"
@@ -261,7 +325,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose }) => {
 
             <div className="export-dialog__section">
               <h3 className="export-dialog__section-title">Exportación Completa</h3>
-              
+
               <label className="export-dialog__option export-dialog__option--complete">
                 <input
                   type="checkbox"

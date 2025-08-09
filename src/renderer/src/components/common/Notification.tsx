@@ -25,9 +25,7 @@ const Notification: React.FC<NotificationProps> = ({ notification, onClose }) =>
 
   return (
     <div className={`notification notification--${notification.type}`}>
-      <div className="notification__icon">
-        {getIcon()}
-      </div>
+      <div className="notification__icon">{getIcon()}</div>
       <div className="notification__content">
         <p className="notification__message">{notification.message}</p>
       </div>

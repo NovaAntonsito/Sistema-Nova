@@ -29,23 +29,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="layout">
-      <Toolbar 
-        onExport={handleOpenExportDialog} 
-        onImport={handleOpenImportDialog}
-      />
-      <main className="layout-content">
-        {children}
-      </main>
-      
+      <Toolbar onExport={handleOpenExportDialog} onImport={handleOpenImportDialog} />
+      <main className="layout-content">{children}</main>
+
       {/* Global Dialogs */}
-      <ExportDialog
-        isOpen={isExportDialogOpen}
-        onClose={handleCloseExportDialog}
-      />
-      <ImportDialog
-        isOpen={isImportDialogOpen}
-        onClose={handleCloseImportDialog}
-      />
+      <ExportDialog isOpen={isExportDialogOpen} onClose={handleCloseExportDialog} />
+      <ImportDialog isOpen={isImportDialogOpen} onClose={handleCloseImportDialog} />
     </div>
   )
 }

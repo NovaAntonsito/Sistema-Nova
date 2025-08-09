@@ -5,9 +5,9 @@ interface LoadingSpinnerProps {
   message?: string
 }
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
-  size = 'medium', 
-  message = 'Cargando...' 
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+  size = 'medium',
+  message = 'Cargando...'
 }) => {
   const sizeMap = {
     small: '20px',
@@ -18,13 +18,15 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   const spinnerSize = sizeMap[size]
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px'
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px'
+      }}
+    >
       <div
         style={{
           width: spinnerSize,
@@ -36,11 +38,13 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
           marginBottom: '12px'
         }}
       />
-      <p style={{
-        color: '#6b7280',
-        fontSize: '14px',
-        margin: 0
-      }}>
+      <p
+        style={{
+          color: '#6b7280',
+          fontSize: '14px',
+          margin: 0
+        }}
+      >
         {message}
       </p>
       <style>

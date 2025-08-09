@@ -17,10 +17,11 @@ const ImportView: React.FC = () => {
       <div style={{ width: '100%', margin: '0' }}>
         <h2 style={{ marginBottom: '16px', color: '#1f2937' }}>Importación de Datos</h2>
         <p style={{ marginBottom: '24px', color: '#6b7280', lineHeight: '1.5' }}>
-          Utiliza esta funcionalidad para importar datos al sistema desde archivos CSV o ZIP. 
-          Puedes importar usuarios, presupuestos, cuotas, configuraciones de interés o todos los datos juntos.
+          Utiliza esta funcionalidad para importar datos al sistema desde archivos CSV o ZIP. Puedes
+          importar usuarios, presupuestos, cuotas, configuraciones de interés o todos los datos
+          juntos.
         </p>
-        
+
         <button
           onClick={handleOpenImportDialog}
           style={{
@@ -44,10 +45,7 @@ const ImportView: React.FC = () => {
           Abrir Importador
         </button>
 
-        <ImportDialog
-          isOpen={isImportDialogOpen}
-          onClose={handleCloseImportDialog}
-        />
+        <ImportDialog isOpen={isImportDialogOpen} onClose={handleCloseImportDialog} />
       </div>
     </div>
   )

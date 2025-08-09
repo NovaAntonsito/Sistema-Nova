@@ -8,17 +8,7 @@ import { BudgetRepository } from '../../repositories/BudgetRepository'
 import { DataValidator } from '../../validators/DataValidator'
 import { CsvParser } from '../../utils/csvParser'
 import { Quota } from '../../entities/Quota'
-import {
-  QuotaImportData,
-  ImportResult,
-  EntityType,
-  ImportError,
-  ImportWarning
-} from '../../types/import.types'
-import {
-  ValidationException,
-  ReferentialIntegrityException
-} from '../../exceptions/importExceptions'
+import { QuotaImportData, ImportResult, EntityType } from '../../types/import.types'
 
 /**
  * Importador específico para cuotas

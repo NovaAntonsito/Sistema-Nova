@@ -28,8 +28,8 @@ const BudgetView: React.FC = () => {
 
   const handleFormSuccess = (_budget: Budget) => {
     // Refresh the list
-    setRefreshTrigger(prev => prev + 1)
-    
+    setRefreshTrigger((prev) => prev + 1)
+
     // Close modals
     setIsCreateModalOpen(false)
     setIsEditModalOpen(false)
@@ -46,10 +46,7 @@ const BudgetView: React.FC = () => {
     <div className="budget-view">
       <div className="budget-view-header">
         <h1>Gestión de Presupuestos</h1>
-        <button
-          onClick={handleCreateBudget}
-          className="btn btn--primary btn--large"
-        >
+        <button onClick={handleCreateBudget} className="btn btn--primary btn--large">
           + Crear Presupuesto
         </button>
       </div>
@@ -69,10 +66,7 @@ const BudgetView: React.FC = () => {
         title="Crear Nuevo Presupuesto"
         size="large"
       >
-        <BudgetForm
-          onSuccess={handleFormSuccess}
-          onCancel={handleFormCancel}
-        />
+        <BudgetForm onSuccess={handleFormSuccess} onCancel={handleFormCancel} />
       </Modal>
 
       {/* Edit Budget Modal */}

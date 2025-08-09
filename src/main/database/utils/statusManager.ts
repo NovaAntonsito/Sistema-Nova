@@ -97,8 +97,10 @@ export class StatusManager {
    */
   static isValidStatusTransition(currentStatus: Status, newStatus: Status): boolean {
     const validTransitions: Record<Status, Status[]> = {
-      [Status.ACTIVE]: [Status.EXPIRED, Status.FINISHED],
+      [Status.ACTIVE]: [Status.INACTIVE, Status.EXPIRED, Status.CANCELLED, Status.FINISHED],
+      [Status.INACTIVE]: [Status.ACTIVE, Status.CANCELLED],
       [Status.EXPIRED]: [], // Los presupuestos vencidos no pueden cambiar de estado
+      [Status.CANCELLED]: [], // Los presupuestos cancelados no pueden cambiar de estado
       [Status.FINISHED]: [] // Los presupuestos terminados no pueden cambiar de estado
     }
 
@@ -163,7 +165,9 @@ export class StatusManager {
 
     const result: Record<Status, number> = {
       [Status.ACTIVE]: 0,
+      [Status.INACTIVE]: 0,
       [Status.EXPIRED]: 0,
+      [Status.CANCELLED]: 0,
       [Status.FINISHED]: 0
     }
 

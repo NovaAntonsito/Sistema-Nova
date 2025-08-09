@@ -61,7 +61,9 @@
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 14px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   box-sizing: border-box;
 }
 
@@ -228,24 +230,24 @@
     padding: 16px;
     margin: 16px;
   }
-  
+
   .form-row {
     flex-direction: column;
     gap: 0;
   }
-  
+
   .form-actions {
     flex-direction: column-reverse;
   }
-  
+
   .btn {
     width: 100%;
   }
-  
+
   .calculated-values {
     padding: 16px;
   }
-  
+
   .calculated-value {
     font-size: 16px;
   }
@@ -256,11 +258,11 @@
     padding: 12px;
     margin: 8px;
   }
-  
+
   .form-header h2 {
     font-size: 20px;
   }
-  
+
   .calculated-values h3 {
     font-size: 16px;
   }

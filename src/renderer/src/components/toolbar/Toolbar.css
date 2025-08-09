@@ -97,16 +97,16 @@
   .toolbar-container {
     padding: 0 16px;
   }
-  
+
   .toolbar-actions {
     gap: 8px;
   }
-  
+
   .toolbar-btn {
     padding: 6px 12px;
     font-size: 13px;
   }
-  
+
   .btn-text {
     font-size: 13px;
   }
@@ -117,24 +117,24 @@
     height: 56px;
     padding: 0 12px;
   }
-  
+
   .toolbar-title {
     font-size: 1.3rem;
   }
-  
+
   .toolbar-actions {
     gap: 6px;
   }
-  
+
   .toolbar-btn {
     padding: 6px 10px;
     font-size: 12px;
   }
-  
+
   .btn-text {
     display: none;
   }
-  
+
   .btn-icon {
     font-size: 18px;
   }
@@ -145,21 +145,21 @@
     height: 52px;
     padding: 0 8px;
   }
-  
+
   .toolbar-title {
     font-size: 1.1rem;
   }
-  
+
   .toolbar-actions {
     gap: 4px;
   }
-  
+
   .toolbar-btn {
     padding: 6px 8px;
     min-width: 40px;
     justify-content: center;
   }
-  
+
   .btn-icon {
     font-size: 16px;
   }
@@ -182,11 +182,11 @@
   .toolbar {
     border-bottom-width: 4px;
   }
-  
+
   .toolbar-btn {
     border: 2px solid transparent;
   }
-  
+
   .toolbar-btn:focus {
     border-color: currentColor;
   }

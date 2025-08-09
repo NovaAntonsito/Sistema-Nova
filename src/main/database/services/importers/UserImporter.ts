@@ -7,17 +7,7 @@ import { UserRepository } from '../../repositories/UserRepository'
 import { DataValidator } from '../../validators/DataValidator'
 import { CsvParser } from '../../utils/csvParser'
 import { User } from '../../entities/User'
-import {
-  UserImportData,
-  ImportResult,
-  EntityType,
-  ImportError,
-  ImportWarning
-} from '../../types/import.types'
-import {
-  ValidationException,
-  ReferentialIntegrityException
-} from '../../exceptions/importExceptions'
+import { UserImportData, ImportResult, EntityType } from '../../types/import.types'
 
 /**
  * Importador específico para usuarios

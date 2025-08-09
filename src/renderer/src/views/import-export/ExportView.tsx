@@ -17,10 +17,11 @@ const ExportView: React.FC = () => {
       <div style={{ width: '100%', margin: '0' }}>
         <h2 style={{ marginBottom: '16px', color: '#1f2937' }}>Exportación de Datos</h2>
         <p style={{ marginBottom: '24px', color: '#6b7280', lineHeight: '1.5' }}>
-          Utiliza esta funcionalidad para exportar los datos del sistema en formato CSV. 
-          Puedes exportar usuarios, presupuestos, cuotas, configuraciones de interés o todos los datos juntos.
+          Utiliza esta funcionalidad para exportar los datos del sistema en formato CSV. Puedes
+          exportar usuarios, presupuestos, cuotas, configuraciones de interés o todos los datos
+          juntos.
         </p>
-        
+
         <button
           onClick={handleOpenExportDialog}
           style={{
@@ -44,10 +45,7 @@ const ExportView: React.FC = () => {
           Abrir Exportador
         </button>
 
-        <ExportDialog
-          isOpen={isExportDialogOpen}
-          onClose={handleCloseExportDialog}
-        />
+        <ExportDialog isOpen={isExportDialogOpen} onClose={handleCloseExportDialog} />
       </div>
     </div>
   )

@@ -12,14 +12,13 @@ export interface ExportResult {
   }
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T
   message?: string
   error?: string
 }
 
-// Export service methods with custom save location
 const exportUsers = async (savePath?: string): Promise<ApiResponse<string>> => {
   return await window.electron.ipcRenderer.invoke('export:users', savePath)
 }
@@ -40,7 +39,6 @@ const exportComplete = async (savePath?: string): Promise<ApiResponse<ExportResu
   return await window.electron.ipcRenderer.invoke('export:complete', savePath)
 }
 
-// Show save dialog for file selection
 const showSaveDialog = async (options: {
   title?: string
   defaultPath?: string
@@ -49,15 +47,18 @@ const showSaveDialog = async (options: {
   return await window.electron.ipcRenderer.invoke('dialog:showSaveDialog', options)
 }
 
-const getExportStats = async (entityType: 'users' | 'budgets' | 'quotas' | 'interests'): Promise<ApiResponse<number>> => {
+const getExportStats = async (
+  entityType: 'users' | 'budgets' | 'quotas' | 'interests'
+): Promise<ApiResponse<number>> => {
   return await window.electron.ipcRenderer.invoke('export:stats', entityType)
 }
 
-export { 
+export {
   exportUsers,
   exportBudgets,
   exportQuotas,
   exportInterests,
   exportComplete,
-  getExportStats
+  getExportStats,
+  showSaveDialog
 }

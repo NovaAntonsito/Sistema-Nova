@@ -12,7 +12,7 @@ const NotificationContainer: React.FC = () => {
 
   return (
     <div className="notification-container">
-      {notifications.map(notification => (
+      {notifications.map((notification) => (
         <Notification
           key={notification.id}
           notification={notification}

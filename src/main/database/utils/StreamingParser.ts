@@ -136,7 +136,7 @@ export class StreamingParser<T> extends EventEmitter {
     // Crear transform stream para procesamiento por chunks
     const chunkProcessor = new Transform({
       objectMode: true,
-      transform: async (record: string[], encoding, callback) => {
+      transform: async (record: string[], _encoding, callback) => {
         try {
           lineNumber++
 

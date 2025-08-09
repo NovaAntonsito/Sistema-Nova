@@ -5,13 +5,10 @@
 
 import {
   ValidationResult,
-  ValidationError,
-  ValidationWarning,
   UserImportData,
   BudgetImportData,
   QuotaImportData,
-  InterestImportData,
-  EntityType
+  InterestImportData
 } from '../types/import.types'
 
 /**
@@ -760,7 +757,7 @@ export class DataValidator {
     result: ValidationResult,
     line: number,
     field: string,
-    value: any,
+    value: unknown,
     message: string,
     code: string
   ): void {

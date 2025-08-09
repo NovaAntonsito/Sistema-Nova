@@ -25,7 +25,7 @@ export const useNotification = (): NotificationContextType => {
       duration: notification.duration || 5000
     }
 
-    setNotifications(prev => [...prev, newNotification])
+    setNotifications((prev) => [...prev, newNotification])
 
     // Auto-remove notification after duration
     if (newNotification.duration && newNotification.duration > 0) {
@@ -36,7 +36,7 @@ export const useNotification = (): NotificationContextType => {
   }, [])
 
   const removeNotification = useCallback((id: string) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id))
+    setNotifications((prev) => prev.filter((notification) => notification.id !== id))
   }, [])
 
   const clearNotifications = useCallback(() => {

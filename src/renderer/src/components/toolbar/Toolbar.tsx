@@ -9,12 +9,7 @@ interface ToolbarProps {
   onImport?: () => void
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({
-  onCreateUser,
-  onCreateBudget,
-  onExport,
-  onImport
-}) => {
+const Toolbar: React.FC<ToolbarProps> = ({ onCreateUser, onCreateBudget, onExport, onImport }) => {
   const navigate = useNavigate()
 
   const handleCreateUser = () => {
@@ -57,9 +52,9 @@ const Toolbar: React.FC<ToolbarProps> = ({
             Sistema Nova
           </h1>
         </div>
-        
+
         <div className="toolbar-actions">
-          <button 
+          <button
             className="toolbar-btn toolbar-btn-primary"
             onClick={handleCreateUser}
             title="Crear nuevo usuario"
@@ -67,8 +62,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
             <span className="btn-icon">👤</span>
             <span className="btn-text">Creación de usuarios</span>
           </button>
-          
-          <button 
+
+          <button
             className="toolbar-btn toolbar-btn-primary"
             onClick={handleCreateBudget}
             title="Crear nuevo presupuesto"
@@ -76,8 +71,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
             <span className="btn-icon">💰</span>
             <span className="btn-text">Creación de Presupuestos</span>
           </button>
-          
-          <button 
+
+          <button
             className="toolbar-btn toolbar-btn-secondary"
             onClick={handleExport}
             title="Exportar datos"
@@ -85,8 +80,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
             <span className="btn-icon">📤</span>
             <span className="btn-text">Exportación</span>
           </button>
-          
-          <button 
+
+          <button
             className="toolbar-btn toolbar-btn-secondary"
             onClick={handleImport}
             title="Importar datos"

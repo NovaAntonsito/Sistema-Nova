@@ -76,7 +76,10 @@ const importComplete = async (zipFilePath: string): Promise<ApiResponse<Complete
   return await window.electron.ipcRenderer.invoke('import:complete', zipFilePath)
 }
 
-const validateCSVFile = async (filePath: string, entityType: EntityType): Promise<ApiResponse<ValidationResult>> => {
+const validateCSVFile = async (
+  filePath: string,
+  entityType: EntityType
+): Promise<ApiResponse<ValidationResult>> => {
   return await window.electron.ipcRenderer.invoke('import:validate-csv', filePath, entityType)
 }
 
@@ -92,7 +95,7 @@ const rollbackToBackup = async (backupId: string): Promise<ApiResponse<void>> =>
   return await window.electron.ipcRenderer.invoke('import:rollback', backupId)
 }
 
-export { 
+export {
   importUsers,
   importBudgets,
   importQuotas,

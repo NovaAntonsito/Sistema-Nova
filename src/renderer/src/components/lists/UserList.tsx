@@ -58,7 +58,7 @@ const UserList: React.FC<UserListProps> = ({ onUserEdit, onUserSelect, refreshTr
           message: 'Usuario eliminado exitosamente'
         })
         // Remove user from local state
-        setUsers(prev => prev.filter(u => u.id !== user.id))
+        setUsers((prev) => prev.filter((u) => u.id !== user.id))
       } else {
         addNotification({
           type: 'error',
@@ -90,10 +90,11 @@ const UserList: React.FC<UserListProps> = ({ onUserEdit, onUserSelect, refreshTr
     // Apply search filter
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase()
-      filtered = users.filter(user =>
-        user.nombre.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term) ||
-        user.phoneNumber.toLowerCase().includes(term)
+      filtered = users.filter(
+        (user) =>
+          user.nombre.toLowerCase().includes(term) ||
+          user.email.toLowerCase().includes(term) ||
+          user.phoneNumber.toLowerCase().includes(term)
       )
     }
 
@@ -189,35 +190,23 @@ const UserList: React.FC<UserListProps> = ({ onUserEdit, onUserSelect, refreshTr
           <table className="user-table">
             <thead>
               <tr>
-                <th
-                  className="sortable"
-                  onClick={() => handleSort('nombre')}
-                >
+                <th className="sortable" onClick={() => handleSort('nombre')}>
                   Nombre {getSortIcon('nombre')}
                 </th>
-                <th
-                  className="sortable"
-                  onClick={() => handleSort('email')}
-                >
+                <th className="sortable" onClick={() => handleSort('email')}>
                   Email {getSortIcon('email')}
                 </th>
-                <th
-                  className="sortable"
-                  onClick={() => handleSort('phoneNumber')}
-                >
+                <th className="sortable" onClick={() => handleSort('phoneNumber')}>
                   Teléfono {getSortIcon('phoneNumber')}
                 </th>
-                <th
-                  className="sortable"
-                  onClick={() => handleSort('createdAt')}
-                >
+                <th className="sortable" onClick={() => handleSort('createdAt')}>
                   Fecha Creación {getSortIcon('createdAt')}
                 </th>
                 <th className="actions-column">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {filteredAndSortedUsers.map(user => (
+              {filteredAndSortedUsers.map((user) => (
                 <tr
                   key={user.id}
                   className="user-row"

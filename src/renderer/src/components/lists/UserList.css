@@ -37,7 +37,9 @@
   border-radius: 6px;
   font-size: 14px;
   width: 300px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .search-input:focus {
@@ -66,8 +68,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .empty-state {
@@ -217,30 +223,30 @@
     padding: 16px;
     margin: 16px;
   }
-  
+
   .user-list-header {
     flex-direction: column;
     gap: 16px;
     align-items: stretch;
   }
-  
+
   .user-list-controls {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .search-input {
     width: 100%;
   }
-  
+
   .table-container {
     overflow-x: scroll;
   }
-  
+
   .user-table {
     min-width: 600px;
   }
-  
+
   .user-table th,
   .user-table td {
     padding: 8px;
@@ -252,7 +258,7 @@
     flex-direction: column;
     gap: 4px;
   }
-  
+
   .actions-column {
     width: 80px;
   }
