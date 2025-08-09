@@ -1,1 +1,0 @@
-export { default as AppRoutes, routeConfigs } from './routes'

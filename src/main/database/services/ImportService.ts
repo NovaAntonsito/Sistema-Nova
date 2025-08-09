@@ -911,7 +911,7 @@ export class ImportService {
    */
   private async importUsingBatches(
     filePath: string,
-    entityType: EntityType,
+    entityType: EntityType
   ): Promise<ImportResult> {
     // Parsear archivo completo
     const parseResult = await this.csvParser.parseCSV(filePath, entityType)
@@ -974,7 +974,7 @@ export class ImportService {
    */
   private async processChunkWithImporter(
     chunk: any[],
-    entityType: EntityType,
+    entityType: EntityType
   ): Promise<ImportResult> {
     // Por ahora, usar los importadores existentes
     // TODO: Optimizar importadores para trabajar con chunks

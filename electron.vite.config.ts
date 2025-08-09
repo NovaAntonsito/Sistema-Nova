@@ -1,7 +1,6 @@
-import { defineConfig } from 'vite'
+import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import { resolve } from 'path'
 import react from '@vitejs/plugin-react'
-import { externalizeDepsPlugin } from 'electron-vite'
 
 export default defineConfig({
   /* ----------  MAIN PROCESS  ---------- */
