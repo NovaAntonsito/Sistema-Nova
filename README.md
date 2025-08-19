@@ -25,3 +25,21 @@ $ %appdata%/roaming/sistema-nova/SQLiteDB
 Tenes que ejecutar todo lo que esta en el js que se llama simple-test.js.
 Ejecutas el npm run dev, abris las devtools y en la consola pegas todo el js del simple-test.
 Despues ejecutas cada funcion una a una.
+
+### Build
+
+Para hacer la build del proyecto se tiene que hacer
+
+```bash
+$ npm run build
+```
+
+```bash
+$ npm run build:win
+```
+
+La build despues queda guardada en
+
+```bash
+$ ../dist
+```
