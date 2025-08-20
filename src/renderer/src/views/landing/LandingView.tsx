@@ -62,9 +62,9 @@ const LandingView = () => {
         <Typography>Panel Principal - Bienvenido/a</Typography>
       </div>
       <Box className="actions-container">
-        {actionsList.map((action) => {
-          return <ActionCard action={action} />
-        })}
+        {actionsList.map((action, idx) => (
+          <ActionCard key={action.label + idx} action={action} />
+        ))}
       </Box>
     </div>
   )

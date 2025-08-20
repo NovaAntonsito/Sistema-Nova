@@ -2,30 +2,48 @@ import { useEffect, useState } from 'react'
 import './UsersView.css'
 import { UserResponseDto } from '../../../../main/database/dto/user.dto'
 import { GetUsers } from '@renderer/service/user/UserService'
+
 const UsersView = () => {
   const [users, setUsers] = useState<UserResponseDto[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const getData = async () => {
+  const getData = async (): Promise<void> => {
     try {
-      let res = await GetUsers()
-      console.log(res)
-
       setLoading(true)
+      setError(null)
+
+      const res = await GetUsers()
+
+      // Si res es una promesa, resolverla
+      let finalResult = res
+      if (res instanceof Promise) {
+        finalResult = await res
+      }
+
+      // Extraer los usuarios del resultado
+      let usersArray: UserResponseDto[] = []
+
+      if (Array.isArray(finalResult)) {
+        usersArray = finalResult
+      } else if (finalResult && typeof finalResult === 'object') {
+        usersArray = finalResult.users || finalResult.data || finalResult.result || []
+      }
+
+      setUsers(usersArray)
     } catch (error) {
       console.error('Error al cargar usuarios:', error)
+      setError('Error al cargar los usuarios')
     } finally {
       setLoading(false)
     }
   }
 
   const handleEdit = (userId: string) => {
-    // TODO: Implementar lógica de edición
     console.log('Editar usuario:', userId)
   }
 
   const handleDelete = (userId: string) => {
-    // TODO: Implementar lógica de eliminación
     console.log('Eliminar usuario:', userId)
   }
 
@@ -37,6 +55,17 @@ const UsersView = () => {
     return (
       <div className="users-view">
         <p className="loading-message">Cargando usuarios...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="users-view">
+        <p className="error-message">{error}</p>
+        <button onClick={getData} className="retry-button">
+          Reintentar
+        </button>
       </div>
     )
   }
