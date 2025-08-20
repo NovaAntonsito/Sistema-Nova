@@ -1,7 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import './LandingView.css'
-import { Box, createStyles, IconButton, Typography } from '@mui/material'
-import { Description, Inventory, People, Person } from '@mui/icons-material'
+import { Box, Card, createStyles, IconButton, Typography } from '@mui/material'
+import {
+  AddCard,
+  CalculateSharp,
+  CardGiftcard,
+  CardMembership,
+  CastSharp,
+  Description,
+  Inventory,
+  People,
+  Person
+} from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 
 const LandingView = () => {
@@ -31,6 +41,16 @@ const LandingView = () => {
       label: 'Ver Presupuestos',
       icon: <Inventory sx={iconStyle} />,
       desc: 'Consultar y gestionar presupuestos/prestamos existentes'
+    },
+    {
+      label: 'Configurar intereses',
+      icon: <CalculateSharp sx={iconStyle} />,
+      desc: 'Configurar los intereses'
+    },
+    {
+      label: 'Ver coutas',
+      icon: <AddCard sx={iconStyle} />,
+      desc: 'Ver coutas'
     }
   ]
   return (
@@ -55,9 +75,11 @@ export default LandingView
 const ActionCard = ({ action }) => {
   const navigate = useNavigate()
   return (
-    <div onClick={() => {
-      navigate(action.route)
-    }}>
+    <div
+      onClick={() => {
+        navigate(action.route)
+      }}
+    >
       <Box className="card">
         <IconButton sx={{ width: '5rem', height: '5rem', display: 'flex' }}>
           {action.icon}

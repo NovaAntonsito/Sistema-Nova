@@ -1,7 +1,6 @@
-
 import { useEffect, useState } from 'react'
 import './UsersView.css'
-import {UserResponseDto} from "../../../../main/database/dto/user.dto"
+import { UserResponseDto } from '../../../../main/database/dto/user.dto'
 import { GetUsers } from '@renderer/service/user/UserService'
 const UsersView = () => {
   const [users, setUsers] = useState<UserResponseDto[]>([])
@@ -9,9 +8,9 @@ const UsersView = () => {
 
   const getData = async () => {
     try {
-      let res = await GetUsers();
-      console.log(res);
-      
+      let res = await GetUsers()
+      console.log(res)
+
       setLoading(true)
     } catch (error) {
       console.error('Error al cargar usuarios:', error)
@@ -45,7 +44,7 @@ const UsersView = () => {
   return (
     <div className="users-view">
       <h2>Gestión de Usuarios</h2>
-      
+
       {users.length === 0 ? (
         <p className="no-users-message">No hay usuarios registrados</p>
       ) : (
